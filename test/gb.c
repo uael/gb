@@ -1,4 +1,3 @@
-#define GB_IMPLEMENTATION
 #include "gb.h"
 
 int main(void) {
