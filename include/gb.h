@@ -1986,7 +1986,7 @@ typedef enum gbFileStandardType {
 	gbFileStandard_Count,
 } gbFileStandardType;
 
-GB_DEF gbFile *const gb_file_get_standard(gbFileStandardType std);
+GB_DEF gbFile     *gb_file_get_standard(gbFileStandardType std);
 
 GB_DEF gbFileError gb_file_create        (gbFile *file, char const *filename);
 GB_DEF gbFileError gb_file_open          (gbFile *file, char const *filename);
