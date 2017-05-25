@@ -26,6 +26,7 @@
  */
 
 #include "gb/affinity.h"
+#include "gb/alloc.h"
 
 #if defined(GB_SYSTEM_WINDOWS)
 void gb_affinity_init(gbAffinity *a) {
