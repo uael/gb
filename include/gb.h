@@ -4993,6 +4993,7 @@ isize gb_affinity_thread_count_for_core(gbAffinity *a, isize core) {
 void gb_affinity_init(gbAffinity *a) {
 	b32   accurate = true;
 	isize threads = 0;
+  FILE *fp;
 
 	a->thread_count     = 1;
 	a->core_count       = sysconf(_SC_NPROCESSORS_ONLN);
@@ -5007,13 +5008,13 @@ void gb_affinity_init(gbAffinity *a) {
 	// Parsing /proc/cpuinfo to get the number of threads per core.
 	// NOTE(zangent): This calls the CPU's threads "cores", although the wording
 	// is kind of weird. This should be right, though.
-	if (fopen("/proc/cpuinfo", "r") != NULL) {
+	if ((fp = fopen("/proc/cpuinfo", "r")) != NULL) {
 		for (;;) {
 			// The 'temporary char'. Everything goes into this char,
 			// so that we can check against EOF at the end of this loop.
 			char c;
 
-#define AF__CHECK(letter) ((c = getc(cpu_info)) == letter)
+#define AF__CHECK(letter) ((c = getc(fp)) == letter)
 			if (AF__CHECK('c') && AF__CHECK('p') && AF__CHECK('u') && AF__CHECK(' ') &&
 			    AF__CHECK('c') && AF__CHECK('o') && AF__CHECK('r') && AF__CHECK('e') && AF__CHECK('s')) {
 				// We're on a CPU info line.
@@ -5038,6 +5039,7 @@ void gb_affinity_init(gbAffinity *a) {
 			}
 #undef AF__CHECK
 		}
+    fclose(fp);
 	}
 
 	if (threads == 0) {
