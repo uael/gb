@@ -1080,7 +1080,7 @@ gb_inline void *gb_memcopy(void *dest, void const *source, isize n) {
   // TODO(bill): Is this good enough?
 	__movsb(cast(u8 *)dest, cast(u8 *)source, n);
 #elif defined(GB_CPU_X86)
-  __asm__ __volatile__("rep movsb" : "+D"(cast(u8 *)dest), "+S"(cast(u8 *)source), "+c"(n) : : "memory");
+  __asm__ __volatile__("rep movsb" : "+D"(dest), "+S"(source), "+c"(n) : : "memory");
 #else
   u8 *d = cast(u8 *)dest;
   u8 const *s = cast(u8 const *)source;
