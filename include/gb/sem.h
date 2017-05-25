@@ -25,34 +25,32 @@
  * For more information, please refer to <http://unlicense.org>
  */
 
-#ifndef  GB_H__
-# define GB_H__
+#ifndef  GB_SEM_H__
+# define GB_SEM_H__
 
-#include "gb/arch.h"
-#include "gb/compiler.h"
-#include "gb/types.h"
-#include "gb/platform.h"
-#include "gb/macros.h"
-#include "gb/assert.h"
-#include "gb/memory.h"
 #include "gb/atomic.h"
-#include "gb/sem.h"
-#include "gb/mutex.h"
-#include "gb/thread.h"
-#include "gb/affinity.h"
-#include "gb/alloc.h"
-#include "gb/sort.h"
-#include "gb/ctype.h"
-#include "gb/utf8.h"
-#include "gb/string.h"
-#include "gb/buffer.h"
-#include "gb/array.h"
-#include "gb/hash.h"
-#include "gb/htable.h"
-#include "gb/fs.h"
-#include "gb/io.h"
-#include "gb/dll.h"
-#include "gb/time.h"
-#include "gb/random.h"
 
-#endif /* GB_H__ */
+// Fences
+GB_DEF void gb_yield_thread(void);
+GB_DEF void gb_mfence      (void);
+GB_DEF void gb_sfence      (void);
+GB_DEF void gb_lfence      (void);
+
+
+#if defined(GB_SYSTEM_WINDOWS)
+typedef struct gbSemaphore { void *win32_handle; }     gbSemaphore;
+#elif defined(GB_SYSTEM_OSX)
+typedef struct gbSemaphore { semaphore_t osx_handle; } gbSemaphore;
+#elif defined(GB_SYSTEM_UNIX)
+typedef struct gbSemaphore { sem_t unix_handle; }      gbSemaphore;
+#else
+#error
+#endif
+
+GB_DEF void gb_semaphore_init   (gbSemaphore *s);
+GB_DEF void gb_semaphore_destroy(gbSemaphore *s);
+GB_DEF void gb_semaphore_post   (gbSemaphore *s, i32 count);
+GB_DEF void gb_semaphore_release(gbSemaphore *s); // NOTE(bill): gb_semaphore_post(s, 1)
+GB_DEF void gb_semaphore_wait   (gbSemaphore *s);
+
+#endif /* GB_SEM_H__ */

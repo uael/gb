@@ -25,34 +25,45 @@
  * For more information, please refer to <http://unlicense.org>
  */
 
-#ifndef  GB_H__
-# define GB_H__
+#ifndef  GB_ASSERT_H__
+# define GB_ASSERT_H__
 
-#include "gb/arch.h"
-#include "gb/compiler.h"
-#include "gb/types.h"
-#include "gb/platform.h"
 #include "gb/macros.h"
-#include "gb/assert.h"
-#include "gb/memory.h"
-#include "gb/atomic.h"
-#include "gb/sem.h"
-#include "gb/mutex.h"
-#include "gb/thread.h"
-#include "gb/affinity.h"
-#include "gb/alloc.h"
-#include "gb/sort.h"
-#include "gb/ctype.h"
-#include "gb/utf8.h"
-#include "gb/string.h"
-#include "gb/buffer.h"
-#include "gb/array.h"
-#include "gb/hash.h"
-#include "gb/htable.h"
-#include "gb/fs.h"
-#include "gb/io.h"
-#include "gb/dll.h"
-#include "gb/time.h"
-#include "gb/random.h"
 
-#endif /* GB_H__ */
+#ifndef GB_DEBUG_TRAP
+#if defined(_MSC_VER)
+#if _MSC_VER < 1300
+		#define GB_DEBUG_TRAP() __asm int 3 /* Trap to debugger! */
+		#else
+		#define GB_DEBUG_TRAP() __debugbreak()
+		#endif
+#else
+#define GB_DEBUG_TRAP() __builtin_trap()
+#endif
+#endif
+
+#ifndef GB_ASSERT_MSG
+#define GB_ASSERT_MSG(cond, msg, ...) do { \
+	if (!(cond)) { \
+		gb_assert_handler(#cond, __FILE__, cast(i64)__LINE__, msg, ##__VA_ARGS__); \
+		GB_DEBUG_TRAP(); \
+	} \
+} while (0)
+#endif
+
+#ifndef GB_ASSERT
+#define GB_ASSERT(cond) GB_ASSERT_MSG(cond, NULL)
+#endif
+
+#ifndef GB_ASSERT_NOT_NULL
+#define GB_ASSERT_NOT_NULL(ptr) GB_ASSERT_MSG((ptr) != NULL, #ptr " must not be NULL")
+#endif
+
+// NOTE(bill): Things that shouldn't happen with a message!
+#ifndef GB_PANIC
+#define GB_PANIC(msg, ...) GB_ASSERT_MSG(0, msg, ##__VA_ARGS__)
+#endif
+
+GB_DEF void gb_assert_handler(char const *condition, char const *file, i32 line, char const *msg, ...);
+
+#endif /* GB_ASSERT_H__ */

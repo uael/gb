@@ -25,34 +25,24 @@
  * For more information, please refer to <http://unlicense.org>
  */
 
-#ifndef  GB_H__
-# define GB_H__
+#ifndef  GB_RANDOM_H__
+# define GB_RANDOM_H__
 
-#include "gb/arch.h"
-#include "gb/compiler.h"
-#include "gb/types.h"
-#include "gb/platform.h"
-#include "gb/macros.h"
-#include "gb/assert.h"
-#include "gb/memory.h"
-#include "gb/atomic.h"
-#include "gb/sem.h"
-#include "gb/mutex.h"
-#include "gb/thread.h"
-#include "gb/affinity.h"
-#include "gb/alloc.h"
-#include "gb/sort.h"
-#include "gb/ctype.h"
-#include "gb/utf8.h"
-#include "gb/string.h"
-#include "gb/buffer.h"
-#include "gb/array.h"
-#include "gb/hash.h"
-#include "gb/htable.h"
-#include "gb/fs.h"
-#include "gb/io.h"
-#include "gb/dll.h"
 #include "gb/time.h"
-#include "gb/random.h"
 
-#endif /* GB_H__ */
+typedef struct gbRandom {
+  u32 offsets[8];
+  u32 value;
+} gbRandom;
+
+// NOTE(bill): Generates from numerous sources to produce a decent pseudo-random seed
+GB_DEF void  gb_random_init          (gbRandom *r);
+GB_DEF u32   gb_random_gen_u32       (gbRandom *r);
+GB_DEF u32   gb_random_gen_u32_unique(gbRandom *r);
+GB_DEF u64   gb_random_gen_u64       (gbRandom *r); // NOTE(bill): (gb_random_gen_u32() << 32) | gb_random_gen_u32()
+GB_DEF isize gb_random_gen_isize     (gbRandom *r);
+GB_DEF i64   gb_random_range_i64     (gbRandom *r, i64 lower_inc, i64 higher_inc);
+GB_DEF isize gb_random_range_isize   (gbRandom *r, isize lower_inc, isize higher_inc);
+GB_DEF f64   gb_random_range_f64     (gbRandom *r, f64 lower_inc, f64 higher_inc);
+
+#endif /* GB_RANDOM_H__ */

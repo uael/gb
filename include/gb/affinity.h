@@ -25,34 +25,44 @@
  * For more information, please refer to <http://unlicense.org>
  */
 
-#ifndef  GB_H__
-# define GB_H__
+#ifndef  GB_AFFINITY_H__
+# define GB_AFFINITY_H__
 
-#include "gb/arch.h"
-#include "gb/compiler.h"
-#include "gb/types.h"
-#include "gb/platform.h"
-#include "gb/macros.h"
-#include "gb/assert.h"
-#include "gb/memory.h"
-#include "gb/atomic.h"
-#include "gb/sem.h"
-#include "gb/mutex.h"
 #include "gb/thread.h"
-#include "gb/affinity.h"
-#include "gb/alloc.h"
-#include "gb/sort.h"
-#include "gb/ctype.h"
-#include "gb/utf8.h"
-#include "gb/string.h"
-#include "gb/buffer.h"
-#include "gb/array.h"
-#include "gb/hash.h"
-#include "gb/htable.h"
-#include "gb/fs.h"
-#include "gb/io.h"
-#include "gb/dll.h"
-#include "gb/time.h"
-#include "gb/random.h"
 
-#endif /* GB_H__ */
+#if defined(GB_SYSTEM_WINDOWS)
+
+typedef struct gbAffinity {
+	b32   is_accurate;
+	isize core_count;
+	isize thread_count;
+	#define GB_WIN32_MAX_THREADS (8 * gb_size_of(usize))
+	usize core_masks[GB_WIN32_MAX_THREADS];
+
+} gbAffinity;
+
+#elif defined(GB_SYSTEM_OSX)
+typedef struct gbAffinity {
+	b32   is_accurate;
+	isize core_count;
+	isize thread_count;
+	isize threads_per_core;
+} gbAffinity;
+
+#elif defined(GB_SYSTEM_LINUX)
+typedef struct gbAffinity {
+  b32   is_accurate;
+  isize core_count;
+  isize thread_count;
+  isize threads_per_core;
+} gbAffinity;
+#else
+#error TODO(bill): Unknown system
+#endif
+
+GB_DEF void  gb_affinity_init   (gbAffinity *a);
+GB_DEF void  gb_affinity_destroy(gbAffinity *a);
+GB_DEF b32   gb_affinity_set    (gbAffinity *a, isize core, isize thread);
+GB_DEF isize gb_affinity_thread_count_for_core(gbAffinity *a, isize core);
+
+#endif /* GB_AFFINITY_H__ */

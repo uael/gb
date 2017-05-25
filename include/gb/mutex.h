@@ -25,34 +25,35 @@
  * For more information, please refer to <http://unlicense.org>
  */
 
-#ifndef  GB_H__
-# define GB_H__
+#ifndef  GB_MUTEX_H__
+# define GB_MUTEX_H__
 
-#include "gb/arch.h"
-#include "gb/compiler.h"
-#include "gb/types.h"
-#include "gb/platform.h"
-#include "gb/macros.h"
-#include "gb/assert.h"
-#include "gb/memory.h"
-#include "gb/atomic.h"
 #include "gb/sem.h"
-#include "gb/mutex.h"
-#include "gb/thread.h"
-#include "gb/affinity.h"
-#include "gb/alloc.h"
-#include "gb/sort.h"
-#include "gb/ctype.h"
-#include "gb/utf8.h"
-#include "gb/string.h"
-#include "gb/buffer.h"
-#include "gb/array.h"
-#include "gb/hash.h"
-#include "gb/htable.h"
-#include "gb/fs.h"
-#include "gb/io.h"
-#include "gb/dll.h"
-#include "gb/time.h"
-#include "gb/random.h"
 
-#endif /* GB_H__ */
+typedef struct gbMutex {
+  gbSemaphore semaphore;
+  gbAtomic32  counter;
+  gbAtomic32  owner;
+  i32         recursion;
+} gbMutex;
+
+GB_DEF void gb_mutex_init    (gbMutex *m);
+GB_DEF void gb_mutex_destroy (gbMutex *m);
+GB_DEF void gb_mutex_lock    (gbMutex *m);
+GB_DEF b32  gb_mutex_try_lock(gbMutex *m);
+GB_DEF void gb_mutex_unlock  (gbMutex *m);
+
+// NOTE(bill): If you wanted a Scoped Mutex in C++, why not use the defer() construct?
+// No need for a silly wrapper class and it's clear!
+#if 0
+gbMutex m = {0};
+gb_mutex_init(&m);
+{
+	gb_mutex_lock(&m);
+	defer (gb_mutex_unlock(&m));
+
+	// Do whatever as the mutex is now scoped based!
+}
+#endif
+
+#endif /* GB_MUTEX_H__ */

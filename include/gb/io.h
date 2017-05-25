@@ -25,34 +25,21 @@
  * For more information, please refer to <http://unlicense.org>
  */
 
-#ifndef  GB_H__
-# define GB_H__
+#ifndef  GB_IO_H__
+# define GB_IO_H__
 
-#include "gb/arch.h"
-#include "gb/compiler.h"
-#include "gb/types.h"
-#include "gb/platform.h"
-#include "gb/macros.h"
-#include "gb/assert.h"
-#include "gb/memory.h"
-#include "gb/atomic.h"
-#include "gb/sem.h"
-#include "gb/mutex.h"
-#include "gb/thread.h"
-#include "gb/affinity.h"
-#include "gb/alloc.h"
-#include "gb/sort.h"
-#include "gb/ctype.h"
-#include "gb/utf8.h"
-#include "gb/string.h"
-#include "gb/buffer.h"
-#include "gb/array.h"
-#include "gb/hash.h"
-#include "gb/htable.h"
 #include "gb/fs.h"
-#include "gb/io.h"
-#include "gb/dll.h"
-#include "gb/time.h"
-#include "gb/random.h"
 
-#endif /* GB_H__ */
+GB_DEF isize gb_printf        (char const *fmt, ...) GB_PRINTF_ARGS(1);
+GB_DEF isize gb_printf_va     (char const *fmt, va_list va);
+GB_DEF isize gb_printf_err    (char const *fmt, ...) GB_PRINTF_ARGS(1);
+GB_DEF isize gb_printf_err_va (char const *fmt, va_list va);
+GB_DEF isize gb_fprintf       (gbFile *f, char const *fmt, ...) GB_PRINTF_ARGS(2);
+GB_DEF isize gb_fprintf_va    (gbFile *f, char const *fmt, va_list va);
+
+GB_DEF char *gb_bprintf    (char const *fmt, ...) GB_PRINTF_ARGS(1); // NOTE(bill): A locally persisting buffer is used internally
+GB_DEF char *gb_bprintf_va (char const *fmt, va_list va);            // NOTE(bill): A locally persisting buffer is used internally
+GB_DEF isize gb_snprintf   (char *str, isize n, char const *fmt, ...) GB_PRINTF_ARGS(3);
+GB_DEF isize gb_snprintf_va(char *str, isize n, char const *fmt, va_list va);
+
+#endif /* GB_IO_H__ */

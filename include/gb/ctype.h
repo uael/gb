@@ -25,34 +25,19 @@
  * For more information, please refer to <http://unlicense.org>
  */
 
-#ifndef  GB_H__
-# define GB_H__
+#ifndef  GB_CTYPE_H__
+# define GB_CTYPE_H__
 
-#include "gb/arch.h"
-#include "gb/compiler.h"
-#include "gb/types.h"
-#include "gb/platform.h"
-#include "gb/macros.h"
-#include "gb/assert.h"
-#include "gb/memory.h"
-#include "gb/atomic.h"
-#include "gb/sem.h"
-#include "gb/mutex.h"
-#include "gb/thread.h"
-#include "gb/affinity.h"
-#include "gb/alloc.h"
 #include "gb/sort.h"
-#include "gb/ctype.h"
-#include "gb/utf8.h"
-#include "gb/string.h"
-#include "gb/buffer.h"
-#include "gb/array.h"
-#include "gb/hash.h"
-#include "gb/htable.h"
-#include "gb/fs.h"
-#include "gb/io.h"
-#include "gb/dll.h"
-#include "gb/time.h"
-#include "gb/random.h"
 
-#endif /* GB_H__ */
+GB_DEF char gb_char_to_lower       (char c);
+GB_DEF char gb_char_to_upper       (char c);
+GB_DEF b32  gb_char_is_space       (char c);
+GB_DEF b32  gb_char_is_digit       (char c);
+GB_DEF b32  gb_char_is_hex_digit   (char c);
+GB_DEF b32  gb_char_is_alpha       (char c);
+GB_DEF b32  gb_char_is_alphanumeric(char c);
+GB_DEF i32  gb_digit_to_int        (char c);
+GB_DEF i32  gb_hex_digit_to_int    (char c);
+
+#endif /* GB_CTYPE_H__ */

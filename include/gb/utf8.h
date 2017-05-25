@@ -25,34 +25,24 @@
  * For more information, please refer to <http://unlicense.org>
  */
 
-#ifndef  GB_H__
-# define GB_H__
+#ifndef  GB_UTF8_H__
+# define GB_UTF8_H__
 
-#include "gb/arch.h"
-#include "gb/compiler.h"
-#include "gb/types.h"
-#include "gb/platform.h"
-#include "gb/macros.h"
-#include "gb/assert.h"
-#include "gb/memory.h"
-#include "gb/atomic.h"
-#include "gb/sem.h"
-#include "gb/mutex.h"
-#include "gb/thread.h"
-#include "gb/affinity.h"
-#include "gb/alloc.h"
-#include "gb/sort.h"
 #include "gb/ctype.h"
-#include "gb/utf8.h"
-#include "gb/string.h"
-#include "gb/buffer.h"
-#include "gb/array.h"
-#include "gb/hash.h"
-#include "gb/htable.h"
-#include "gb/fs.h"
-#include "gb/io.h"
-#include "gb/dll.h"
-#include "gb/time.h"
-#include "gb/random.h"
 
-#endif /* GB_H__ */
+// NOTE(bill): Does not check if utf-8 string is valid
+GB_DEF isize gb_utf8_strlen (u8 const *str);
+GB_DEF isize gb_utf8_strnlen(u8 const *str, isize max_len);
+
+// NOTE(bill): Windows doesn't handle 8 bit filenames well ('cause Micro$hit)
+GB_DEF u16 *gb_utf8_to_ucs2    (u16 *buffer, isize len, u8 const *str);
+GB_DEF u8 * gb_ucs2_to_utf8    (u8 *buffer, isize len, u16 const *str);
+GB_DEF u16 *gb_utf8_to_ucs2_buf(u8 const *str);   // NOTE(bill): Uses locally persisting buffer
+GB_DEF u8 * gb_ucs2_to_utf8_buf(u16 const *str); // NOTE(bill): Uses locally persisting buffer
+
+// NOTE(bill): Returns size of codepoint in bytes
+GB_DEF isize gb_utf8_decode        (u8 const *str, isize str_len, Rune *codepoint);
+GB_DEF isize gb_utf8_codepoint_size(u8 const *str, isize str_len);
+GB_DEF isize gb_utf8_encode_rune   (u8 buf[4], Rune r);
+
+#endif /* GB_UTF8_H__ */

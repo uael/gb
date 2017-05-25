@@ -25,34 +25,27 @@
  * For more information, please refer to <http://unlicense.org>
  */
 
-#ifndef  GB_H__
-# define GB_H__
+#ifndef  GB_HASH_H__
+# define GB_HASH_H__
 
-#include "gb/arch.h"
-#include "gb/compiler.h"
-#include "gb/types.h"
-#include "gb/platform.h"
-#include "gb/macros.h"
-#include "gb/assert.h"
-#include "gb/memory.h"
-#include "gb/atomic.h"
-#include "gb/sem.h"
-#include "gb/mutex.h"
-#include "gb/thread.h"
-#include "gb/affinity.h"
-#include "gb/alloc.h"
-#include "gb/sort.h"
-#include "gb/ctype.h"
-#include "gb/utf8.h"
-#include "gb/string.h"
-#include "gb/buffer.h"
 #include "gb/array.h"
-#include "gb/hash.h"
-#include "gb/htable.h"
-#include "gb/fs.h"
-#include "gb/io.h"
-#include "gb/dll.h"
-#include "gb/time.h"
-#include "gb/random.h"
 
-#endif /* GB_H__ */
+GB_EXTERN u32 gb_adler32(void const *data, isize len);
+
+GB_EXTERN u32 gb_crc32(void const *data, isize len);
+GB_EXTERN u64 gb_crc64(void const *data, isize len);
+
+GB_EXTERN u32 gb_fnv32 (void const *data, isize len);
+GB_EXTERN u64 gb_fnv64 (void const *data, isize len);
+GB_EXTERN u32 gb_fnv32a(void const *data, isize len);
+GB_EXTERN u64 gb_fnv64a(void const *data, isize len);
+
+// NOTE(bill): Default seed of 0x9747b28c
+// NOTE(bill): I prefer using murmur64 for most hashes
+GB_EXTERN u32 gb_murmur32(void const *data, isize len);
+GB_EXTERN u64 gb_murmur64(void const *data, isize len);
+
+GB_EXTERN u32 gb_murmur32_seed(void const *data, isize len, u32 seed);
+GB_EXTERN u64 gb_murmur64_seed(void const *data, isize len, u64 seed);
+
+#endif /* GB_HASH_H__ */
