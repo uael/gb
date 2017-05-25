@@ -26,3 +26,59 @@
  */
 
 #include "gb/mutex.h"
+#include "gb/thread.h"
+
+// NOTE(bill): THIS IS FUCKING AWESOME THAT THIS "MUTEX" IS FAST AND RECURSIVE TOO!
+// NOTE(bill): WHO THE FUCK NEEDS A NORMAL MUTEX NOW?!?!?!?!
+gb_inline void gb_mutex_init(gbMutex *m) {
+  gb_atomic32_store(&m->counter, 0);
+  gb_atomic32_store(&m->owner, gb_thread_current_id());
+  gb_semaphore_init(&m->semaphore);
+  m->recursion = 0;
+}
+
+gb_inline void gb_mutex_destroy(gbMutex *m) { gb_semaphore_destroy(&m->semaphore); }
+
+gb_inline void gb_mutex_lock(gbMutex *m) {
+  i32 thread_id = cast(i32)gb_thread_current_id();
+  if (gb_atomic32_fetch_add(&m->counter, 1) > 0) {
+    if (thread_id != gb_atomic32_load(&m->owner))
+      gb_semaphore_wait(&m->semaphore);
+  }
+
+  gb_atomic32_store(&m->owner, thread_id);
+  m->recursion++;
+}
+
+gb_inline b32 gb_mutex_try_lock(gbMutex *m) {
+  i32 thread_id = cast(i32)gb_thread_current_id();
+  if (gb_atomic32_load(&m->owner) == thread_id) {
+    gb_atomic32_fetch_add(&m->counter, 1);
+  } else {
+    i32 expected = 0;
+    if (gb_atomic32_load(&m->counter) != 0)
+      return false;
+    if (!gb_atomic32_compare_exchange(&m->counter, expected, 1))
+      return false;
+    gb_atomic32_store(&m->owner, thread_id);
+  }
+
+  m->recursion++;
+  return true;
+}
+
+gb_inline void gb_mutex_unlock(gbMutex *m) {
+  i32 recursion;
+  i32 thread_id = cast(i32)gb_thread_current_id();
+
+  GB_ASSERT(thread_id == gb_atomic32_load(&m->owner));
+
+  recursion = --m->recursion;
+  if (recursion == 0)
+    gb_atomic32_store(&m->owner, thread_id);
+
+  if (gb_atomic32_fetch_add(&m->counter, -1) > 1) {
+    if (recursion == 0)
+      gb_semaphore_release(&m->semaphore);
+  }
+}

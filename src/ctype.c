@@ -26,3 +26,65 @@
  */
 
 #include "gb/ctype.h"
+
+gb_inline char gb_char_to_lower(char c) {
+  if (c >= 'A' && c <= 'Z')
+    return 'a' + (c - 'A');
+  return c;
+}
+
+gb_inline char gb_char_to_upper(char c) {
+  if (c >= 'a' && c <= 'z')
+    return 'A' + (c - 'a');
+  return c;
+}
+
+gb_inline b32 gb_char_is_space(char c) {
+  if (c == ' '  ||
+      c == '\t' ||
+      c == '\n' ||
+      c == '\r' ||
+      c == '\f' ||
+      c == '\v')
+    return true;
+  return false;
+}
+
+gb_inline b32 gb_char_is_digit(char c) {
+  if (c >= '0' && c <= '9')
+    return true;
+  return false;
+}
+
+gb_inline b32 gb_char_is_hex_digit(char c) {
+  if (gb_char_is_digit(c) ||
+      (c >= 'a' && c <= 'f') ||
+      (c >= 'A' && c <= 'F'))
+    return true;
+  return false;
+}
+
+gb_inline b32 gb_char_is_alpha(char c) {
+  if ((c >= 'A' && c <= 'Z') ||
+      (c >= 'a' && c <= 'z'))
+    return true;
+  return false;
+}
+
+gb_inline b32 gb_char_is_alphanumeric(char c) {
+  return gb_char_is_alpha(c) || gb_char_is_digit(c);
+}
+
+gb_inline i32 gb_digit_to_int(char c) {
+  return gb_char_is_digit(c) ? c - '0' : c - 'W';
+}
+
+gb_inline i32 gb_hex_digit_to_int(char c) {
+  if (gb_char_is_digit(c))
+    return gb_digit_to_int(c);
+  else if (gb_is_between(c, 'a', 'f'))
+    return c - 'a' + 10;
+  else if (gb_is_between(c, 'A', 'F'))
+    return c - 'A' + 10;
+  return -1;
+}
