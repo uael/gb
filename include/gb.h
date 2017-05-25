@@ -274,6 +274,7 @@ extern "C" {
 
 
 // TODO(bill): How many of these headers do I really need?
+#include <stdlib.h> // maybe this one
 #include <stdarg.h>
 #include <stddef.h>
 
