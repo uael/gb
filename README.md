@@ -5,7 +5,7 @@
 This is a fork of [the original gb lib](https://github.com/gingerBill/gb) from [Ginger Bill](https://github.com/gingerBill/gb).
 
 It's not really forked but imported beacause this 'fork' does not intend to be merged some day, it intend to make the code more readeable by separating things and propose a c common cmake build system and test handling.
-I was looking for this kind of library sinc a long time, I want to thank you all contributors and specialy [Ginger Bill](https://github.com/gingerBill/gb) which is now my c mentor :+1:
+I was looking for this kind of library since a long time, I want to thank you all contributors and specialy [Ginger Bill](https://github.com/gingerBill/gb) which is now my c mentor :+1:
 
 gb single-file public domain libraries for C &amp; C++
 
