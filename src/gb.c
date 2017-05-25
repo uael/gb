@@ -5047,7 +5047,7 @@ gb_global gbFile gb__std_files[gbFileStandard_Count] = {{0}};
 
 #if defined(GB_SYSTEM_WINDOWS)
 
-gb_inline gbFile *const gb_file_get_standard(gbFileStandardType std) {
+gb_inline gbFile *gb_file_get_standard(gbFileStandardType std) {
 	if (!gb__std_file_set) {
 	#define GB__SET_STD_FILE(type, v) gb__std_files[type].fd.p = v; gb__std_files[type].ops = gbDefaultFileOperations
 		GB__SET_STD_FILE(gbFileStandard_Input,  GetStdHandle(STD_INPUT_HANDLE));
