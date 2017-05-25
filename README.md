@@ -1,4 +1,6 @@
 # gb fork
+[![Build Status](https://travis-ci.org/uael/gb.svg?branch=master)](https://travis-ci.org/uael/gb)
+[![Build status](https://ci.appveyor.com/api/projects/status/rrjjebfkc6erhmu1/branch/master?svg=true)](https://ci.appveyor.com/project/uael/gb/branch/master)
 
 gb single-file public domain libraries for C &amp; C++
 
