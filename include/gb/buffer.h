@@ -50,23 +50,22 @@ typedef struct gbBufferHeader {
 #define gb_buffer_capacity(x) (GB_BUFFER_HEADER(x)->capacity)
 
 #define gb_buffer_init(x, allocator, cap) do { \
-	void **nx = cast(void **)&(x); \
-	gbBufferHeader *gb__bh = cast(gbBufferHeader *)gb_alloc((allocator), (cap)*gb_size_of(*(x))); \
-	gb__bh->count = 0; \
-	gb__bh->capacity = cap; \
-	*nx = cast(void *)(gb__bh+1); \
+  void **nx = cast(void **)&(x); \
+  gbBufferHeader *gb__bh = cast(gbBufferHeader *)gb_alloc((allocator), (cap)*gb_size_of(*(x))); \
+  gb__bh->count = 0; \
+  gb__bh->capacity = cap; \
+  *nx = cast(void *)(gb__bh+1); \
 } while (0)
-
 
 #define gb_buffer_free(x, allocator) (gb_free(allocator, GB_BUFFER_HEADER(x)))
 
 #define gb_buffer_append(x, item) do { (x)[gb_buffer_count(x)++] = (item); } while (0)
 
 #define gb_buffer_appendv(x, items, item_count) do { \
-	GB_ASSERT(gb_size_of(*(items)) == gb_size_of(*(x))); \
-	GB_ASSERT(gb_buffer_count(x)+item_count <= gb_buffer_capacity(x)); \
-	gb_memcopy(&(x)[gb_buffer_count(x)], (items), gb_size_of(*(x))*(item_count)); \
-	gb_buffer_count(x) += (item_count); \
+  GB_ASSERT(gb_size_of(*(items)) == gb_size_of(*(x))); \
+  GB_ASSERT(gb_buffer_count(x)+item_count <= gb_buffer_capacity(x)); \
+  gb_memcopy(&(x)[gb_buffer_count(x)], (items), gb_size_of(*(x))*(item_count)); \
+  gb_buffer_count(x) += (item_count); \
 } while (0)
 
 #define gb_buffer_pop(x)   do { GB_ASSERT(gb_buffer_count(x) > 0); gb_buffer_count(x)--; } while (0)

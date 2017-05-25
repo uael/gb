@@ -31,10 +31,13 @@
 #include "gb/io.h"
 
 typedef void *gbDllHandle;
+
 typedef void (*gbDllProc)(void);
 
-GB_DEF gbDllHandle gb_dll_load        (char const *filepath);
-GB_DEF void        gb_dll_unload      (gbDllHandle dll);
-GB_DEF gbDllProc   gb_dll_proc_address(gbDllHandle dll, char const *proc_name);
+GB_DEF gbDllHandle gb_dll_load(char const *filepath);
+
+GB_DEF void gb_dll_unload(gbDllHandle dll);
+
+GB_DEF gbDllProc gb_dll_proc_address(gbDllHandle dll, char const *proc_name);
 
 #endif /* GB_DLL_H__ */

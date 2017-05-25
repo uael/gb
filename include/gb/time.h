@@ -30,9 +30,10 @@
 
 #include "gb/dll.h"
 
-GB_DEF u64  gb_rdtsc       (void);
-GB_DEF f64  gb_time_now    (void); // NOTE(bill): This is only for relative time e.g. game loops
-GB_DEF u64  gb_utc_time_now(void); // NOTE(bill): Number of microseconds since 1601-01-01 UTC
-GB_DEF void gb_sleep_ms    (u32 ms);
+GB_DEF u64 gb_rdtsc(void);
+
+GB_DEF f64 gb_time_now(void); // NOTE(bill): This is only for relative time e.g. game loops
+GB_DEF u64 gb_utc_time_now(void); // NOTE(bill): Number of microseconds since 1601-01-01 UTC
+GB_DEF void gb_sleep_ms(u32 ms);
 
 #endif /* GB_TIME_H__ */

@@ -33,19 +33,25 @@
 GB_EXTERN u32 gb_adler32(void const *data, isize len);
 
 GB_EXTERN u32 gb_crc32(void const *data, isize len);
+
 GB_EXTERN u64 gb_crc64(void const *data, isize len);
 
-GB_EXTERN u32 gb_fnv32 (void const *data, isize len);
-GB_EXTERN u64 gb_fnv64 (void const *data, isize len);
+GB_EXTERN u32 gb_fnv32(void const *data, isize len);
+
+GB_EXTERN u64 gb_fnv64(void const *data, isize len);
+
 GB_EXTERN u32 gb_fnv32a(void const *data, isize len);
+
 GB_EXTERN u64 gb_fnv64a(void const *data, isize len);
 
 // NOTE(bill): Default seed of 0x9747b28c
 // NOTE(bill): I prefer using murmur64 for most hashes
 GB_EXTERN u32 gb_murmur32(void const *data, isize len);
+
 GB_EXTERN u64 gb_murmur64(void const *data, isize len);
 
 GB_EXTERN u32 gb_murmur32_seed(void const *data, isize len, u32 seed);
+
 GB_EXTERN u64 gb_murmur64_seed(void const *data, isize len, u64 seed);
 
 #endif /* GB_HASH_H__ */

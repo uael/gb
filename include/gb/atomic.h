@@ -46,44 +46,72 @@ typedef struct gbAtomicPtr { void *volatile value; } gbAtomicPtr;
 #error Unknown architecture
 #endif
 
-typedef struct gbAtomic32  { i32   volatile value; } __attribute__ ((aligned(4))) gbAtomic32;
-typedef struct gbAtomic64  { i64   volatile value; } __attribute__ ((aligned(8))) gbAtomic64;
-typedef struct gbAtomicPtr { void *volatile value; } __attribute__ ((aligned(GB_ATOMIC_PTR_ALIGNMENT))) gbAtomicPtr;
+typedef struct gbAtomic32 {
+  i32 volatile value;
+} __attribute__ ((aligned(4))) gbAtomic32;
+typedef struct gbAtomic64 {
+  i64 volatile value;
+} __attribute__ ((aligned(8))) gbAtomic64;
+typedef struct gbAtomicPtr {
+  void *volatile value;
+} __attribute__ ((aligned(GB_ATOMIC_PTR_ALIGNMENT))) gbAtomicPtr;
 #endif
 
-GB_DEF i32  gb_atomic32_load            (gbAtomic32 const volatile *a);
-GB_DEF void gb_atomic32_store           (gbAtomic32 volatile *a, i32 value);
-GB_DEF i32  gb_atomic32_compare_exchange(gbAtomic32 volatile *a, i32 expected, i32 desired);
-GB_DEF i32  gb_atomic32_exchanged       (gbAtomic32 volatile *a, i32 desired);
-GB_DEF i32  gb_atomic32_fetch_add       (gbAtomic32 volatile *a, i32 operand);
-GB_DEF i32  gb_atomic32_fetch_and       (gbAtomic32 volatile *a, i32 operand);
-GB_DEF i32  gb_atomic32_fetch_or        (gbAtomic32 volatile *a, i32 operand);
-GB_DEF b32  gb_atomic32_spin_lock       (gbAtomic32 volatile *a, isize time_out); // NOTE(bill): time_out = -1 as default
-GB_DEF void gb_atomic32_spin_unlock     (gbAtomic32 volatile *a);
-GB_DEF b32  gb_atomic32_try_acquire_lock(gbAtomic32 volatile *a);
+GB_DEF i32 gb_atomic32_load(gbAtomic32 const volatile *a);
 
+GB_DEF void gb_atomic32_store(gbAtomic32 volatile *a, i32 value);
 
-GB_DEF i64  gb_atomic64_load            (gbAtomic64 const volatile *a);
-GB_DEF void gb_atomic64_store           (gbAtomic64 volatile *a, i64 value);
-GB_DEF i64  gb_atomic64_compare_exchange(gbAtomic64 volatile *a, i64 expected, i64 desired);
-GB_DEF i64  gb_atomic64_exchanged       (gbAtomic64 volatile *a, i64 desired);
-GB_DEF i64  gb_atomic64_fetch_add       (gbAtomic64 volatile *a, i64 operand);
-GB_DEF i64  gb_atomic64_fetch_and       (gbAtomic64 volatile *a, i64 operand);
-GB_DEF i64  gb_atomic64_fetch_or        (gbAtomic64 volatile *a, i64 operand);
-GB_DEF b32  gb_atomic64_spin_lock       (gbAtomic64 volatile *a, isize time_out); // NOTE(bill): time_out = -1 as default
-GB_DEF void gb_atomic64_spin_unlock     (gbAtomic64 volatile *a);
-GB_DEF b32  gb_atomic64_try_acquire_lock(gbAtomic64 volatile *a);
+GB_DEF i32 gb_atomic32_compare_exchange(gbAtomic32 volatile *a, i32 expected, i32 desired);
 
+GB_DEF i32 gb_atomic32_exchanged(gbAtomic32 volatile *a, i32 desired);
 
-GB_DEF void *gb_atomic_ptr_load            (gbAtomicPtr const volatile *a);
-GB_DEF void  gb_atomic_ptr_store           (gbAtomicPtr volatile *a, void *value);
+GB_DEF i32 gb_atomic32_fetch_add(gbAtomic32 volatile *a, i32 operand);
+
+GB_DEF i32 gb_atomic32_fetch_and(gbAtomic32 volatile *a, i32 operand);
+
+GB_DEF i32 gb_atomic32_fetch_or(gbAtomic32 volatile *a, i32 operand);
+
+GB_DEF b32 gb_atomic32_spin_lock(gbAtomic32 volatile *a, isize time_out); // NOTE(bill): time_out = -1 as default
+GB_DEF void gb_atomic32_spin_unlock(gbAtomic32 volatile *a);
+
+GB_DEF b32 gb_atomic32_try_acquire_lock(gbAtomic32 volatile *a);
+
+GB_DEF i64 gb_atomic64_load(gbAtomic64 const volatile *a);
+
+GB_DEF void gb_atomic64_store(gbAtomic64 volatile *a, i64 value);
+
+GB_DEF i64 gb_atomic64_compare_exchange(gbAtomic64 volatile *a, i64 expected, i64 desired);
+
+GB_DEF i64 gb_atomic64_exchanged(gbAtomic64 volatile *a, i64 desired);
+
+GB_DEF i64 gb_atomic64_fetch_add(gbAtomic64 volatile *a, i64 operand);
+
+GB_DEF i64 gb_atomic64_fetch_and(gbAtomic64 volatile *a, i64 operand);
+
+GB_DEF i64 gb_atomic64_fetch_or(gbAtomic64 volatile *a, i64 operand);
+
+GB_DEF b32 gb_atomic64_spin_lock(gbAtomic64 volatile *a, isize time_out); // NOTE(bill): time_out = -1 as default
+GB_DEF void gb_atomic64_spin_unlock(gbAtomic64 volatile *a);
+
+GB_DEF b32 gb_atomic64_try_acquire_lock(gbAtomic64 volatile *a);
+
+GB_DEF void *gb_atomic_ptr_load(gbAtomicPtr const volatile *a);
+
+GB_DEF void gb_atomic_ptr_store(gbAtomicPtr volatile *a, void *value);
+
 GB_DEF void *gb_atomic_ptr_compare_exchange(gbAtomicPtr volatile *a, void *expected, void *desired);
-GB_DEF void *gb_atomic_ptr_exchanged       (gbAtomicPtr volatile *a, void *desired);
-GB_DEF void *gb_atomic_ptr_fetch_add       (gbAtomicPtr volatile *a, void *operand);
-GB_DEF void *gb_atomic_ptr_fetch_and       (gbAtomicPtr volatile *a, void *operand);
-GB_DEF void *gb_atomic_ptr_fetch_or        (gbAtomicPtr volatile *a, void *operand);
-GB_DEF b32   gb_atomic_ptr_spin_lock       (gbAtomicPtr volatile *a, isize time_out); // NOTE(bill): time_out = -1 as default
-GB_DEF void  gb_atomic_ptr_spin_unlock     (gbAtomicPtr volatile *a);
-GB_DEF b32   gb_atomic_ptr_try_acquire_lock(gbAtomicPtr volatile *a);
+
+GB_DEF void *gb_atomic_ptr_exchanged(gbAtomicPtr volatile *a, void *desired);
+
+GB_DEF void *gb_atomic_ptr_fetch_add(gbAtomicPtr volatile *a, void *operand);
+
+GB_DEF void *gb_atomic_ptr_fetch_and(gbAtomicPtr volatile *a, void *operand);
+
+GB_DEF void *gb_atomic_ptr_fetch_or(gbAtomicPtr volatile *a, void *operand);
+
+GB_DEF b32 gb_atomic_ptr_spin_lock(gbAtomicPtr volatile *a, isize time_out); // NOTE(bill): time_out = -1 as default
+GB_DEF void gb_atomic_ptr_spin_unlock(gbAtomicPtr volatile *a);
+
+GB_DEF b32 gb_atomic_ptr_try_acquire_lock(gbAtomicPtr volatile *a);
 
 #endif /* GB_ATOMIC_H__ */

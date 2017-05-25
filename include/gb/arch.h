@@ -36,7 +36,7 @@
 
 #if defined(_WIN32)
 #define GB_DLL_EXPORT GB_EXTERN __declspec(dllexport)
-	#define GB_DLL_IMPORT GB_EXTERN __declspec(dllimport)
+#define GB_DLL_IMPORT GB_EXTERN __declspec(dllimport)
 #else
 #define GB_DLL_EXPORT GB_EXTERN __attribute__((visibility("default")))
 #define GB_DLL_IMPORT GB_EXTERN
@@ -57,11 +57,10 @@
 #endif
 #else
 // NOTE(bill): I'm only supporting 32 bit and 64 bit systems
-	#ifndef GB_ARCH_32_BIT
-	#define GB_ARCH_32_BIT 1
-	#endif
+#ifndef GB_ARCH_32_BIT
+#define GB_ARCH_32_BIT 1
 #endif
-
+#endif
 
 #ifndef GB_EDIAN_ORDER
 #define GB_EDIAN_ORDER
@@ -72,12 +71,12 @@
 
 #if defined(_WIN32) || defined(_WIN64)
 #ifndef GB_SYSTEM_WINDOWS
-	#define GB_SYSTEM_WINDOWS 1
-	#endif
+#define GB_SYSTEM_WINDOWS 1
+#endif
 #elif defined(__APPLE__) && defined(__MACH__)
 #ifndef GB_SYSTEM_OSX
-	#define GB_SYSTEM_OSX 1
-	#endif
+#define GB_SYSTEM_OSX 1
+#endif
 #elif defined(__unix__)
 #ifndef GB_SYSTEM_UNIX
 #define GB_SYSTEM_UNIX 1
@@ -89,10 +88,10 @@
 #endif
 #elif defined(__FreeBSD__) || defined(__FreeBSD_kernel__)
 #ifndef GB_SYSTEM_FREEBSD
-		#define GB_SYSTEM_FREEBSD 1
-		#endif
-	#else
-		#error This UNIX operating system is not supported
+#define GB_SYSTEM_FREEBSD 1
+#endif
+#else
+#error This UNIX operating system is not supported
 #endif
 #else
 #error This operating system is not supported

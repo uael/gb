@@ -30,14 +30,22 @@
 
 #include "gb/sort.h"
 
-GB_DEF char gb_char_to_lower       (char c);
-GB_DEF char gb_char_to_upper       (char c);
-GB_DEF b32  gb_char_is_space       (char c);
-GB_DEF b32  gb_char_is_digit       (char c);
-GB_DEF b32  gb_char_is_hex_digit   (char c);
-GB_DEF b32  gb_char_is_alpha       (char c);
-GB_DEF b32  gb_char_is_alphanumeric(char c);
-GB_DEF i32  gb_digit_to_int        (char c);
-GB_DEF i32  gb_hex_digit_to_int    (char c);
+GB_DEF char gb_char_to_lower(char c);
+
+GB_DEF char gb_char_to_upper(char c);
+
+GB_DEF b32 gb_char_is_space(char c);
+
+GB_DEF b32 gb_char_is_digit(char c);
+
+GB_DEF b32 gb_char_is_hex_digit(char c);
+
+GB_DEF b32 gb_char_is_alpha(char c);
+
+GB_DEF b32 gb_char_is_alphanumeric(char c);
+
+GB_DEF i32 gb_digit_to_int(char c);
+
+GB_DEF i32 gb_hex_digit_to_int(char c);
 
 #endif /* GB_CTYPE_H__ */

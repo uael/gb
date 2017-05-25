@@ -33,10 +33,10 @@
 #ifndef GB_DEBUG_TRAP
 #if defined(_MSC_VER)
 #if _MSC_VER < 1300
-		#define GB_DEBUG_TRAP() __asm int 3 /* Trap to debugger! */
-		#else
-		#define GB_DEBUG_TRAP() __debugbreak()
-		#endif
+#define GB_DEBUG_TRAP() __asm int 3 /* Trap to debugger! */
+#else
+#define GB_DEBUG_TRAP() __debugbreak()
+#endif
 #else
 #define GB_DEBUG_TRAP() __builtin_trap()
 #endif
@@ -44,10 +44,10 @@
 
 #ifndef GB_ASSERT_MSG
 #define GB_ASSERT_MSG(cond, msg, ...) do { \
-	if (!(cond)) { \
-		gb_assert_handler(#cond, __FILE__, cast(i64)__LINE__, msg, ##__VA_ARGS__); \
-		GB_DEBUG_TRAP(); \
-	} \
+  if (!(cond)) { \
+    gb_assert_handler(#cond, __FILE__, cast(i64)__LINE__, msg, ##__VA_ARGS__); \
+    GB_DEBUG_TRAP(); \
+  } \
 } while (0)
 #endif
 

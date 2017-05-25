@@ -32,16 +32,20 @@
 
 typedef struct gbMutex {
   gbSemaphore semaphore;
-  gbAtomic32  counter;
-  gbAtomic32  owner;
-  i32         recursion;
+  gbAtomic32 counter;
+  gbAtomic32 owner;
+  i32 recursion;
 } gbMutex;
 
-GB_DEF void gb_mutex_init    (gbMutex *m);
-GB_DEF void gb_mutex_destroy (gbMutex *m);
-GB_DEF void gb_mutex_lock    (gbMutex *m);
-GB_DEF b32  gb_mutex_try_lock(gbMutex *m);
-GB_DEF void gb_mutex_unlock  (gbMutex *m);
+GB_DEF void gb_mutex_init(gbMutex *m);
+
+GB_DEF void gb_mutex_destroy(gbMutex *m);
+
+GB_DEF void gb_mutex_lock(gbMutex *m);
+
+GB_DEF b32 gb_mutex_try_lock(gbMutex *m);
+
+GB_DEF void gb_mutex_unlock(gbMutex *m);
 
 // NOTE(bill): If you wanted a Scoped Mutex in C++, why not use the defer() construct?
 // No need for a silly wrapper class and it's clear!
@@ -49,10 +53,10 @@ GB_DEF void gb_mutex_unlock  (gbMutex *m);
 gbMutex m = {0};
 gb_mutex_init(&m);
 {
-	gb_mutex_lock(&m);
-	defer (gb_mutex_unlock(&m));
+  gb_mutex_lock(&m);
+  defer (gb_mutex_unlock(&m));
 
-	// Do whatever as the mutex is now scoped based!
+  // Do whatever as the mutex is now scoped based!
 }
 #endif
 

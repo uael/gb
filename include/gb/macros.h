@@ -39,7 +39,6 @@
 #define GB_JOIN4(a, b, c, d) GB_JOIN2(GB_JOIN2(GB_JOIN2(a, b), c), d)
 #endif
 
-
 #ifndef GB_BIT
 #define GB_BIT(x) (1<<(x))
 #endif
@@ -79,8 +78,8 @@
 /* NOTE(bill): Very useful bit setting */
 #ifndef GB_MASK_SET
 #define GB_MASK_SET(var, set, mask) do { \
-	if (set) (var) |=  (mask); \
-	else     (var) &= ~(mask); \
+  if (set) (var) |=  (mask); \
+  else     (var) &= ~(mask); \
 } while (0)
 #endif
 
