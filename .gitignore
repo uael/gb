@@ -222,8 +222,8 @@ _Pvt_Extensions
 misc/
 *.sublime*
 test.*
-src/
 *.sln
 run.bat
 external/
 gb_gl_dsa.h
+.idea/

@@ -1,0 +1,3 @@
+[submodule "vendor/cute"]
+	path = vendor/cute
+	url = https://github.com/uael/cute.git
