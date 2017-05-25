@@ -34,7 +34,7 @@
 b32 gb_is_power_of_two(isize x) {
   if (x <= 0)
     return false;
-  return !(x & (x-1));
+  return !(x & (x - 1));
 }
 
 gb_inline void *gb_align_forward(void *ptr, isize alignment) {
@@ -43,22 +43,29 @@ gb_inline void *gb_align_forward(void *ptr, isize alignment) {
 
   GB_ASSERT(gb_is_power_of_two(alignment));
 
-  p = cast(uintptr)ptr;
-  modulo = p & (alignment-1);
+  p = cast(uintptr) ptr;
+  modulo = p & (alignment - 1);
   if (modulo) p += (alignment - modulo);
-  return cast(void *)p;
+  return cast(void *) p;
 }
 
+gb_inline void *gb_pointer_add(void *ptr, isize bytes) { return cast(void *) (cast(u8 *) ptr + bytes); }
 
+gb_inline void *gb_pointer_sub(void *ptr, isize bytes) { return cast(void *) (cast(u8 *) ptr - bytes); }
 
-gb_inline void *      gb_pointer_add      (void *ptr, isize bytes)             { return cast(void *)(cast(u8 *)ptr + bytes); }
-gb_inline void *      gb_pointer_sub      (void *ptr, isize bytes)             { return cast(void *)(cast(u8 *)ptr - bytes); }
-gb_inline void const *gb_pointer_add_const(void const *ptr, isize bytes)       { return cast(void const *)(cast(u8 const *)ptr + bytes); }
-gb_inline void const *gb_pointer_sub_const(void const *ptr, isize bytes)       { return cast(void const *)(cast(u8 const *)ptr - bytes); }
-gb_inline isize       gb_pointer_diff     (void const *begin, void const *end) { return cast(isize)(cast(u8 const *)end - cast(u8 const *)begin); }
+gb_inline void const *gb_pointer_add_const(void const *ptr, isize bytes) {
+  return cast(void const *) (cast(u8 const *) ptr + bytes);
+}
+
+gb_inline void const *gb_pointer_sub_const(void const *ptr, isize bytes) {
+  return cast(void const *) (cast(u8 const *) ptr - bytes);
+}
+
+gb_inline isize gb_pointer_diff(void const *begin, void const *end) {
+  return cast(isize) (cast(u8 const *) end - cast(u8 const *) begin);
+}
 
 gb_inline void gb_zero_size(void *ptr, isize size) { gb_memset(ptr, 0, size); }
-
 
 #if defined(_MSC_VER)
 #pragma intrinsic(__movsb)
@@ -67,7 +74,7 @@ gb_inline void gb_zero_size(void *ptr, isize size) { gb_memset(ptr, 0, size); }
 gb_inline void *gb_memcopy(void *dest, void const *source, isize n) {
 #if defined(_MSC_VER)
   // TODO(bill): Is this good enough?
-	__movsb(cast(u8 *)dest, cast(u8 *)source, n);
+  __movsb(cast(u8 *)dest, cast(u8 *)source, n);
 #elif defined(GB_CPU_X86)
   __asm__ __volatile__("rep movsb" : "+D"(dest), "+S"(source), "+c"(n) : : "memory");
 #else
@@ -111,8 +118,8 @@ gb_inline void *gb_memcopy(void *dest, void const *source, isize n) {
 #define LS <<
 #define RS >>
 #else
-    #define LS >>
-	#define RS <<
+#define LS >>
+#define RS <<
 #endif
     switch (cast(uintptr)d % 4) {
       case 1: {
@@ -202,22 +209,22 @@ gb_inline void *gb_memcopy(void *dest, void const *source, isize n) {
 }
 
 gb_inline void *gb_memmove(void *dest, void const *source, isize n) {
-  u8 *d = cast(u8 *)dest;
-  u8 const *s = cast(u8 const *)source;
+  u8 *d = cast(u8 *) dest;
+  u8 const *s = cast(u8 const *) source;
 
   if (d == s)
     return d;
-  if (s+n <= d || d+n <= s) // NOTE(bill): Non-overlapping
+  if (s + n <= d || d + n <= s) // NOTE(bill): Non-overlapping
     return gb_memcopy(d, s, n);
 
   if (d < s) {
-    if (cast(uintptr)s % gb_size_of(isize) == cast(uintptr)d % gb_size_of(isize)) {
-      while (cast(uintptr)d % gb_size_of(isize)) {
+    if (cast(uintptr) s % gb_size_of(isize) == cast(uintptr) d % gb_size_of(isize)) {
+      while (cast(uintptr) d % gb_size_of(isize)) {
         if (!n--) return dest;
         *d++ = *s++;
       }
-      while (n>=gb_size_of(isize)) {
-        *cast(isize *)d = *cast(isize *)s;
+      while (n >= gb_size_of(isize)) {
+        *cast(isize *) d = *cast(isize *) s;
         n -= gb_size_of(isize);
         d += gb_size_of(isize);
         s += gb_size_of(isize);
@@ -225,15 +232,15 @@ gb_inline void *gb_memmove(void *dest, void const *source, isize n) {
     }
     for (; n; n--) *d++ = *s++;
   } else {
-    if ((cast(uintptr)s % gb_size_of(isize)) == (cast(uintptr)d % gb_size_of(isize))) {
-      while (cast(uintptr)(d+n) % gb_size_of(isize)) {
+    if ((cast(uintptr) s % gb_size_of(isize)) == (cast(uintptr) d % gb_size_of(isize))) {
+      while (cast(uintptr) (d + n) % gb_size_of(isize)) {
         if (!n--)
           return dest;
         d[n] = s[n];
       }
       while (n >= gb_size_of(isize)) {
         n -= gb_size_of(isize);
-        *cast(isize *)(d+n) = *cast(isize *)(s+n);
+        *cast(isize *) (d + n) = *cast(isize *) (s + n);
       }
     }
     while (n) n--, d[n] = s[n];
@@ -243,59 +250,58 @@ gb_inline void *gb_memmove(void *dest, void const *source, isize n) {
 }
 
 gb_inline void *gb_memset(void *dest, u8 c, isize n) {
-  u8 *s = cast(u8 *)dest;
+  u8 *s = cast(u8 *) dest;
   isize k;
-  u32 c32 = ((u32)-1)/255 * c;
+  u32 c32 = ((u32) -1) / 255 * c;
 
   if (n == 0)
     return dest;
-  s[0] = s[n-1] = c;
+  s[0] = s[n - 1] = c;
   if (n < 3)
     return dest;
-  s[1] = s[n-2] = c;
-  s[2] = s[n-3] = c;
+  s[1] = s[n - 2] = c;
+  s[2] = s[n - 3] = c;
   if (n < 7)
     return dest;
-  s[3] = s[n-4] = c;
+  s[3] = s[n - 4] = c;
   if (n < 9)
     return dest;
 
-  k = -cast(intptr)s & 3;
+  k = -cast(intptr) s & 3;
   s += k;
   n -= k;
   n &= -4;
 
-  *cast(u32 *)(s+0) = c32;
-  *cast(u32 *)(s+n-4) = c32;
+  *cast(u32 *) (s + 0) = c32;
+  *cast(u32 *) (s + n - 4) = c32;
   if (n < 9)
     return dest;
-  *cast(u32 *)(s +  4)    = c32;
-  *cast(u32 *)(s +  8)    = c32;
-  *cast(u32 *)(s+n-12) = c32;
-  *cast(u32 *)(s+n- 8) = c32;
+  *cast(u32 *) (s + 4) = c32;
+  *cast(u32 *) (s + 8) = c32;
+  *cast(u32 *) (s + n - 12) = c32;
+  *cast(u32 *) (s + n - 8) = c32;
   if (n < 25)
     return dest;
-  *cast(u32 *)(s + 12) = c32;
-  *cast(u32 *)(s + 16) = c32;
-  *cast(u32 *)(s + 20) = c32;
-  *cast(u32 *)(s + 24) = c32;
-  *cast(u32 *)(s+n-28) = c32;
-  *cast(u32 *)(s+n-24) = c32;
-  *cast(u32 *)(s+n-20) = c32;
-  *cast(u32 *)(s+n-16) = c32;
+  *cast(u32 *) (s + 12) = c32;
+  *cast(u32 *) (s + 16) = c32;
+  *cast(u32 *) (s + 20) = c32;
+  *cast(u32 *) (s + 24) = c32;
+  *cast(u32 *) (s + n - 28) = c32;
+  *cast(u32 *) (s + n - 24) = c32;
+  *cast(u32 *) (s + n - 20) = c32;
+  *cast(u32 *) (s + n - 16) = c32;
 
-  k = 24 + (cast(uintptr)s & 4);
+  k = 24 + (cast(uintptr) s & 4);
   s += k;
   n -= k;
 
-
   {
-    u64 c64 = (cast(u64)c32 << 32) | c32;
+    u64 c64 = (cast(u64) c32 << 32) | c32;
     while (n > 31) {
-      *cast(u64 *)(s+0) = c64;
-      *cast(u64 *)(s+8) = c64;
-      *cast(u64 *)(s+16) = c64;
-      *cast(u64 *)(s+24) = c64;
+      *cast(u64 *) (s + 0) = c64;
+      *cast(u64 *) (s + 8) = c64;
+      *cast(u64 *) (s + 16) = c64;
+      *cast(u64 *) (s + 24) = c64;
 
       n -= 32;
       s += 32;
@@ -308,8 +314,8 @@ gb_inline void *gb_memset(void *dest, u8 c, isize n) {
 gb_inline i32 gb_memcompare(void const *s1, void const *s2, isize size) {
   // TODO(bill): Heavily optimize
 
-  u8 const *s1p8 = cast(u8 const *)s1;
-  u8 const *s2p8 = cast(u8 const *)s2;
+  u8 const *s1p8 = cast(u8 const *) s1;
+  u8 const *s2p8 = cast(u8 const *) s2;
   while (size--) {
     if (*s1p8 != *s2p8)
       return (*s1p8 - *s2p8);
@@ -322,12 +328,16 @@ void gb_memswap(void *i, void *j, isize size) {
   if (i == j) return;
 
   if (size == 4) {
-    gb_swap(u32, *cast(u32 *)i, *cast(u32 *)j);
+    gb_swap(u32, *cast(u32 * )
+      i, *cast(u32 * )
+              j);
   } else if (size == 8) {
-    gb_swap(u64, *cast(u64 *)i, *cast(u64 *)j);
+    gb_swap(u64, *cast(u64 * )
+      i, *cast(u64 * )
+              j);
   } else if (size < 8) {
-    u8 *a = cast(u8 *)i;
-    u8 *b = cast(u8 *)j;
+    u8 *a = cast(u8 *) i;
+    u8 *b = cast(u8 *) j;
     if (a != b) {
       while (size--) {
         gb_swap(u8, *a, *b);
@@ -345,16 +355,15 @@ void gb_memswap(void *i, void *j, isize size) {
       size -= gb_size_of(buffer);
     }
 
-    gb_memcopy(buffer, i,      size);
-    gb_memcopy(i,      j,      size);
-    gb_memcopy(j,      buffer, size);
+    gb_memcopy(buffer, i, size);
+    gb_memcopy(i, j, size);
+    gb_memcopy(j, buffer, size);
   }
 }
 
-
 void const *gb_memchr(void const *data, u8 c, isize n) {
-  u8 const *s = cast(u8 const *)data;
-  while ((cast(uintptr)s & (sizeof(usize)-1)) &&
+  u8 const *s = cast(u8 const *) data;
+  while ((cast(uintptr) s & (sizeof(usize) - 1)) &&
          n && *s != c) {
     s++;
     n--;
@@ -362,27 +371,26 @@ void const *gb_memchr(void const *data, u8 c, isize n) {
   if (n && *s != c) {
     isize const *w;
     isize k = GB__ONES * c;
-    w = cast(isize const *)s;
+    w = cast(isize const *) s;
     while (n >= gb_size_of(isize) && !GB__HAS_ZERO(*w ^ k)) {
       w++;
       n -= gb_size_of(isize);
     }
-    s = cast(u8 const *)w;
+    s = cast(u8 const *) w;
     while (n && *s != c) {
       s++;
       n--;
     }
   }
 
-  return n ? cast(void const *)s : NULL;
+  return n ? cast(void const *) s : NULL;
 }
 
-
 void const *gb_memrchr(void const *data, u8 c, isize n) {
-  u8 const *s = cast(u8 const *)data;
+  u8 const *s = cast(u8 const *) data;
   while (n--) {
     if (s[n] == c)
-      return cast(void const *)(s + n);
+      return cast(void const *) (s + n);
   }
   return NULL;
 }

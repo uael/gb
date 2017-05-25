@@ -40,7 +40,7 @@ gb_inline char gb_char_to_upper(char c) {
 }
 
 gb_inline b32 gb_char_is_space(char c) {
-  if (c == ' '  ||
+  if (c == ' ' ||
       c == '\t' ||
       c == '\n' ||
       c == '\r' ||

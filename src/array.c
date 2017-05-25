@@ -46,13 +46,13 @@ gb_no_inline void *gb__array_set_capacity(void *array, isize capacity, isize ele
   }
 
   {
-    isize size = gb_size_of(gbArrayHeader) + element_size*capacity;
-    gbArrayHeader *nh = cast(gbArrayHeader *)gb_alloc(h->allocator, size);
-    gb_memmove(nh, h, gb_size_of(gbArrayHeader) + element_size*h->count);
+    isize size = gb_size_of(gbArrayHeader) + element_size * capacity;
+    gbArrayHeader *nh = cast(gbArrayHeader *) gb_alloc(h->allocator, size);
+    gb_memmove(nh, h, gb_size_of(gbArrayHeader) + element_size * h->count);
     nh->allocator = h->allocator;
-    nh->count     = h->count;
-    nh->capacity  = capacity;
+    nh->count = h->count;
+    nh->capacity = capacity;
     gb_free(h->allocator, h);
-    return nh+1;
+    return nh + 1;
   }
 }

@@ -40,7 +40,7 @@ gb_inline void gb_mutex_init(gbMutex *m) {
 gb_inline void gb_mutex_destroy(gbMutex *m) { gb_semaphore_destroy(&m->semaphore); }
 
 gb_inline void gb_mutex_lock(gbMutex *m) {
-  i32 thread_id = cast(i32)gb_thread_current_id();
+  i32 thread_id = cast(i32) gb_thread_current_id();
   if (gb_atomic32_fetch_add(&m->counter, 1) > 0) {
     if (thread_id != gb_atomic32_load(&m->owner))
       gb_semaphore_wait(&m->semaphore);
@@ -51,7 +51,7 @@ gb_inline void gb_mutex_lock(gbMutex *m) {
 }
 
 gb_inline b32 gb_mutex_try_lock(gbMutex *m) {
-  i32 thread_id = cast(i32)gb_thread_current_id();
+  i32 thread_id = cast(i32) gb_thread_current_id();
   if (gb_atomic32_load(&m->owner) == thread_id) {
     gb_atomic32_fetch_add(&m->counter, 1);
   } else {
@@ -69,7 +69,7 @@ gb_inline b32 gb_mutex_try_lock(gbMutex *m) {
 
 gb_inline void gb_mutex_unlock(gbMutex *m) {
   i32 recursion;
-  i32 thread_id = cast(i32)gb_thread_current_id();
+  i32 thread_id = cast(i32) gb_thread_current_id();
 
   GB_ASSERT(thread_id == gb_atomic32_load(&m->owner));
 

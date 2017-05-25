@@ -31,7 +31,7 @@
 void gb_assert_handler(char const *condition, char const *file, i32 line, char const *msg, ...) {
   gb_printf_err("%s:%d: Assert Failure: ", file, line);
   if (condition)
-    gb_printf_err( "`%s` ", condition);
+    gb_printf_err("`%s` ", condition);
   if (msg) {
     va_list va;
     va_start(va, msg);

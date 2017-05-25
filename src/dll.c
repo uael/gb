@@ -30,7 +30,7 @@
 #if defined(GB_SYSTEM_WINDOWS)
 
 gbDllHandle gb_dll_load(char const *filepath) {
-	return cast(gbDllHandle)LoadLibraryA(filepath);
+  return cast(gbDllHandle)LoadLibraryA(filepath);
 }
 gb_inline void      gb_dll_unload      (gbDllHandle dll)                        { FreeLibrary(cast(HMODULE)dll); }
 gb_inline gbDllProc gb_dll_proc_address(gbDllHandle dll, char const *proc_name) { return cast(gbDllProc)GetProcAddress(cast(HMODULE)dll, proc_name); }
@@ -39,10 +39,13 @@ gb_inline gbDllProc gb_dll_proc_address(gbDllHandle dll, char const *proc_name) 
 
 gbDllHandle gb_dll_load(char const *filepath) {
   // TODO(bill): Should this be RTLD_LOCAL?
-  return cast(gbDllHandle)dlopen(filepath, RTLD_LAZY|RTLD_GLOBAL);
+  return cast(gbDllHandle) dlopen(filepath, RTLD_LAZY | RTLD_GLOBAL);
 }
 
-gb_inline void      gb_dll_unload      (gbDllHandle dll)                        { dlclose(dll); }
-gb_inline gbDllProc gb_dll_proc_address(gbDllHandle dll, char const *proc_name) { return cast(gbDllProc)dlsym(dll, proc_name); }
+gb_inline void gb_dll_unload(gbDllHandle dll) { dlclose(dll); }
+
+gb_inline gbDllProc gb_dll_proc_address(gbDllHandle dll, char const *proc_name) {
+  return cast(gbDllProc) dlsym(dll, proc_name);
+}
 
 #endif

@@ -42,7 +42,6 @@ void gb_thread_destory(gbThread *t) {
   gb_semaphore_destroy(&t->semaphore);
 }
 
-
 gb_inline void gb__thread_run(gbThread *t) {
   gb_semaphore_release(&t->semaphore);
   t->proc(t->data);
@@ -51,10 +50,16 @@ gb_inline void gb__thread_run(gbThread *t) {
 #if defined(GB_SYSTEM_WINDOWS)
 gb_inline DWORD __stdcall gb__thread_proc(void *arg) { gb__thread_run(cast(gbThread *)arg); return 0; }
 #else
-gb_inline void *          gb__thread_proc(void *arg) { gb__thread_run(cast(gbThread *)arg); return NULL; }
+
+gb_inline void *gb__thread_proc(void *arg) {
+  gb__thread_run(cast(gbThread *) arg);
+  return NULL;
+}
 #endif
 
-gb_inline void gb_thread_start(gbThread *t, gbThreadProc *proc, void *data) { gb_thread_start_with_stack(t, proc, data, 0); }
+gb_inline void gb_thread_start(gbThread *t, gbThreadProc *proc, void *data) {
+  gb_thread_start_with_stack(t, proc, data, 0);
+}
 
 gb_inline void gb_thread_start_with_stack(gbThread *t, gbThreadProc *proc, void *data, isize stack_size) {
   GB_ASSERT(!t->is_running);
@@ -65,7 +70,7 @@ gb_inline void gb_thread_start_with_stack(gbThread *t, gbThreadProc *proc, void 
 
 #if defined(GB_SYSTEM_WINDOWS)
   t->win32_handle = CreateThread(NULL, stack_size, gb__thread_proc, t, 0, NULL);
-	GB_ASSERT_MSG(t->win32_handle != NULL, "CreateThread: GetLastError");
+  GB_ASSERT_MSG(t->win32_handle != NULL, "CreateThread: GetLastError");
 #else
   {
     pthread_attr_t attr;
@@ -87,8 +92,8 @@ gb_inline void gb_thread_join(gbThread *t) {
 
 #if defined(GB_SYSTEM_WINDOWS)
   WaitForSingleObject(t->win32_handle, INFINITE);
-	CloseHandle(t->win32_handle);
-	t->win32_handle = INVALID_HANDLE_VALUE;
+  CloseHandle(t->win32_handle);
+  t->win32_handle = INVALID_HANDLE_VALUE;
 #else
   pthread_join(t->posix_handle, NULL);
   t->posix_handle = 0;
@@ -101,13 +106,13 @@ gb_inline b32 gb_thread_is_running(gbThread const *t) { return t->is_running != 
 gb_inline u32 gb_thread_current_id(void) {
   u32 thread_id;
 #if defined(GB_SYSTEM_WINDOWS)
-  #if defined(GB_ARCH_32_BIT) && defined(GB_CPU_X86)
-		thread_id = (cast(u32 *)__readfsdword(24))[9];
-	#elif defined(GB_ARCH_64_BIT) && defined(GB_CPU_X86)
-		thread_id = (cast(u32 *)__readgsqword(48))[18];
-	#else
-		thread_id = GetCurrentThreadId();
-	#endif
+#if defined(GB_ARCH_32_BIT) && defined(GB_CPU_X86)
+  thread_id = (cast(u32 *)__readfsdword(24))[9];
+#elif defined(GB_ARCH_64_BIT) && defined(GB_CPU_X86)
+  thread_id = (cast(u32 *)__readgsqword(48))[18];
+#else
+  thread_id = GetCurrentThreadId();
+#endif
 
 #elif defined(GB_SYSTEM_OSX) && defined(GB_ARCH_64_BIT)
   thread_id = pthread_mach_thread_np(pthread_self());
@@ -122,43 +127,38 @@ gb_inline u32 gb_thread_current_id(void) {
   return thread_id;
 }
 
-
-
 void gb_thread_set_name(gbThread *t, char const *name) {
 #if defined(GB_COMPILER_MSVC)
-  #pragma pack(push, 8)
-		typedef struct {
-			DWORD       type;
-			char const *name;
-			DWORD       id;
-			DWORD       flags;
-		} gbprivThreadName;
-	#pragma pack(pop)
-		gbprivThreadName tn;
-		tn.type  = 0x1000;
-		tn.name  = name;
-		tn.id    = GetThreadId(cast(HANDLE)t->win32_handle);
-		tn.flags = 0;
+#pragma pack(push, 8)
+  typedef struct {
+    DWORD       type;
+    char const *name;
+    DWORD       id;
+    DWORD       flags;
+  } gbprivThreadName;
+#pragma pack(pop)
+  gbprivThreadName tn;
+  tn.type  = 0x1000;
+  tn.name  = name;
+  tn.id    = GetThreadId(cast(HANDLE)t->win32_handle);
+  tn.flags = 0;
 
-		__try {
-			RaiseException(0x406d1388, 0, gb_size_of(tn)/4, cast(ULONG_PTR *)&tn);
-		} __except(1 /*EXCEPTION_EXECUTE_HANDLER*/) {
-		}
+  __try {
+    RaiseException(0x406d1388, 0, gb_size_of(tn)/4, cast(ULONG_PTR *)&tn);
+  } __except(1 /*EXCEPTION_EXECUTE_HANDLER*/) {
+  }
 
 #elif defined(GB_SYSTEM_WINDOWS) && !defined(GB_COMPILER_MSVC)
   // IMPORTANT TODO(bill): Set thread name for GCC/Clang on windows
-	return;
+  return;
 #elif defined(GB_SYSTEM_OSX)
   // TODO(bill): Test if this works
-	pthread_setname_np(name);
+  pthread_setname_np(name);
 #else
 // TODO(bill): Test if this works
   pthread_setname_np(t->posix_handle, name);
 #endif
 }
-
-
-
 
 void gb_sync_init(gbSync *s) {
   gb_zero_item(s);

@@ -36,7 +36,6 @@ isize gb_printf(char const *fmt, ...) {
   return res;
 }
 
-
 isize gb_printf_err(char const *fmt, ...) {
   isize res;
   va_list va;
@@ -73,8 +72,6 @@ isize gb_snprintf(char *str, isize n, char const *fmt, ...) {
   return res;
 }
 
-
-
 gb_inline isize gb_printf_va(char const *fmt, va_list va) {
   return gb_fprintf_va(gb_file_get_standard(gbFileStandard_Output), fmt, va);
 }
@@ -86,10 +83,9 @@ gb_inline isize gb_printf_err_va(char const *fmt, va_list va) {
 gb_inline isize gb_fprintf_va(struct gbFile *f, char const *fmt, va_list va) {
   gb_local_persist char buf[4096];
   isize len = gb_snprintf_va(buf, gb_size_of(buf), fmt, va);
-  gb_file_write(f, buf, len-1); // NOTE(bill): prevent extra whitespace
+  gb_file_write(f, buf, len - 1); // NOTE(bill): prevent extra whitespace
   return len;
 }
-
 
 gb_inline char *gb_bprintf_va(char const *fmt, va_list va) {
   gb_local_persist char buffer[4096];
@@ -97,30 +93,28 @@ gb_inline char *gb_bprintf_va(char const *fmt, va_list va) {
   return buffer;
 }
 
-
 enum {
-  gbFmt_Minus     = GB_BIT(0),
-  gbFmt_Plus      = GB_BIT(1),
-  gbFmt_Alt       = GB_BIT(2),
-  gbFmt_Space     = GB_BIT(3),
-  gbFmt_Zero      = GB_BIT(4),
+  gbFmt_Minus = GB_BIT(0),
+  gbFmt_Plus = GB_BIT(1),
+  gbFmt_Alt = GB_BIT(2),
+  gbFmt_Space = GB_BIT(3),
+  gbFmt_Zero = GB_BIT(4),
 
-  gbFmt_Char      = GB_BIT(5),
-  gbFmt_Short     = GB_BIT(6),
-  gbFmt_Int       = GB_BIT(7),
-  gbFmt_Long      = GB_BIT(8),
-  gbFmt_Llong     = GB_BIT(9),
-  gbFmt_Size      = GB_BIT(10),
-  gbFmt_Intptr    = GB_BIT(11),
+  gbFmt_Char = GB_BIT(5),
+  gbFmt_Short = GB_BIT(6),
+  gbFmt_Int = GB_BIT(7),
+  gbFmt_Long = GB_BIT(8),
+  gbFmt_Llong = GB_BIT(9),
+  gbFmt_Size = GB_BIT(10),
+  gbFmt_Intptr = GB_BIT(11),
 
-  gbFmt_Unsigned  = GB_BIT(12),
-  gbFmt_Lower     = GB_BIT(13),
-  gbFmt_Upper     = GB_BIT(14),
+  gbFmt_Unsigned = GB_BIT(12),
+  gbFmt_Lower = GB_BIT(13),
+  gbFmt_Upper = GB_BIT(14),
 
+  gbFmt_Done = GB_BIT(30),
 
-  gbFmt_Done      = GB_BIT(30),
-
-  gbFmt_Ints = gbFmt_Char|gbFmt_Short|gbFmt_Int|gbFmt_Long|gbFmt_Llong|gbFmt_Size|gbFmt_Intptr
+  gbFmt_Ints = gbFmt_Char | gbFmt_Short | gbFmt_Int | gbFmt_Long | gbFmt_Llong | gbFmt_Size | gbFmt_Intptr
 };
 
 typedef struct {
@@ -129,7 +123,6 @@ typedef struct {
   i32 width;
   i32 precision;
 } gbprivFmtInfo;
-
 
 gb_internal isize gb__print_string(char *text, isize max_len, gbprivFmtInfo *info, char const *str) {
   // TODO(bill): Get precision and width to work correctly. How does it actually work?!
@@ -151,20 +144,19 @@ gb_internal isize gb__print_string(char *text, isize max_len, gbprivFmtInfo *inf
     if (info->width > res) {
       isize padding = info->width - len;
       char pad = (info->flags & gbFmt_Zero) ? '0' : ' ';
-      while (padding --> 0 && remaining --> 0)
+      while (padding-- > 0 && remaining-- > 0)
         *text++ = pad, res++;
     }
   } else {
     if (info && (info->width > res)) {
       isize padding = info->width - len;
       char pad = (info->flags & gbFmt_Zero) ? '0' : ' ';
-      while (padding --> 0 && remaining --> 0)
+      while (padding-- > 0 && remaining-- > 0)
         *text++ = pad, res++;
     }
 
     res += gb_strlcpy(text, str, len);
   }
-
 
   if (info) {
     if (info->flags & gbFmt_Upper)
@@ -182,7 +174,6 @@ gb_internal isize gb__print_char(char *text, isize max_len, gbprivFmtInfo *info,
   return gb__print_string(text, max_len, info, str);
 }
 
-
 gb_internal isize gb__print_i64(char *text, isize max_len, gbprivFmtInfo *info, i64 value) {
   char num[130];
   gb_i64_to_str(value, num, info ? info->base : 10);
@@ -194,7 +185,6 @@ gb_internal isize gb__print_u64(char *text, isize max_len, gbprivFmtInfo *info, 
   gb_u64_to_str(value, num, info ? info->base : 10);
   return gb__print_string(text, max_len, info, num);
 }
-
 
 gb_internal isize gb__print_f64(char *text, isize max_len, gbprivFmtInfo *info, f64 arg) {
   // TODO(bill): Handle exponent notation
@@ -214,7 +204,7 @@ gb_internal isize gb__print_f64(char *text, isize max_len, gbprivFmtInfo *info, 
       text++;
     }
 
-    value = cast(u64)arg;
+    value = cast(u64) arg;
     len = gb__print_u64(text, remaining, NULL, value);
     text += len;
 
@@ -233,14 +223,14 @@ gb_internal isize gb__print_f64(char *text, isize max_len, gbprivFmtInfo *info, 
         *text = '.', remaining--;
       text++;
       while (info->precision-- > 0) {
-        value = cast(u64)(arg * mult);
+        value = cast(u64) (arg * mult);
         len = gb__print_u64(text, remaining, NULL, value);
         text += len;
         if (len >= remaining)
           remaining = gb_min(remaining, 1);
         else
           remaining -= len;
-        arg -= cast(f64)value / mult;
+        arg -= cast(f64) value / mult;
         mult *= 10;
       }
     }
@@ -258,12 +248,12 @@ gb_internal isize gb__print_f64(char *text, isize max_len, gbprivFmtInfo *info, 
   width = info->width - (text - text_begin);
   if (width > 0) {
     char fill = (info->flags & gbFmt_Zero) ? '0' : ' ';
-    char *end = text+remaining-1;
+    char *end = text + remaining - 1;
     len = (text - text_begin);
 
-    for (len = (text - text_begin); len--; ) {
-      if ((text_begin+len+width) < end)
-        *(text_begin+len+width) = *(text_begin+len);
+    for (len = (text - text_begin); len--;) {
+      if ((text_begin + len + width) < end)
+        *(text_begin + len + width) = *(text_begin + len);
     }
 
     len = width;
@@ -274,15 +264,13 @@ gb_internal isize gb__print_f64(char *text, isize max_len, gbprivFmtInfo *info, 
       remaining -= len;
 
     while (len--) {
-      if (text_begin+len < end)
+      if (text_begin + len < end)
         text_begin[len] = fill;
     }
   }
 
   return (text - text_begin);
 }
-
-
 
 gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va_list va) {
   char const *text_begin = text;
@@ -299,12 +287,24 @@ gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va
     if (*fmt == '%') {
       do {
         switch (*++fmt) {
-          case '-': info.flags |= gbFmt_Minus; break;
-          case '+': info.flags |= gbFmt_Plus;  break;
-          case '#': info.flags |= gbFmt_Alt;   break;
-          case ' ': info.flags |= gbFmt_Space; break;
-          case '0': info.flags |= gbFmt_Zero;  break;
-          default:  info.flags |= gbFmt_Done;  break;
+          case '-':
+            info.flags |= gbFmt_Minus;
+            break;
+          case '+':
+            info.flags |= gbFmt_Plus;
+            break;
+          case '#':
+            info.flags |= gbFmt_Alt;
+            break;
+          case ' ':
+            info.flags |= gbFmt_Space;
+            break;
+          case '0':
+            info.flags |= gbFmt_Zero;
+            break;
+          default:
+            info.flags |= gbFmt_Done;
+            break;
         }
       } while (!(info.flags & gbFmt_Done));
     }
@@ -320,7 +320,7 @@ gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va
       }
       fmt++;
     } else {
-      info.width = cast(i32)gb_str_to_i64(fmt, cast(char **)&fmt, 10);
+      info.width = cast(i32) gb_str_to_i64(fmt, cast(char **) &fmt, 10);
     }
 
     // NOTE(bill): Optional Precision
@@ -330,11 +330,10 @@ gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va
         info.precision = va_arg(va, int);
         fmt++;
       } else {
-        info.precision = cast(i32)gb_str_to_i64(fmt, cast(char **)&fmt, 10);
+        info.precision = cast(i32) gb_str_to_i64(fmt, cast(char **) &fmt, 10);
       }
       info.flags &= ~gbFmt_Zero;
     }
-
 
     switch (*fmt++) {
       case 'h':
@@ -364,9 +363,10 @@ gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va
         info.flags |= gbFmt_Size;
         break;
 
-      default: fmt--; break;
+      default:
+        fmt--;
+        break;
     }
-
 
     switch (*fmt) {
       case 'u':
@@ -404,7 +404,7 @@ gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va
         break;
 
       case 'c':
-        len = gb__print_char(text, remaining, &info, cast(char)va_arg(va, int));
+        len = gb__print_char(text, remaining, &info, cast(char) va_arg(va, int));
         break;
 
       case 's':
@@ -413,14 +413,16 @@ gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va
 
       case 'p':
         info.base = 16;
-        info.flags |= (gbFmt_Lower|gbFmt_Unsigned|gbFmt_Alt|gbFmt_Intptr);
+        info.flags |= (gbFmt_Lower | gbFmt_Unsigned | gbFmt_Alt | gbFmt_Intptr);
         break;
 
       case '%':
         len = gb__print_char(text, remaining, &info, '%');
         break;
 
-      default: fmt--; break;
+      default:
+        fmt--;
+        break;
     }
 
     fmt++;
@@ -429,13 +431,27 @@ gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va
       if (info.flags & gbFmt_Unsigned) {
         u64 value = 0;
         switch (info.flags & gbFmt_Ints) {
-          case gbFmt_Char:   value = cast(u64)cast(u8) va_arg(va, int);       break;
-          case gbFmt_Short:  value = cast(u64)cast(u16)va_arg(va, int);       break;
-          case gbFmt_Long:   value = cast(u64)va_arg(va, unsigned long);      break;
-          case gbFmt_Llong:  value = cast(u64)va_arg(va, unsigned long long); break;
-          case gbFmt_Size:   value = cast(u64)va_arg(va, usize);              break;
-          case gbFmt_Intptr: value = cast(u64)va_arg(va, uintptr);            break;
-          default:             value = cast(u64)va_arg(va, unsigned int);       break;
+          case gbFmt_Char:
+            value = cast(u64) cast(u8) va_arg(va, int);
+            break;
+          case gbFmt_Short:
+            value = cast(u64) cast(u16) va_arg(va, int);
+            break;
+          case gbFmt_Long:
+            value = cast(u64) va_arg(va, unsigned long);
+            break;
+          case gbFmt_Llong:
+            value = cast(u64) va_arg(va, unsigned long long);
+            break;
+          case gbFmt_Size:
+            value = cast(u64) va_arg(va, usize);
+            break;
+          case gbFmt_Intptr:
+            value = cast(u64) va_arg(va, uintptr);
+            break;
+          default:
+            value = cast(u64) va_arg(va, unsigned int);
+            break;
         }
 
         len = gb__print_u64(text, remaining, &info, value);
@@ -443,19 +459,32 @@ gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va
       } else {
         i64 value = 0;
         switch (info.flags & gbFmt_Ints) {
-          case gbFmt_Char:   value = cast(i64)cast(i8) va_arg(va, int); break;
-          case gbFmt_Short:  value = cast(i64)cast(i16)va_arg(va, int); break;
-          case gbFmt_Long:   value = cast(i64)va_arg(va, long);         break;
-          case gbFmt_Llong:  value = cast(i64)va_arg(va, long long);    break;
-          case gbFmt_Size:   value = cast(i64)va_arg(va, usize);        break;
-          case gbFmt_Intptr: value = cast(i64)va_arg(va, uintptr);      break;
-          default:             value = cast(i64)va_arg(va, int);          break;
+          case gbFmt_Char:
+            value = cast(i64) cast(i8) va_arg(va, int);
+            break;
+          case gbFmt_Short:
+            value = cast(i64) cast(i16) va_arg(va, int);
+            break;
+          case gbFmt_Long:
+            value = cast(i64) va_arg(va, long);
+            break;
+          case gbFmt_Llong:
+            value = cast(i64) va_arg(va, long long);
+            break;
+          case gbFmt_Size:
+            value = cast(i64) va_arg(va, usize);
+            break;
+          case gbFmt_Intptr:
+            value = cast(i64) va_arg(va, uintptr);
+            break;
+          default:
+            value = cast(i64) va_arg(va, int);
+            break;
         }
 
         len = gb__print_i64(text, remaining, &info, value);
       }
     }
-
 
     text += len;
     if (len >= remaining)
