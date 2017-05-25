@@ -312,6 +312,7 @@ extern "C" {
 	#include <sys/types.h>
 	#include <time.h>
 	#include <unistd.h>
+	#include <xmmintrin.h>
 #endif
 
 #if defined(GB_SYSTEM_OSX)
