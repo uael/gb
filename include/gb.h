@@ -3917,7 +3917,7 @@ void gb_memswap(void *i, void *j, isize size) {
 
 #define GB__ONES        (cast(usize)-1/U8_MAX)
 #define GB__HIGHS       (GB__ONES * (U8_MAX/2+1))
-#define GB__HAS_ZERO(x) ((x)-GB__ONES & ~(x) & GB__HIGHS)
+#define GB__HAS_ZERO(x) (((x)-GB__ONES) & ~(x) & GB__HIGHS)
 
 
 void const *gb_memchr(void const *data, u8 c, isize n) {
