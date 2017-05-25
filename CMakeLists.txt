@@ -56,12 +56,7 @@ add_library(${PROJECT_NAME} STATIC ${gb_SOURCES} ${gb_HEADERS})
 set_target_properties(${PROJECT_NAME} PROPERTIES PUBLIC_HEADER "${gb_HEADERS}")
 target_include_directories(${PROJECT_NAME} PUBLIC ${gb_INCLUDE_DIR})
 target_include_directories(${PROJECT_NAME} PRIVATE ${gb_SOURCE_DIR})
-
-if(WIN32)
-    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC winmm)
-else()
-    target_link_libraries(${PROJECT_NAME} LINK_PUBLIC m)
-endif()
+target_link_libraries(${PROJECT_NAME} LINK_PUBLIC dl pthread)
 
 enable_testing()
 add_subdirectory(${gb_TEST_DIR})
