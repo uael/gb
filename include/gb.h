@@ -7640,7 +7640,7 @@ b32 gb_file_exists(char const *name) {
 
 #else // POSIX
 
-gb_inline gbFile *const gb_file_get_standard(gbFileStandardType std) {
+gb_inline gbFile *gb_file_get_standard(gbFileStandardType std) {
 	if (!gb__std_file_set) {
 	#define GB__SET_STD_FILE(type, v) gb__std_files[type].fd.i = v; gb__std_files[type].ops = gbDefaultFileOperations
 		GB__SET_STD_FILE(gbFileStandard_Input,  0);
