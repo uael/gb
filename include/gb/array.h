@@ -139,7 +139,7 @@ GB_STATIC_ASSERT(GB_ARRAY_GROW_FORMULA(0) > 0);
 } while (0)
 
 // NOTE(bill): Do not use the thing below directly, use the macro
-GB_DEF void *gb__array_set_capacity(void *array, isize capacity, isize element_size);
+GB_API void *gb__array_set_capacity(void *array, isize capacity, isize element_size);
 
 
 // TODO(bill): Decide on a decent growing formula for gbArray

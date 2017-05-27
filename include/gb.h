@@ -28,7 +28,7 @@
 #ifndef  GB_H__
 # define GB_H__
 
-#include "gb/arch.h"
+#include "gb/system.h"
 #include "gb/compiler.h"
 #include "gb/types.h"
 #include "gb/platform.h"

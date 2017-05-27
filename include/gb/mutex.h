@@ -37,15 +37,15 @@ typedef struct gbMutex {
   i32 recursion;
 } gbMutex;
 
-GB_DEF void gb_mutex_init(gbMutex *m);
+GB_API void gb_mutex_init(gbMutex *m);
 
-GB_DEF void gb_mutex_destroy(gbMutex *m);
+GB_API void gb_mutex_destroy(gbMutex *m);
 
-GB_DEF void gb_mutex_lock(gbMutex *m);
+GB_API void gb_mutex_lock(gbMutex *m);
 
-GB_DEF b32 gb_mutex_try_lock(gbMutex *m);
+GB_API b32 gb_mutex_try_lock(gbMutex *m);
 
-GB_DEF void gb_mutex_unlock(gbMutex *m);
+GB_API void gb_mutex_unlock(gbMutex *m);
 
 // NOTE(bill): If you wanted a Scoped Mutex in C++, why not use the defer() construct?
 // No need for a silly wrapper class and it's clear!

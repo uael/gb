@@ -156,7 +156,7 @@ gbVirtualMemory gb_virtual_memory(void *data, isize size) {
   return vm;
 }
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 gb_inline gbVirtualMemory gb_vm_alloc(void *addr, isize size) {
   gbVirtualMemory vm;
   GB_ASSERT(size > 0);

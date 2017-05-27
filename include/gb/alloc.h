@@ -41,17 +41,17 @@ typedef struct gbVirtualMemory {
   isize size;
 } gbVirtualMemory;
 
-GB_DEF gbVirtualMemory gb_virtual_memory(void *data, isize size);
+GB_API gbVirtualMemory gb_virtual_memory(void *data, isize size);
 
-GB_DEF gbVirtualMemory gb_vm_alloc(void *addr, isize size);
+GB_API gbVirtualMemory gb_vm_alloc(void *addr, isize size);
 
-GB_DEF b32 gb_vm_free(gbVirtualMemory vm);
+GB_API b32 gb_vm_free(gbVirtualMemory vm);
 
-GB_DEF gbVirtualMemory gb_vm_trim(gbVirtualMemory vm, isize lead_size, isize size);
+GB_API gbVirtualMemory gb_vm_trim(gbVirtualMemory vm, isize lead_size, isize size);
 
-GB_DEF b32 gb_vm_purge(gbVirtualMemory vm);
+GB_API b32 gb_vm_purge(gbVirtualMemory vm);
 
-GB_DEF isize gb_virtual_memory_page_size(isize *alignment_out);
+GB_API isize gb_virtual_memory_page_size(isize *alignment_out);
 
 
 
@@ -96,26 +96,26 @@ typedef enum gbAllocatorFlag {
 #define GB_DEFAULT_ALLOCATOR_FLAGS (gbAllocatorFlag_ClearToZero)
 #endif
 
-GB_DEF void *gb_alloc_align(gbAllocator a, isize size, isize alignment);
+GB_API void *gb_alloc_align(gbAllocator a, isize size, isize alignment);
 
-GB_DEF void *gb_alloc(gbAllocator a, isize size);
+GB_API void *gb_alloc(gbAllocator a, isize size);
 
-GB_DEF void gb_free(gbAllocator a, void *ptr);
+GB_API void gb_free(gbAllocator a, void *ptr);
 
-GB_DEF void gb_free_all(gbAllocator a);
+GB_API void gb_free_all(gbAllocator a);
 
-GB_DEF void *gb_resize(gbAllocator a, void *ptr, isize old_size, isize new_size);
+GB_API void *gb_resize(gbAllocator a, void *ptr, isize old_size, isize new_size);
 
-GB_DEF void *gb_resize_align(gbAllocator a, void *ptr, isize old_size, isize new_size, isize alignment);
+GB_API void *gb_resize_align(gbAllocator a, void *ptr, isize old_size, isize new_size, isize alignment);
 // TODO(bill): For gb_resize, should the use need to pass the old_size or only the new_size?
 
-GB_DEF void *gb_alloc_copy(gbAllocator a, void const *src, isize size);
+GB_API void *gb_alloc_copy(gbAllocator a, void const *src, isize size);
 
-GB_DEF void *gb_alloc_copy_align(gbAllocator a, void const *src, isize size, isize alignment);
+GB_API void *gb_alloc_copy_align(gbAllocator a, void const *src, isize size, isize alignment);
 
-GB_DEF char *gb_alloc_str(gbAllocator a, char const *str);
+GB_API char *gb_alloc_str(gbAllocator a, char const *str);
 
-GB_DEF char *gb_alloc_str_len(gbAllocator a, char const *str, isize len);
+GB_API char *gb_alloc_str_len(gbAllocator a, char const *str, isize len);
 
 
 // NOTE(bill): These are very useful and the type cast has saved me from numerous bugs
@@ -125,15 +125,15 @@ GB_DEF char *gb_alloc_str_len(gbAllocator a, char const *str, isize len);
 #endif
 
 // NOTE(bill): Use this if you don't need a "fancy" resize allocation
-GB_DEF void *gb_default_resize_align(gbAllocator a, void *ptr, isize old_size, isize new_size, isize alignment);
+GB_API void *gb_default_resize_align(gbAllocator a, void *ptr, isize old_size, isize new_size, isize alignment);
 
 
 
 // TODO(bill): Probably use a custom heap allocator system that doesn't depend on malloc/free
 // Base it off TCMalloc or something else? Or something entirely custom?
-GB_DEF gbAllocator gb_heap_allocator(void);
+GB_API gbAllocator gb_heap_allocator(void);
 
-GB_DEF GB_ALLOCATOR_PROC(gb_heap_allocator_proc);
+GB_API GB_ALLOCATOR_PROC(gb_heap_allocator_proc);
 
 // NOTE(bill): Yep, I use my own allocator system!
 #ifndef gb_malloc
@@ -152,34 +152,34 @@ typedef struct gbArena {
   isize temp_count;
 } gbArena;
 
-GB_DEF void gb_arena_init_from_memory(gbArena *arena, void *start, isize size);
+GB_API void gb_arena_init_from_memory(gbArena *arena, void *start, isize size);
 
-GB_DEF void gb_arena_init_from_allocator(gbArena *arena, gbAllocator backing, isize size);
+GB_API void gb_arena_init_from_allocator(gbArena *arena, gbAllocator backing, isize size);
 
-GB_DEF void gb_arena_init_sub(gbArena *arena, gbArena *parent_arena, isize size);
+GB_API void gb_arena_init_sub(gbArena *arena, gbArena *parent_arena, isize size);
 
-GB_DEF void gb_arena_free(gbArena *arena);
+GB_API void gb_arena_free(gbArena *arena);
 
-GB_DEF isize gb_arena_alignment_of(gbArena *arena, isize alignment);
+GB_API isize gb_arena_alignment_of(gbArena *arena, isize alignment);
 
-GB_DEF isize gb_arena_size_remaining(gbArena *arena, isize alignment);
+GB_API isize gb_arena_size_remaining(gbArena *arena, isize alignment);
 
-GB_DEF void gb_arena_check(gbArena *arena);
+GB_API void gb_arena_check(gbArena *arena);
 
 
 // Allocation Types: alloc, free_all, resize
-GB_DEF gbAllocator gb_arena_allocator(gbArena *arena);
+GB_API gbAllocator gb_arena_allocator(gbArena *arena);
 
-GB_DEF GB_ALLOCATOR_PROC(gb_arena_allocator_proc);
+GB_API GB_ALLOCATOR_PROC(gb_arena_allocator_proc);
 
 typedef struct gbTempArenaMemory {
   gbArena *arena;
   isize original_count;
 } gbTempArenaMemory;
 
-GB_DEF gbTempArenaMemory gb_temp_arena_memory_begin(gbArena *arena);
+GB_API gbTempArenaMemory gb_temp_arena_memory_begin(gbArena *arena);
 
-GB_DEF void gb_temp_arena_memory_end(gbTempArenaMemory tmp_mem);
+GB_API void gb_temp_arena_memory_end(gbTempArenaMemory tmp_mem);
 
 
 
@@ -201,31 +201,31 @@ typedef struct gbPool {
   isize total_size;
 } gbPool;
 
-GB_DEF void gb_pool_init(gbPool *pool, gbAllocator backing, isize num_blocks, isize block_size);
+GB_API void gb_pool_init(gbPool *pool, gbAllocator backing, isize num_blocks, isize block_size);
 
-GB_DEF void
+GB_API void
 gb_pool_init_align(gbPool *pool, gbAllocator backing, isize num_blocks, isize block_size, isize block_align);
 
-GB_DEF void gb_pool_free(gbPool *pool);
+GB_API void gb_pool_free(gbPool *pool);
 
 // Allocation Types: alloc, free
-GB_DEF gbAllocator gb_pool_allocator(gbPool *pool);
+GB_API gbAllocator gb_pool_allocator(gbPool *pool);
 
-GB_DEF GB_ALLOCATOR_PROC(gb_pool_allocator_proc);
+GB_API GB_ALLOCATOR_PROC(gb_pool_allocator_proc);
 
 // NOTE(bill): Used for allocators to keep track of sizes
 typedef struct gbAllocationHeader {
   isize size;
 } gbAllocationHeader;
 
-GB_DEF gbAllocationHeader *gb_allocation_header(void *data);
+GB_API gbAllocationHeader *gb_allocation_header(void *data);
 
-GB_DEF void gb_allocation_header_fill(gbAllocationHeader *header, void *data, isize size);
+GB_API void gb_allocation_header_fill(gbAllocationHeader *header, void *data, isize size);
 
 // TODO(bill): Find better way of doing this without #if #elif etc.
-#if defined(GB_ARCH_32_BIT)
+#if GB_ARCH_32
 #define GB_ISIZE_HIGH_BIT 0x80000000
-#elif defined(GB_ARCH_64_BIT)
+#elif GB_ARCH_64
 #define GB_ISIZE_HIGH_BIT 0x8000000000000000ll
 #else
 #error
@@ -257,14 +257,14 @@ typedef struct gbFreeList {
   isize allocation_count;
 } gbFreeList;
 
-GB_DEF void gb_free_list_init(gbFreeList *fl, void *start, isize size);
+GB_API void gb_free_list_init(gbFreeList *fl, void *start, isize size);
 
-GB_DEF void gb_free_list_init_from_allocator(gbFreeList *fl, gbAllocator backing, isize size);
+GB_API void gb_free_list_init_from_allocator(gbFreeList *fl, gbAllocator backing, isize size);
 
 // Allocation Types: alloc, free, free_all, resize
-GB_DEF gbAllocator gb_free_list_allocator(gbFreeList *fl);
+GB_API gbAllocator gb_free_list_allocator(gbFreeList *fl);
 
-GB_DEF GB_ALLOCATOR_PROC(gb_free_list_allocator_proc);
+GB_API GB_ALLOCATOR_PROC(gb_free_list_allocator_proc);
 
 
 
@@ -279,15 +279,15 @@ typedef struct gbScratchMemory {
   void *free_point;
 } gbScratchMemory;
 
-GB_DEF void gb_scratch_memory_init(gbScratchMemory *s, void *start, isize size);
+GB_API void gb_scratch_memory_init(gbScratchMemory *s, void *start, isize size);
 
-GB_DEF b32 gb_scratch_memory_is_in_use(gbScratchMemory *s, void *ptr);
+GB_API b32 gb_scratch_memory_is_in_use(gbScratchMemory *s, void *ptr);
 
 
 // Allocation Types: alloc, free, free_all, resize
-GB_DEF gbAllocator gb_scratch_allocator(gbScratchMemory *s);
+GB_API gbAllocator gb_scratch_allocator(gbScratchMemory *s);
 
-GB_DEF GB_ALLOCATOR_PROC(gb_scratch_allocator_proc);
+GB_API GB_ALLOCATOR_PROC(gb_scratch_allocator_proc);
 
 // TODO(bill): Stack allocator
 // TODO(bill): Fixed heap allocator

@@ -64,6 +64,6 @@
 #define GB_PANIC(msg, ...) GB_ASSERT_MSG(0, msg, ##__VA_ARGS__)
 #endif
 
-GB_DEF void gb_assert_handler(char const *condition, char const *file, i32 line, char const *msg, ...);
+GB_API void gb_assert_handler(char const *condition, char const *file, i32 line, char const *msg, ...);
 
 #endif /* GB_ASSERT_H__ */

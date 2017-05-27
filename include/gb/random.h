@@ -36,19 +36,19 @@ typedef struct gbRandom {
 } gbRandom;
 
 // NOTE(bill): Generates from numerous sources to produce a decent pseudo-random seed
-GB_DEF void gb_random_init(gbRandom *r);
+GB_API void gb_random_init(gbRandom *r);
 
-GB_DEF u32 gb_random_gen_u32(gbRandom *r);
+GB_API u32 gb_random_gen_u32(gbRandom *r);
 
-GB_DEF u32 gb_random_gen_u32_unique(gbRandom *r);
+GB_API u32 gb_random_gen_u32_unique(gbRandom *r);
 
-GB_DEF u64 gb_random_gen_u64(gbRandom *r); // NOTE(bill): (gb_random_gen_u32() << 32) | gb_random_gen_u32()
-GB_DEF isize gb_random_gen_isize(gbRandom *r);
+GB_API u64 gb_random_gen_u64(gbRandom *r); // NOTE(bill): (gb_random_gen_u32() << 32) | gb_random_gen_u32()
+GB_API isize gb_random_gen_isize(gbRandom *r);
 
-GB_DEF i64 gb_random_range_i64(gbRandom *r, i64 lower_inc, i64 higher_inc);
+GB_API i64 gb_random_range_i64(gbRandom *r, i64 lower_inc, i64 higher_inc);
 
-GB_DEF isize gb_random_range_isize(gbRandom *r, isize lower_inc, isize higher_inc);
+GB_API isize gb_random_range_isize(gbRandom *r, isize lower_inc, isize higher_inc);
 
-GB_DEF f64 gb_random_range_f64(gbRandom *r, f64 lower_inc, f64 higher_inc);
+GB_API f64 gb_random_range_f64(gbRandom *r, f64 lower_inc, f64 higher_inc);
 
 #endif /* GB_RANDOM_H__ */

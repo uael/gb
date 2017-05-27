@@ -75,7 +75,7 @@ gb_inline void *gb_memcopy(void *dest, void const *source, isize n) {
 #if defined(_MSC_VER)
   // TODO(bill): Is this good enough?
   __movsb(cast(u8 *)dest, cast(u8 *)source, n);
-#elif defined(GB_CPU_X86)
+#elif GB_ARCH_X86 || GB_ARCH_X86_64
   __asm__ __volatile__("rep movsb" : "+D"(dest), "+S"(source), "+c"(n) : : "memory");
 #else
   u8 *d = cast(u8 *)dest;

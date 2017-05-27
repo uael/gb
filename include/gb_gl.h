@@ -185,7 +185,7 @@ GB_STATIC_ASSERT(gb_size_of(gbglColour) == gb_size_of(u32));
 #endif
 
 
-GB_DEF gbglColour gbgl_colour(f32 r, f32 g, f32 b, f32 a);
+GB_API gbglColour gbgl_colour(f32 r, f32 g, f32 b, f32 a);
 
 gb_global gbglColour const gbglColour_White   = {0xffffffff};
 gb_global gbglColour const gbglColour_Grey    = {0xff808080};

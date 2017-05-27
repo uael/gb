@@ -116,44 +116,44 @@ typedef enum gbFileStandardType {
   gbFileStandard_Count,
 } gbFileStandardType;
 
-GB_DEF gbFile *gb_file_get_standard(gbFileStandardType std);
+GB_API gbFile *gb_file_get_standard(gbFileStandardType std);
 
-GB_DEF gbFileError gb_file_create(gbFile *file, char const *filename);
+GB_API gbFileError gb_file_create(gbFile *file, char const *filename);
 
-GB_DEF gbFileError gb_file_open(gbFile *file, char const *filename);
+GB_API gbFileError gb_file_open(gbFile *file, char const *filename);
 
-GB_DEF gbFileError gb_file_open_mode(gbFile *file, gbFileMode mode, char const *filename);
+GB_API gbFileError gb_file_open_mode(gbFile *file, gbFileMode mode, char const *filename);
 
-GB_DEF gbFileError gb_file_new(gbFile *file, gbFileDescriptor fd, gbFileOperations ops, char const *filename);
+GB_API gbFileError gb_file_new(gbFile *file, gbFileDescriptor fd, gbFileOperations ops, char const *filename);
 
-GB_DEF b32 gb_file_read_at_check(gbFile *file, void *buffer, isize size, i64 offset, isize *bytes_read);
+GB_API b32 gb_file_read_at_check(gbFile *file, void *buffer, isize size, i64 offset, isize *bytes_read);
 
-GB_DEF b32 gb_file_write_at_check(gbFile *file, void const *buffer, isize size, i64 offset, isize *bytes_written);
+GB_API b32 gb_file_write_at_check(gbFile *file, void const *buffer, isize size, i64 offset, isize *bytes_written);
 
-GB_DEF b32 gb_file_read_at(gbFile *file, void *buffer, isize size, i64 offset);
+GB_API b32 gb_file_read_at(gbFile *file, void *buffer, isize size, i64 offset);
 
-GB_DEF b32 gb_file_write_at(gbFile *file, void const *buffer, isize size, i64 offset);
+GB_API b32 gb_file_write_at(gbFile *file, void const *buffer, isize size, i64 offset);
 
-GB_DEF i64 gb_file_seek(gbFile *file, i64 offset);
+GB_API i64 gb_file_seek(gbFile *file, i64 offset);
 
-GB_DEF i64 gb_file_seek_to_end(gbFile *file);
+GB_API i64 gb_file_seek_to_end(gbFile *file);
 
-GB_DEF i64 gb_file_skip(gbFile *file, i64 bytes); // NOTE(bill): Skips a certain amount of bytes
-GB_DEF i64 gb_file_tell(gbFile *file);
+GB_API i64 gb_file_skip(gbFile *file, i64 bytes); // NOTE(bill): Skips a certain amount of bytes
+GB_API i64 gb_file_tell(gbFile *file);
 
-GB_DEF gbFileError gb_file_close(gbFile *file);
+GB_API gbFileError gb_file_close(gbFile *file);
 
-GB_DEF b32 gb_file_read(gbFile *file, void *buffer, isize size);
+GB_API b32 gb_file_read(gbFile *file, void *buffer, isize size);
 
-GB_DEF b32 gb_file_write(gbFile *file, void const *buffer, isize size);
+GB_API b32 gb_file_write(gbFile *file, void const *buffer, isize size);
 
-GB_DEF i64 gb_file_size(gbFile *file);
+GB_API i64 gb_file_size(gbFile *file);
 
-GB_DEF char const *gb_file_name(gbFile *file);
+GB_API char const *gb_file_name(gbFile *file);
 
-GB_DEF gbFileError gb_file_truncate(gbFile *file, i64 size);
+GB_API gbFileError gb_file_truncate(gbFile *file, i64 size);
 
-GB_DEF b32 gb_file_has_changed(gbFile *file); // NOTE(bill): Changed since lasted checked
+GB_API b32 gb_file_has_changed(gbFile *file); // NOTE(bill): Changed since lasted checked
 // TODO(bill):
 // gbFileError gb_file_temp(gbFile *file);
 //
@@ -164,38 +164,38 @@ typedef struct gbFileContents {
   isize size;
 } gbFileContents;
 
-GB_DEF gbFileContents gb_file_read_contents(gbAllocator a, b32 zero_terminate, char const *filepath);
+GB_API gbFileContents gb_file_read_contents(gbAllocator a, b32 zero_terminate, char const *filepath);
 
-GB_DEF void gb_file_free_contents(gbFileContents *fc);
+GB_API void gb_file_free_contents(gbFileContents *fc);
 
 
 // TODO(bill): Should these have different na,es as they do not take in a gbFile * ???
-GB_DEF b32 gb_file_exists(char const *filepath);
+GB_API b32 gb_file_exists(char const *filepath);
 
-GB_DEF gbFileTime gb_file_last_write_time(char const *filepath);
+GB_API gbFileTime gb_file_last_write_time(char const *filepath);
 
-GB_DEF b32 gb_file_copy(char const *existing_filename, char const *new_filename, b32 fail_if_exists);
+GB_API b32 gb_file_copy(char const *existing_filename, char const *new_filename, b32 fail_if_exists);
 
-GB_DEF b32 gb_file_move(char const *existing_filename, char const *new_filename);
+GB_API b32 gb_file_move(char const *existing_filename, char const *new_filename);
 
 #ifndef GB_PATH_SEPARATOR
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 #define GB_PATH_SEPARATOR '\\'
 #else
 #define GB_PATH_SEPARATOR '/'
 #endif
 #endif
 
-GB_DEF b32 gb_path_is_absolute(char const *path);
+GB_API b32 gb_path_is_absolute(char const *path);
 
-GB_DEF b32 gb_path_is_relative(char const *path);
+GB_API b32 gb_path_is_relative(char const *path);
 
-GB_DEF b32 gb_path_is_root(char const *path);
+GB_API b32 gb_path_is_root(char const *path);
 
-GB_DEF char const *gb_path_base_name(char const *path);
+GB_API char const *gb_path_base_name(char const *path);
 
-GB_DEF char const *gb_path_extension(char const *path);
+GB_API char const *gb_path_extension(char const *path);
 
-GB_DEF char *gb_path_get_full_name(gbAllocator a, char const *path);
+GB_API char *gb_path_get_full_name(gbAllocator a, char const *path);
 
 #endif /* GB_FS_H__ */

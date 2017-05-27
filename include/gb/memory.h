@@ -30,40 +30,40 @@
 
 #include "gb/assert.h"
 
-GB_DEF b32 gb_is_power_of_two(isize x);
+GB_API b32 gb_is_power_of_two(isize x);
 
-GB_DEF void *gb_align_forward(void *ptr, isize alignment);
+GB_API void *gb_align_forward(void *ptr, isize alignment);
 
-GB_DEF void *gb_pointer_add(void *ptr, isize bytes);
+GB_API void *gb_pointer_add(void *ptr, isize bytes);
 
-GB_DEF void *gb_pointer_sub(void *ptr, isize bytes);
+GB_API void *gb_pointer_sub(void *ptr, isize bytes);
 
-GB_DEF void const *gb_pointer_add_const(void const *ptr, isize bytes);
+GB_API void const *gb_pointer_add_const(void const *ptr, isize bytes);
 
-GB_DEF void const *gb_pointer_sub_const(void const *ptr, isize bytes);
+GB_API void const *gb_pointer_sub_const(void const *ptr, isize bytes);
 
-GB_DEF isize gb_pointer_diff(void const *begin, void const *end);
+GB_API isize gb_pointer_diff(void const *begin, void const *end);
 
-GB_DEF void gb_zero_size(void *ptr, isize size);
+GB_API void gb_zero_size(void *ptr, isize size);
 
 #ifndef     gb_zero_item
 #define     gb_zero_item(t)         gb_zero_size((t), gb_size_of(*(t))) // NOTE(bill): Pass pointer of struct
 #define     gb_zero_array(a, count) gb_zero_size((a), gb_size_of(*(a))*count)
 #endif
 
-GB_DEF void *gb_memcopy(void *dest, void const *source, isize size);
+GB_API void *gb_memcopy(void *dest, void const *source, isize size);
 
-GB_DEF void *gb_memmove(void *dest, void const *source, isize size);
+GB_API void *gb_memmove(void *dest, void const *source, isize size);
 
-GB_DEF void *gb_memset(void *data, u8 byte_value, isize size);
+GB_API void *gb_memset(void *data, u8 byte_value, isize size);
 
-GB_DEF i32 gb_memcompare(void const *s1, void const *s2, isize size);
+GB_API i32 gb_memcompare(void const *s1, void const *s2, isize size);
 
-GB_DEF void gb_memswap(void *i, void *j, isize size);
+GB_API void gb_memswap(void *i, void *j, isize size);
 
-GB_DEF void const *gb_memchr(void const *data, u8 byte_value, isize size);
+GB_API void const *gb_memchr(void const *data, u8 byte_value, isize size);
 
-GB_DEF void const *gb_memrchr(void const *data, u8 byte_value, isize size);
+GB_API void const *gb_memrchr(void const *data, u8 byte_value, isize size);
 
 
 // NOTE(bill): Very similar to doing `*cast(T *)(&u)`

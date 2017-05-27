@@ -56,7 +56,7 @@ gb_inline i32 gb_atomic32_fetch_or(gbAtomic32 volatile *a, i32 operand) {
 }
 
 gb_inline i64 gb_atomic64_load(gbAtomic64 const volatile *a) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   return a->value;
 #elif GB_CPU_X86
   // NOTE(bill): The most compatible way to get an atomic 64-bit load on x86 is with cmpxchg8b
@@ -76,7 +76,7 @@ gb_inline i64 gb_atomic64_load(gbAtomic64 const volatile *a) {
 }
 
 gb_inline void gb_atomic64_store(gbAtomic64 volatile *a, i64 value) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   a->value = value;
 #elif GB_CPU_X86
   // NOTE(bill): The most compatible way to get an atomic 64-bit store on x86 is with cmpxchg8b
@@ -98,7 +98,7 @@ gb_inline i64 gb_atomic64_compare_exchange(gbAtomic64 volatile *a, i64 expected,
 }
 
 gb_inline i64 gb_atomic64_exchanged(gbAtomic64 volatile *a, i64 desired) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   return _InterlockedExchange64(cast(i64 volatile *)a, desired);
 #elif GB_CPU_X86
   i64 expected = a->value;
@@ -114,7 +114,7 @@ gb_inline i64 gb_atomic64_exchanged(gbAtomic64 volatile *a, i64 desired) {
 }
 
 gb_inline i64 gb_atomic64_fetch_add(gbAtomic64 volatile *a, i64 operand) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   return _InterlockedExchangeAdd64(cast(i64 volatile *)a, operand);
 #elif GB_CPU_X86
   i64 expected = a->value;
@@ -130,7 +130,7 @@ gb_inline i64 gb_atomic64_fetch_add(gbAtomic64 volatile *a, i64 operand) {
 }
 
 gb_inline i64 gb_atomic64_fetch_and(gbAtomic64 volatile *a, i64 operand) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   return _InterlockedAnd64(cast(i64 volatile *)a, operand);
 #elif GB_CPU_X86
   i64 expected = a->value;
@@ -146,7 +146,7 @@ gb_inline i64 gb_atomic64_fetch_and(gbAtomic64 volatile *a, i64 operand) {
 }
 
 gb_inline i64 gb_atomic64_fetch_or(gbAtomic64 volatile *a, i64 operand) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   return _InterlockedOr64(cast(i64 volatile *)a, operand);
 #elif GB_CPU_X86
   i64 expected = a->value;
@@ -163,7 +163,7 @@ gb_inline i64 gb_atomic64_fetch_or(gbAtomic64 volatile *a, i64 operand) {
 
 
 
-#elif defined(GB_CPU_X86)
+#elif GB_ARCH_X86 || GB_ARCH_X86_64
 
 gb_inline i32 gb_atomic32_load(gbAtomic32 const volatile *a) { return a->value; }
 
@@ -231,7 +231,7 @@ gb_inline i32 gb_atomic32_fetch_or(gbAtomic32 volatile *a, i32 operand) {
 }
 
 gb_inline i64 gb_atomic64_load(gbAtomic64 const volatile *a) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   return a->value;
 #else
   i64 original;
@@ -247,7 +247,7 @@ gb_inline i64 gb_atomic64_load(gbAtomic64 const volatile *a) {
 }
 
 gb_inline void gb_atomic64_store(gbAtomic64 volatile *a, i64 value) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   a->value = value;
 #else
   i64 expected = a->value;
@@ -261,7 +261,7 @@ gb_inline void gb_atomic64_store(gbAtomic64 volatile *a, i64 value) {
 }
 
 gb_inline i64 gb_atomic64_compare_exchange(gbAtomic64 volatile *a, i64 expected, i64 desired) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   i64 original;
   __asm__ volatile(
   "lock; cmpxchgq %2, %1"
@@ -281,7 +281,7 @@ gb_inline i64 gb_atomic64_compare_exchange(gbAtomic64 volatile *a, i64 expected,
 }
 
 gb_inline i64 gb_atomic64_exchanged(gbAtomic64 volatile *a, i64 desired) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   i64 original;
   __asm__ volatile(
   "xchgq %0, %1"
@@ -301,7 +301,7 @@ gb_inline i64 gb_atomic64_exchanged(gbAtomic64 volatile *a, i64 desired) {
 }
 
 gb_inline i64 gb_atomic64_fetch_add(gbAtomic64 volatile *a, i64 operand) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   i64 original;
   __asm__ volatile(
   "lock; xaddq %0, %1"
@@ -319,7 +319,7 @@ gb_inline i64 gb_atomic64_fetch_add(gbAtomic64 volatile *a, i64 operand) {
 }
 
 gb_inline i64 gb_atomic64_fetch_and(gbAtomic64 volatile *a, i64 operand) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   i64 original;
   i64 tmp;
   __asm__ volatile(
@@ -342,7 +342,7 @@ gb_inline i64 gb_atomic64_fetch_and(gbAtomic64 volatile *a, i64 operand) {
 }
 
 gb_inline i64 gb_atomic64_fetch_or(gbAtomic64 volatile *a, i64 operand) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   i64 original;
   i64 temp;
   __asm__ volatile(
@@ -416,7 +416,7 @@ gb_inline b32 gb_atomic64_try_acquire_lock(gbAtomic64 volatile *a) {
   return old_value == 0;
 }
 
-#if defined(GB_ARCH_32_BIT)
+#if GB_ARCH_32
 
 gb_inline void *gb_atomic_ptr_load(gbAtomicPtr const volatile *a) {
   return cast(void *)cast(intptr)gb_atomic32_load(cast(gbAtomic32 const volatile *)a);
@@ -449,7 +449,7 @@ gb_inline b32 gb_atomic_ptr_try_acquire_lock(gbAtomicPtr volatile *a) {
   return gb_atomic32_try_acquire_lock(cast(gbAtomic32 volatile *)a);
 }
 
-#elif defined(GB_ARCH_64_BIT)
+#elif GB_ARCH_64
 
 gb_inline void *gb_atomic_ptr_load(gbAtomicPtr const volatile *a) {
   return cast(void *) cast(intptr) gb_atomic64_load(cast(gbAtomic64 const volatile *) a);

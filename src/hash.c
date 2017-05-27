@@ -307,7 +307,7 @@ u32 gb_murmur32_seed(void const *data, isize len, u32 seed) {
 }
 
 u64 gb_murmur64_seed(void const *data_, isize len, u64 seed) {
-#if defined(GB_ARCH_64_BIT)
+#if GB_ARCH_64
   u64 const m = 0xc6a4a7935bd1e995ULL;
   i32 const r = 47;
 

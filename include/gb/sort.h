@@ -41,60 +41,60 @@ typedef GB_COMPARE_PROC(gbCompareProc);
 // e.g. gb_i32_cmp(gb_offset_of(Thing, value))
 // Use 0 if it's just the type instead.
 
-GB_DEF GB_COMPARE_PROC_PTR(gb_i16_cmp(isize
+GB_API GB_COMPARE_PROC_PTR(gb_i16_cmp(isize
                              offset));
 
-GB_DEF GB_COMPARE_PROC_PTR(gb_i32_cmp(isize
+GB_API GB_COMPARE_PROC_PTR(gb_i32_cmp(isize
                              offset));
 
-GB_DEF GB_COMPARE_PROC_PTR(gb_i64_cmp(isize
+GB_API GB_COMPARE_PROC_PTR(gb_i64_cmp(isize
                              offset));
 
-GB_DEF GB_COMPARE_PROC_PTR(gb_isize_cmp(isize
+GB_API GB_COMPARE_PROC_PTR(gb_isize_cmp(isize
                              offset));
 
-GB_DEF GB_COMPARE_PROC_PTR(gb_str_cmp(isize
+GB_API GB_COMPARE_PROC_PTR(gb_str_cmp(isize
                              offset));
 
-GB_DEF GB_COMPARE_PROC_PTR(gb_f32_cmp(isize
+GB_API GB_COMPARE_PROC_PTR(gb_f32_cmp(isize
                              offset));
 
-GB_DEF GB_COMPARE_PROC_PTR(gb_f64_cmp(isize
+GB_API GB_COMPARE_PROC_PTR(gb_f64_cmp(isize
                              offset));
 
-GB_DEF GB_COMPARE_PROC_PTR(gb_char_cmp(isize
+GB_API GB_COMPARE_PROC_PTR(gb_char_cmp(isize
                              offset));
 
 // TODO(bill): Better sorting algorithms
 // NOTE(bill): Uses quick sort for large arrays but insertion sort for small
 #define gb_sort_array(array, count, compare_proc) gb_sort(array, count, gb_size_of(*(array)), compare_proc)
 
-GB_DEF void gb_sort(void *base, isize count, isize size, gbCompareProc compare_proc);
+GB_API void gb_sort(void *base, isize count, isize size, gbCompareProc compare_proc);
 
 // NOTE(bill): the count of temp == count of items
 #define gb_radix_sort(Type) gb_radix_sort_##Type
 #define GB_RADIX_SORT_PROC(Type) void gb_radix_sort(Type)(Type *items, Type *temp, isize count)
 
-GB_DEF GB_RADIX_SORT_PROC(u8);
+GB_API GB_RADIX_SORT_PROC(u8);
 
-GB_DEF GB_RADIX_SORT_PROC(u16);
+GB_API GB_RADIX_SORT_PROC(u16);
 
-GB_DEF GB_RADIX_SORT_PROC(u32);
+GB_API GB_RADIX_SORT_PROC(u32);
 
-GB_DEF GB_RADIX_SORT_PROC(u64);
+GB_API GB_RADIX_SORT_PROC(u64);
 
 
 // NOTE(bill): Returns index or -1 if not found
 #define gb_binary_search_array(array, count, key, compare_proc) gb_binary_search(array, count, gb_size_of(*(array)), key, compare_proc)
 
-GB_DEF isize gb_binary_search(void const *base, isize count, isize size, void const *key, gbCompareProc compare_proc);
+GB_API isize gb_binary_search(void const *base, isize count, isize size, void const *key, gbCompareProc compare_proc);
 
 #define gb_shuffle_array(array, count) gb_shuffle(array, count, gb_size_of(*(array)))
 
-GB_DEF void gb_shuffle(void *base, isize count, isize size);
+GB_API void gb_shuffle(void *base, isize count, isize size);
 
 #define gb_reverse_array(array, count) gb_reverse(array, count, gb_size_of(*(array)))
 
-GB_DEF void gb_reverse(void *base, isize count, isize size);
+GB_API void gb_reverse(void *base, isize count, isize size);
 
 #endif /* GB_SORT_H__ */

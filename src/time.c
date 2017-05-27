@@ -63,7 +63,7 @@ gb_inline u64 gb_rdtsc(void) {
   }
 #endif
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 
 gb_inline f64 gb_time_now(void) {
     gb_local_persist LARGE_INTEGER win32_perf_count_freq = {0};
@@ -99,7 +99,7 @@ gb_global f64 gb__timebase = 0.0;
 gb_global u64 gb__timestart = 0;
 
 gb_inline f64 gb_time_now(void) {
-#if defined(GB_SYSTEM_OSX)
+#if GB_SYSTEM_APPLE
   f64 result;
 
     if (!gb__timestart) {
@@ -126,7 +126,7 @@ gb_inline f64 gb_time_now(void) {
 
 gb_inline u64 gb_utc_time_now(void) {
   struct timespec t;
-#if defined(GB_SYSTEM_OSX)
+#if GB_SYSTEM_APPLE
   clock_serv_t cclock;
     mach_timespec_t mts;
     host_get_clock_service(mach_host_self(), CALENDAR_CLOCK, &cclock);
