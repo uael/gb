@@ -30,7 +30,7 @@
 
 #include "gb/thread.h"
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 
 typedef struct gbAffinity {
   b32   is_accurate;
@@ -41,7 +41,7 @@ typedef struct gbAffinity {
 
 } gbAffinity;
 
-#elif defined(GB_SYSTEM_OSX)
+#elif GB_SYSTEM_APPLE
 typedef struct gbAffinity {
   b32   is_accurate;
   isize core_count;
@@ -49,7 +49,7 @@ typedef struct gbAffinity {
   isize threads_per_core;
 } gbAffinity;
 
-#elif defined(GB_SYSTEM_LINUX)
+#elif GB_SYSTEM_LINUX
 typedef struct gbAffinity {
   b32 is_accurate;
   isize core_count;
@@ -60,12 +60,12 @@ typedef struct gbAffinity {
 #error TODO(bill): Unknown system
 #endif
 
-GB_DEF void gb_affinity_init(gbAffinity *a);
+GB_API void gb_affinity_init(gbAffinity *a);
 
-GB_DEF void gb_affinity_destroy(gbAffinity *a);
+GB_API void gb_affinity_destroy(gbAffinity *a);
 
-GB_DEF b32 gb_affinity_set(gbAffinity *a, isize core, isize thread);
+GB_API b32 gb_affinity_set(gbAffinity *a, isize core, isize thread);
 
-GB_DEF isize gb_affinity_thread_count_for_core(gbAffinity *a, isize core);
+GB_API isize gb_affinity_thread_count_for_core(gbAffinity *a, isize core);
 
 #endif /* GB_AFFINITY_H__ */

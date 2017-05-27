@@ -29,7 +29,7 @@
 
 void gb_thread_init(gbThread *t) {
   gb_zero_item(t);
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   t->win32_handle = INVALID_HANDLE_VALUE;
 #else
   t->posix_handle = 0;
@@ -47,7 +47,7 @@ gb_inline void gb__thread_run(gbThread *t) {
   t->proc(t->data);
 }
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 gb_inline DWORD __stdcall gb__thread_proc(void *arg) { gb__thread_run(cast(gbThread *)arg); return 0; }
 #else
 
@@ -68,7 +68,7 @@ gb_inline void gb_thread_start_with_stack(gbThread *t, gbThreadProc *proc, void 
   t->data = data;
   t->stack_size = stack_size;
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   t->win32_handle = CreateThread(NULL, stack_size, gb__thread_proc, t, 0, NULL);
   GB_ASSERT_MSG(t->win32_handle != NULL, "CreateThread: GetLastError");
 #else
@@ -90,7 +90,7 @@ gb_inline void gb_thread_start_with_stack(gbThread *t, gbThreadProc *proc, void 
 gb_inline void gb_thread_join(gbThread *t) {
   if (!t->is_running) return;
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   WaitForSingleObject(t->win32_handle, INFINITE);
   CloseHandle(t->win32_handle);
   t->win32_handle = INVALID_HANDLE_VALUE;
@@ -105,20 +105,20 @@ gb_inline b32 gb_thread_is_running(gbThread const *t) { return t->is_running != 
 
 gb_inline u32 gb_thread_current_id(void) {
   u32 thread_id;
-#if defined(GB_SYSTEM_WINDOWS)
-#if defined(GB_ARCH_32_BIT) && defined(GB_CPU_X86)
+#if GB_SYSTEM_WINDOWS
+#if GB_ARCH_32 && GB_CPU_X86
   thread_id = (cast(u32 *)__readfsdword(24))[9];
-#elif defined(GB_ARCH_64_BIT) && defined(GB_CPU_X86)
+#elif GB_ARCH_64 && GB_CPU_X86
   thread_id = (cast(u32 *)__readgsqword(48))[18];
 #else
   thread_id = GetCurrentThreadId();
 #endif
 
-#elif defined(GB_SYSTEM_OSX) && defined(GB_ARCH_64_BIT)
+#elif GB_SYSTEM_APPLE && GB_ARCH_64
   thread_id = pthread_mach_thread_np(pthread_self());
-#elif defined(GB_ARCH_32_BIT) && defined(GB_CPU_X86)
+#elif GB_ARCH_32 && (GB_ARCH_X86 || GB_ARCH_X86_64)
   __asm__("mov %%gs:0x08,%0" : "=r"(thread_id));
-#elif defined(GB_ARCH_64_BIT) && defined(GB_CPU_X86)
+#elif GB_ARCH_64 && (GB_ARCH_X86 || GB_ARCH_X86_64)
   __asm__("mov %%gs:0x10,%0" : "=r"(thread_id));
 #else
 #error Unsupported architecture for gb_thread_current_id()
@@ -148,10 +148,10 @@ void gb_thread_set_name(gbThread *t, char const *name) {
   } __except(1 /*EXCEPTION_EXECUTE_HANDLER*/) {
   }
 
-#elif defined(GB_SYSTEM_WINDOWS) && !defined(GB_COMPILER_MSVC)
+#elif GB_SYSTEM_WINDOWS && !defined(GB_COMPILER_MSVC)
   // IMPORTANT TODO(bill): Set thread name for GCC/Clang on windows
   return;
-#elif defined(GB_SYSTEM_OSX)
+#elif GB_SYSTEM_APPLE
   // TODO(bill): Test if this works
   pthread_setname_np(name);
 #else

@@ -27,7 +27,7 @@
 
 #include "gb/fs.h"
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 gb_internal GB_FILE_SEEK_PROC(gb__win32_file_seek) {
     LARGE_INTEGER li_offset;
     li_offset.QuadPart = offset;
@@ -142,7 +142,7 @@ gb_internal GB_FILE_SEEK_PROC(gb__win32_file_seek) {
 #else // POSIX
 
 gb_internal GB_FILE_SEEK_PROC(gb__posix_file_seek) {
-#if defined(GB_SYSTEM_OSX)
+#if GB_SYSTEM_APPLE
   i64 res = lseek(fd.i, offset, whence);
 #else
   i64 res = lseek64(fd.i, offset, whence);
@@ -236,7 +236,7 @@ gbFileError gb_file_new(gbFile *f, gbFileDescriptor fd, gbFileOperations ops, ch
 
 gbFileError gb_file_open_mode(gbFile *f, gbFileMode mode, char const *filename) {
   gbFileError err;
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   err = gb__win32_file_open(&f->fd, &f->ops, mode, filename);
 #else
   err = gb__posix_file_open(&f->fd, &f->ops, mode, filename);
@@ -252,7 +252,7 @@ gbFileError gb_file_close(gbFile *f) {
 
   if (f->filename) gb_free(gb_heap_allocator(), cast(char *) f->filename);
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   if (f->fd.p == INVALID_HANDLE_VALUE)
     return gbFileError_Invalid;
 #else
@@ -345,7 +345,7 @@ gb_inline b32 gb_file_has_changed(gbFile *f) {
 gb_global b32 gb__std_file_set = false;
 gb_global gbFile gb__std_files[gbFileStandard_Count] = {{0}};
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 
 gb_inline gbFile *gb_file_get_standard(gbFileStandardType std) {
   if (!gb__std_file_set) {
@@ -420,7 +420,7 @@ gb_inline b32 gb_file_exists(char const *name) {
 
 #endif
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 gbFileTime gb_file_last_write_time(char const *filepath) {
   u16 path[1024] = {0};
   ULARGE_INTEGER li = {0};
@@ -469,7 +469,7 @@ gbFileTime gb_file_last_write_time(char const *filepath) {
 }
 
 gb_inline b32 gb_file_copy(char const *existing_filename, char const *new_filename, b32 fail_if_exists) {
-#if defined(GB_SYSTEM_OSX)
+#if GB_SYSTEM_APPLE
   return copyfile(existing_filename, new_filename, NULL, COPYFILE_DATA) == 0;
 #else
   isize size;
@@ -531,7 +531,7 @@ void gb_file_free_contents(gbFileContents *fc) {
 gb_inline b32 gb_path_is_absolute(char const *path) {
   b32 result = false;
   GB_ASSERT_NOT_NULL(path);
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   result == (gb_strlen(path) > 2) &&
             gb_char_is_alpha(path[0]) &&
             (path[1] == ':' && path[2] == GB_PATH_SEPARATOR);
@@ -546,7 +546,7 @@ gb_inline b32 gb_path_is_relative(char const *path) { return !gb_path_is_absolut
 gb_inline b32 gb_path_is_root(char const *path) {
   b32 result = false;
   GB_ASSERT_NOT_NULL(path);
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   result = gb_path_is_absolute(path) && (gb_strlen(path) == 3);
 #else
   result = gb_path_is_absolute(path) && (gb_strlen(path) == 1);
@@ -568,12 +568,12 @@ gb_inline char const *gb_path_extension(char const *path) {
   return (ld == NULL) ? NULL : ld + 1;
 }
 
-#if !defined(_WINDOWS_) && defined(GB_SYSTEM_WINDOWS)
-GB_DLL_IMPORT DWORD WINAPI GetFullPathNameA(char const *lpFileName, DWORD nBufferLength, char *lpBuffer, char **lpFilePart);
+#if !defined(_WINDOWS_) && GB_SYSTEM_WINDOWS
+GB_IMPORT_LINK DWORD WINAPI GetFullPathNameA(char const *lpFileName, DWORD nBufferLength, char *lpBuffer, char **lpFilePart);
 #endif
 
 char *gb_path_get_full_name(gbAllocator a, char const *path) {
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   // TODO(bill): Make UTF-8
   char buf[300];
   isize len = GetFullPathNameA(path, gb_count_of(buf), buf, NULL);

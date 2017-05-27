@@ -31,19 +31,19 @@
 #include "gb/atomic.h"
 
 // Fences
-GB_DEF void gb_yield_thread(void);
+GB_API void gb_yield_thread(void);
 
-GB_DEF void gb_mfence(void);
+GB_API void gb_mfence(void);
 
-GB_DEF void gb_sfence(void);
+GB_API void gb_sfence(void);
 
-GB_DEF void gb_lfence(void);
+GB_API void gb_lfence(void);
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 typedef struct gbSemaphore { void *win32_handle; }     gbSemaphore;
-#elif defined(GB_SYSTEM_OSX)
+#elif GB_SYSTEM_APPLE
 typedef struct gbSemaphore { semaphore_t osx_handle; } gbSemaphore;
-#elif defined(GB_SYSTEM_UNIX)
+#elif GB_SYSTEM_POSIX
 typedef struct gbSemaphore {
   sem_t unix_handle;
 } gbSemaphore;
@@ -51,13 +51,13 @@ typedef struct gbSemaphore {
 #error
 #endif
 
-GB_DEF void gb_semaphore_init(gbSemaphore *s);
+GB_API void gb_semaphore_init(gbSemaphore *s);
 
-GB_DEF void gb_semaphore_destroy(gbSemaphore *s);
+GB_API void gb_semaphore_destroy(gbSemaphore *s);
 
-GB_DEF void gb_semaphore_post(gbSemaphore *s, i32 count);
+GB_API void gb_semaphore_post(gbSemaphore *s, i32 count);
 
-GB_DEF void gb_semaphore_release(gbSemaphore *s); // NOTE(bill): gb_semaphore_post(s, 1)
-GB_DEF void gb_semaphore_wait(gbSemaphore *s);
+GB_API void gb_semaphore_release(gbSemaphore *s); // NOTE(bill): gb_semaphore_post(s, 1)
+GB_API void gb_semaphore_wait(gbSemaphore *s);
 
 #endif /* GB_SEM_H__ */

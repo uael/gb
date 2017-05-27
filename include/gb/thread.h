@@ -35,7 +35,7 @@
 typedef GB_THREAD_PROC(gbThreadProc);
 
 typedef struct gbThread {
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   void *        win32_handle;
 #else
   pthread_t posix_handle;
@@ -49,21 +49,21 @@ typedef struct gbThread {
   b32 is_running;
 } gbThread;
 
-GB_DEF void gb_thread_init(gbThread *t);
+GB_API void gb_thread_init(gbThread *t);
 
-GB_DEF void gb_thread_destory(gbThread *t);
+GB_API void gb_thread_destory(gbThread *t);
 
-GB_DEF void gb_thread_start(gbThread *t, gbThreadProc *proc, void *data);
+GB_API void gb_thread_start(gbThread *t, gbThreadProc *proc, void *data);
 
-GB_DEF void gb_thread_start_with_stack(gbThread *t, gbThreadProc *proc, void *data, isize stack_size);
+GB_API void gb_thread_start_with_stack(gbThread *t, gbThreadProc *proc, void *data, isize stack_size);
 
-GB_DEF void gb_thread_join(gbThread *t);
+GB_API void gb_thread_join(gbThread *t);
 
-GB_DEF b32 gb_thread_is_running(gbThread const *t);
+GB_API b32 gb_thread_is_running(gbThread const *t);
 
-GB_DEF u32 gb_thread_current_id(void);
+GB_API u32 gb_thread_current_id(void);
 
-GB_DEF void gb_thread_set_name(gbThread *t, char const *name);
+GB_API void gb_thread_set_name(gbThread *t, char const *name);
 
 // NOTE(bill): Thread Merge Operation
 // Based on Sean Barrett's stb_sync
@@ -77,16 +77,16 @@ typedef struct gbSync {
   gbSemaphore release;
 } gbSync;
 
-GB_DEF void gb_sync_init(gbSync *s);
+GB_API void gb_sync_init(gbSync *s);
 
-GB_DEF void gb_sync_destroy(gbSync *s);
+GB_API void gb_sync_destroy(gbSync *s);
 
-GB_DEF void gb_sync_set_target(gbSync *s, i32 count);
+GB_API void gb_sync_set_target(gbSync *s, i32 count);
 
-GB_DEF void gb_sync_release(gbSync *s);
+GB_API void gb_sync_release(gbSync *s);
 
-GB_DEF i32 gb_sync_reach(gbSync *s);
+GB_API i32 gb_sync_reach(gbSync *s);
 
-GB_DEF void gb_sync_reach_and_wait(gbSync *s);
+GB_API void gb_sync_reach_and_wait(gbSync *s);
 
 #endif /* GB_THREAD_H__ */

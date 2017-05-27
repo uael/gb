@@ -27,7 +27,7 @@
 
 #include "gb/dll.h"
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 
 gbDllHandle gb_dll_load(char const *filepath) {
   return cast(gbDllHandle)LoadLibraryA(filepath);

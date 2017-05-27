@@ -28,7 +28,7 @@
 #include "gb/affinity.h"
 #include "gb/alloc.h"
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 void gb_affinity_init(gbAffinity *a) {
   SYSTEM_LOGICAL_PROCESSOR_INFORMATION *start_processor_info = NULL;
   DWORD length = 0;
@@ -104,7 +104,7 @@ isize gb_affinity_thread_count_for_core(gbAffinity *a, isize core) {
   return gb_count_set_bits(a->core_masks[core]);
 }
 
-#elif defined(GB_SYSTEM_OSX)
+#elif GB_SYSTEM_APPLE
 void gb_affinity_init(gbAffinity *a) {
   usize count, count_size = gb_size_of(count);
 
@@ -157,7 +157,7 @@ isize gb_affinity_thread_count_for_core(gbAffinity *a, isize core) {
   return a->threads_per_core;
 }
 
-#elif defined(GB_SYSTEM_LINUX)
+#elif GB_SYSTEM_LINUX
 // IMPORTANT TODO(bill): This gbAffinity stuff for linux needs be improved a lot!
 // NOTE(zangent): I have to read /proc/cpuinfo to get the number of threads per core.
 #include <stdio.h>

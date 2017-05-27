@@ -156,13 +156,13 @@ typedef b8 bool;
 #define I64_MIN (-0x7fffffffffffffffll - 1)
 #define I64_MAX 0x7fffffffffffffffll
 
-#if defined(GB_ARCH_32_BIT)
+#if GB_ARCH_32
 #define USIZE_MIX U32_MIN
 #define USIZE_MAX U32_MAX
 
 #define ISIZE_MIX S32_MIN
 #define ISIZE_MAX S32_MAX
-#elif defined(GB_ARCH_64_BIT)
+#elif GB_ARCH_64
 #define USIZE_MIX U64_MIN
 #define USIZE_MAX U64_MAX
 
@@ -731,22 +731,22 @@ extern "C++" {
 
   typedef DWORD WINAPI THREAD_START_ROUTINE(void *parameter);
 
-  GB_DLL_IMPORT DWORD   WINAPI GetLastError       (void);
-  GB_DLL_IMPORT BOOL    WINAPI CloseHandle        (HANDLE object);
-  GB_DLL_IMPORT HANDLE  WINAPI CreateSemaphoreA   (SECURITY_ATTRIBUTES *semaphore_attributes, LONG initial_count,
+  GB_IMPORT_LINK DWORD   WINAPI GetLastError       (void);
+  GB_IMPORT_LINK BOOL    WINAPI CloseHandle        (HANDLE object);
+  GB_IMPORT_LINK HANDLE  WINAPI CreateSemaphoreA   (SECURITY_ATTRIBUTES *semaphore_attributes, LONG initial_count,
                                                    LONG maximum_count, char const *name);
-  GB_DLL_IMPORT BOOL    WINAPI ReleaseSemaphore   (HANDLE semaphore, LONG release_count, LONG *previous_count);
-  GB_DLL_IMPORT DWORD   WINAPI WaitForSingleObject(HANDLE handle, DWORD milliseconds);
-  GB_DLL_IMPORT HANDLE  WINAPI CreateThread       (SECURITY_ATTRIBUTES *semaphore_attributes, usize stack_size,
+  GB_IMPORT_LINK BOOL    WINAPI ReleaseSemaphore   (HANDLE semaphore, LONG release_count, LONG *previous_count);
+  GB_IMPORT_LINK DWORD   WINAPI WaitForSingleObject(HANDLE handle, DWORD milliseconds);
+  GB_IMPORT_LINK HANDLE  WINAPI CreateThread       (SECURITY_ATTRIBUTES *semaphore_attributes, usize stack_size,
                                                    THREAD_START_ROUTINE *start_address, void *parameter,
                                                    DWORD creation_flags, DWORD *thread_id);
-  GB_DLL_IMPORT DWORD   WINAPI GetThreadId        (HANDLE handle);
-  GB_DLL_IMPORT void    WINAPI RaiseException     (DWORD, DWORD, DWORD, ULONG_PTR const *);
+  GB_IMPORT_LINK DWORD   WINAPI GetThreadId        (HANDLE handle);
+  GB_IMPORT_LINK void    WINAPI RaiseException     (DWORD, DWORD, DWORD, ULONG_PTR const *);
 
 
-  GB_DLL_IMPORT BOOL      WINAPI GetLogicalProcessorInformation(SYSTEM_LOGICAL_PROCESSOR_INFORMATION *buffer, DWORD *return_length);
-  GB_DLL_IMPORT DWORD_PTR WINAPI SetThreadAffinityMask(HANDLE thread, DWORD_PTR check_mask);
-  GB_DLL_IMPORT HANDLE    WINAPI GetCurrentThread(void);
+  GB_IMPORT_LINK BOOL      WINAPI GetLogicalProcessorInformation(SYSTEM_LOGICAL_PROCESSOR_INFORMATION *buffer, DWORD *return_length);
+  GB_IMPORT_LINK DWORD_PTR WINAPI SetThreadAffinityMask(HANDLE thread, DWORD_PTR check_mask);
+  GB_IMPORT_LINK HANDLE    WINAPI GetCurrentThread(void);
 
 #define PAGE_NOACCESS          0x01
 #define PAGE_READONLY          0x02
@@ -775,10 +775,10 @@ extern "C++" {
 
 
 
-  GB_DLL_IMPORT void * WINAPI VirtualAlloc (void *addr, usize size, DWORD allocation_type, DWORD protect);
-  GB_DLL_IMPORT usize  WINAPI VirtualQuery (void const *address, MEMORY_BASIC_INFORMATION *buffer, usize length);
-  GB_DLL_IMPORT BOOL   WINAPI VirtualFree  (void *address, usize size, DWORD free_type);
-  GB_DLL_IMPORT void   WINAPI GetSystemInfo(SYSTEM_INFO *system_info);
+  GB_IMPORT_LINK void * WINAPI VirtualAlloc (void *addr, usize size, DWORD allocation_type, DWORD protect);
+  GB_IMPORT_LINK usize  WINAPI VirtualQuery (void const *address, MEMORY_BASIC_INFORMATION *buffer, usize length);
+  GB_IMPORT_LINK BOOL   WINAPI VirtualFree  (void *address, usize size, DWORD free_type);
+  GB_IMPORT_LINK void   WINAPI GetSystemInfo(SYSTEM_INFO *system_info);
 
 
 #ifndef VK_UNKNOWN
@@ -984,33 +984,33 @@ extern "C++" {
 #define STD_OUTPUT_HANDLE        ((DWORD)-11)
 #define STD_ERROR_HANDLE         ((DWORD)-12)
 
-  GB_DLL_IMPORT BOOL   WINAPI SetFilePointerEx(HANDLE file, LARGE_INTEGER distance_to_move,
+  GB_IMPORT_LINK BOOL   WINAPI SetFilePointerEx(HANDLE file, LARGE_INTEGER distance_to_move,
                                                LARGE_INTEGER *new_file_pointer, DWORD move_method);
-  GB_DLL_IMPORT BOOL   WINAPI ReadFile        (HANDLE file, void *buffer, DWORD bytes_to_read, DWORD *bytes_read, OVERLAPPED *overlapped);
-  GB_DLL_IMPORT BOOL   WINAPI WriteFile       (HANDLE file, void const *buffer, DWORD bytes_to_write, DWORD *bytes_written, OVERLAPPED *overlapped);
-  GB_DLL_IMPORT HANDLE WINAPI CreateFileW     (wchar_t const *path, DWORD desired_access, DWORD share_mode,
+  GB_IMPORT_LINK BOOL   WINAPI ReadFile        (HANDLE file, void *buffer, DWORD bytes_to_read, DWORD *bytes_read, OVERLAPPED *overlapped);
+  GB_IMPORT_LINK BOOL   WINAPI WriteFile       (HANDLE file, void const *buffer, DWORD bytes_to_write, DWORD *bytes_written, OVERLAPPED *overlapped);
+  GB_IMPORT_LINK HANDLE WINAPI CreateFileW     (wchar_t const *path, DWORD desired_access, DWORD share_mode,
                                                SECURITY_ATTRIBUTES *, DWORD creation_disposition,
                                                DWORD flags_and_attributes, HANDLE template_file);
-  GB_DLL_IMPORT HANDLE WINAPI GetStdHandle    (DWORD std_handle);
-  GB_DLL_IMPORT BOOL   WINAPI GetFileSizeEx   (HANDLE file, LARGE_INTEGER *size);
-  GB_DLL_IMPORT BOOL   WINAPI SetEndOfFile    (HANDLE file);
-  GB_DLL_IMPORT HANDLE WINAPI FindFirstFileW  (wchar_t const *path, WIN32_FIND_DATAW *data);
-  GB_DLL_IMPORT BOOL   WINAPI FindClose       (HANDLE find_file);
-  GB_DLL_IMPORT BOOL   WINAPI GetFileAttributesExW(wchar_t const *path, GET_FILEEX_INFO_LEVELS info_level_id, WIN32_FILE_ATTRIBUTE_DATA *data);
-  GB_DLL_IMPORT BOOL   WINAPI CopyFileW(wchar_t const *old_f, wchar_t const *new_f, BOOL fail_if_exists);
-  GB_DLL_IMPORT BOOL   WINAPI MoveFileW(wchar_t const *old_f, wchar_t const *new_f);
+  GB_IMPORT_LINK HANDLE WINAPI GetStdHandle    (DWORD std_handle);
+  GB_IMPORT_LINK BOOL   WINAPI GetFileSizeEx   (HANDLE file, LARGE_INTEGER *size);
+  GB_IMPORT_LINK BOOL   WINAPI SetEndOfFile    (HANDLE file);
+  GB_IMPORT_LINK HANDLE WINAPI FindFirstFileW  (wchar_t const *path, WIN32_FIND_DATAW *data);
+  GB_IMPORT_LINK BOOL   WINAPI FindClose       (HANDLE find_file);
+  GB_IMPORT_LINK BOOL   WINAPI GetFileAttributesExW(wchar_t const *path, GET_FILEEX_INFO_LEVELS info_level_id, WIN32_FILE_ATTRIBUTE_DATA *data);
+  GB_IMPORT_LINK BOOL   WINAPI CopyFileW(wchar_t const *old_f, wchar_t const *new_f, BOOL fail_if_exists);
+  GB_IMPORT_LINK BOOL   WINAPI MoveFileW(wchar_t const *old_f, wchar_t const *new_f);
 
-  GB_DLL_IMPORT HMODULE WINAPI LoadLibraryA  (char const *filename);
-  GB_DLL_IMPORT BOOL    WINAPI FreeLibrary   (HMODULE module);
-  GB_DLL_IMPORT FARPROC WINAPI GetProcAddress(HMODULE module, char const *name);
+  GB_IMPORT_LINK HMODULE WINAPI LoadLibraryA  (char const *filename);
+  GB_IMPORT_LINK BOOL    WINAPI FreeLibrary   (HMODULE module);
+  GB_IMPORT_LINK FARPROC WINAPI GetProcAddress(HMODULE module, char const *name);
 
-  GB_DLL_IMPORT BOOL WINAPI QueryPerformanceFrequency(LARGE_INTEGER *frequency);
-  GB_DLL_IMPORT BOOL WINAPI QueryPerformanceCounter  (LARGE_INTEGER *counter);
-  GB_DLL_IMPORT void WINAPI GetSystemTimeAsFileTime  (FILETIME *system_time_as_file_time);
-  GB_DLL_IMPORT void WINAPI Sleep(DWORD milliseconds);
-  GB_DLL_IMPORT void WINAPI ExitProcess(UINT exit_code);
+  GB_IMPORT_LINK BOOL WINAPI QueryPerformanceFrequency(LARGE_INTEGER *frequency);
+  GB_IMPORT_LINK BOOL WINAPI QueryPerformanceCounter  (LARGE_INTEGER *counter);
+  GB_IMPORT_LINK void WINAPI GetSystemTimeAsFileTime  (FILETIME *system_time_as_file_time);
+  GB_IMPORT_LINK void WINAPI Sleep(DWORD milliseconds);
+  GB_IMPORT_LINK void WINAPI ExitProcess(UINT exit_code);
 
-  GB_DLL_IMPORT BOOL WINAPI SetEnvironmentVariableA(char const *name, char const *value);
+  GB_IMPORT_LINK BOOL WINAPI SetEnvironmentVariableA(char const *name, char const *value);
 
 
 #define WM_NULL                   0x0000
@@ -1117,9 +1117,9 @@ extern "C++" {
 #define MAPVK_VK_TO_CHAR   2
 #define MAPVK_VSC_TO_VK_EX 3
 
-  GB_DLL_IMPORT BOOL WINAPI RegisterRawInputDevices(RAWINPUTDEVICE const *raw_input_devices, UINT num_devices, UINT size);
-  GB_DLL_IMPORT UINT WINAPI GetRawInputData(HRAWINPUT raw_input, UINT ui_command, void *data, UINT *size, UINT size_header);
-  GB_DLL_IMPORT UINT WINAPI MapVirtualKeyW(UINT code, UINT map_type);
+  GB_IMPORT_LINK BOOL WINAPI RegisterRawInputDevices(RAWINPUTDEVICE const *raw_input_devices, UINT num_devices, UINT size);
+  GB_IMPORT_LINK UINT WINAPI GetRawInputData(HRAWINPUT raw_input, UINT ui_command, void *data, UINT *size, UINT size_header);
+  GB_IMPORT_LINK UINT WINAPI MapVirtualKeyW(UINT code, UINT map_type);
 
 
 #define CS_DBLCLKS 		0x0008
@@ -1132,11 +1132,11 @@ extern "C++" {
 #define MB_HELP            0x4000l
 #define MB_ICONEXCLAMATION 0x0030l
 
-  GB_DLL_IMPORT LRESULT WINAPI DefWindowProcW(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam);
-  GB_DLL_IMPORT HGDIOBJ WINAPI GetStockObject(int object);
-  GB_DLL_IMPORT HMODULE WINAPI GetModuleHandleW(wchar_t const *);
-  GB_DLL_IMPORT ATOM    WINAPI RegisterClassExW(WNDCLASSEXW const *wcx); // u16 == ATOM
-  GB_DLL_IMPORT int     WINAPI MessageBoxW(void *wnd, wchar_t const *text, wchar_t const *caption, unsigned int type);
+  GB_IMPORT_LINK LRESULT WINAPI DefWindowProcW(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam);
+  GB_IMPORT_LINK HGDIOBJ WINAPI GetStockObject(int object);
+  GB_IMPORT_LINK HMODULE WINAPI GetModuleHandleW(wchar_t const *);
+  GB_IMPORT_LINK ATOM    WINAPI RegisterClassExW(WNDCLASSEXW const *wcx); // u16 == ATOM
+  GB_IMPORT_LINK int     WINAPI MessageBoxW(void *wnd, wchar_t const *text, wchar_t const *caption, unsigned int type);
 
 
 #define DM_BITSPERPEL 0x00040000l
@@ -1196,32 +1196,32 @@ extern "C++" {
 #define ENUM_CURRENT_SETTINGS  cast(DWORD)-1
 #define ENUM_REGISTRY_SETTINGS cast(DWORD)-2
 
-  GB_DLL_IMPORT LONG    WINAPI ChangeDisplaySettingsW(DEVMODEW *dev_mode, DWORD flags);
-  GB_DLL_IMPORT BOOL    WINAPI AdjustWindowRect(RECT *rect, DWORD style, BOOL enu);
-  GB_DLL_IMPORT HWND    WINAPI CreateWindowExW(DWORD ex_style, wchar_t const *class_name, wchar_t const *window_name,
+  GB_IMPORT_LINK LONG    WINAPI ChangeDisplaySettingsW(DEVMODEW *dev_mode, DWORD flags);
+  GB_IMPORT_LINK BOOL    WINAPI AdjustWindowRect(RECT *rect, DWORD style, BOOL enu);
+  GB_IMPORT_LINK HWND    WINAPI CreateWindowExW(DWORD ex_style, wchar_t const *class_name, wchar_t const *window_name,
                                                DWORD style, int x, int y, int width, int height, HWND wnd_parent,
                                                HMENU menu, HINSTANCE instance, void *param);
-  GB_DLL_IMPORT HMODULE  WINAPI GetModuleHandleW(wchar_t const *);
-  GB_DLL_IMPORT HDC             GetDC(HANDLE);
-  GB_DLL_IMPORT BOOL     WINAPI GetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl);
-  GB_DLL_IMPORT BOOL            GetMonitorInfoW(HMONITOR hMonitor, MONITORINFO *lpmi);
-  GB_DLL_IMPORT HMONITOR        MonitorFromWindow(HWND hwnd, DWORD dwFlags);
-  GB_DLL_IMPORT LONG     WINAPI SetWindowLongW(HWND hWnd, int nIndex, LONG dwNewLong);
-  GB_DLL_IMPORT BOOL     WINAPI SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
-  GB_DLL_IMPORT BOOL     WINAPI SetWindowPlacement(HWND hWnd, WINDOWPLACEMENT const *lpwndpl);
-  GB_DLL_IMPORT BOOL     WINAPI ShowWindow(HWND hWnd, int nCmdShow);
-  GB_DLL_IMPORT LONG_PTR WINAPI GetWindowLongPtrW(HWND wnd, int index);
+  GB_IMPORT_LINK HMODULE  WINAPI GetModuleHandleW(wchar_t const *);
+  GB_IMPORT_LINK HDC             GetDC(HANDLE);
+  GB_IMPORT_LINK BOOL     WINAPI GetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl);
+  GB_IMPORT_LINK BOOL            GetMonitorInfoW(HMONITOR hMonitor, MONITORINFO *lpmi);
+  GB_IMPORT_LINK HMONITOR        MonitorFromWindow(HWND hwnd, DWORD dwFlags);
+  GB_IMPORT_LINK LONG     WINAPI SetWindowLongW(HWND hWnd, int nIndex, LONG dwNewLong);
+  GB_IMPORT_LINK BOOL     WINAPI SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
+  GB_IMPORT_LINK BOOL     WINAPI SetWindowPlacement(HWND hWnd, WINDOWPLACEMENT const *lpwndpl);
+  GB_IMPORT_LINK BOOL     WINAPI ShowWindow(HWND hWnd, int nCmdShow);
+  GB_IMPORT_LINK LONG_PTR WINAPI GetWindowLongPtrW(HWND wnd, int index);
 
-  GB_DLL_IMPORT BOOL           EnumDisplaySettingsW(wchar_t const *lpszDeviceName, DWORD iModeNum, DEVMODEW *lpDevMode);
-  GB_DLL_IMPORT void *  WINAPI GlobalLock(HGLOBAL hMem);
-  GB_DLL_IMPORT BOOL    WINAPI GlobalUnlock(HGLOBAL hMem);
-  GB_DLL_IMPORT HGLOBAL WINAPI GlobalAlloc(UINT uFlags, usize dwBytes);
-  GB_DLL_IMPORT HANDLE  WINAPI GetClipboardData(UINT uFormat);
-  GB_DLL_IMPORT BOOL    WINAPI IsClipboardFormatAvailable(UINT format);
-  GB_DLL_IMPORT BOOL    WINAPI OpenClipboard(HWND hWndNewOwner);
-  GB_DLL_IMPORT BOOL    WINAPI EmptyClipboard(void);
-  GB_DLL_IMPORT BOOL    WINAPI CloseClipboard(void);
-  GB_DLL_IMPORT HANDLE  WINAPI SetClipboardData(UINT uFormat, HANDLE hMem);
+  GB_IMPORT_LINK BOOL           EnumDisplaySettingsW(wchar_t const *lpszDeviceName, DWORD iModeNum, DEVMODEW *lpDevMode);
+  GB_IMPORT_LINK void *  WINAPI GlobalLock(HGLOBAL hMem);
+  GB_IMPORT_LINK BOOL    WINAPI GlobalUnlock(HGLOBAL hMem);
+  GB_IMPORT_LINK HGLOBAL WINAPI GlobalAlloc(UINT uFlags, usize dwBytes);
+  GB_IMPORT_LINK HANDLE  WINAPI GetClipboardData(UINT uFormat);
+  GB_IMPORT_LINK BOOL    WINAPI IsClipboardFormatAvailable(UINT format);
+  GB_IMPORT_LINK BOOL    WINAPI OpenClipboard(HWND hWndNewOwner);
+  GB_IMPORT_LINK BOOL    WINAPI EmptyClipboard(void);
+  GB_IMPORT_LINK BOOL    WINAPI CloseClipboard(void);
+  GB_IMPORT_LINK HANDLE  WINAPI SetClipboardData(UINT uFormat, HANDLE hMem);
 
 #define PFD_TYPE_RGBA             0
 #define PFD_TYPE_COLORINDEX       1
@@ -1250,28 +1250,28 @@ extern "C++" {
 #define GWL_ID    -12
 #define GWL_STYLE -16
 
-  GB_DLL_IMPORT BOOL  WINAPI SetPixelFormat   (HDC hdc, int pixel_format, PIXELFORMATDESCRIPTOR const *pfd);
-  GB_DLL_IMPORT int   WINAPI ChoosePixelFormat(HDC hdc, PIXELFORMATDESCRIPTOR const *pfd);
-  GB_DLL_IMPORT HGLRC WINAPI wglCreateContext (HDC hdc);
-  GB_DLL_IMPORT BOOL  WINAPI wglMakeCurrent   (HDC hdc, HGLRC hglrc);
-  GB_DLL_IMPORT PROC  WINAPI wglGetProcAddress(char const *str);
-  GB_DLL_IMPORT BOOL  WINAPI wglDeleteContext (HGLRC hglrc);
+  GB_IMPORT_LINK BOOL  WINAPI SetPixelFormat   (HDC hdc, int pixel_format, PIXELFORMATDESCRIPTOR const *pfd);
+  GB_IMPORT_LINK int   WINAPI ChoosePixelFormat(HDC hdc, PIXELFORMATDESCRIPTOR const *pfd);
+  GB_IMPORT_LINK HGLRC WINAPI wglCreateContext (HDC hdc);
+  GB_IMPORT_LINK BOOL  WINAPI wglMakeCurrent   (HDC hdc, HGLRC hglrc);
+  GB_IMPORT_LINK PROC  WINAPI wglGetProcAddress(char const *str);
+  GB_IMPORT_LINK BOOL  WINAPI wglDeleteContext (HGLRC hglrc);
 
-  GB_DLL_IMPORT BOOL     WINAPI SetForegroundWindow(HWND hWnd);
-  GB_DLL_IMPORT HWND     WINAPI SetFocus(HWND hWnd);
-  GB_DLL_IMPORT LONG_PTR WINAPI SetWindowLongPtrW(HWND hWnd, int nIndex, LONG_PTR dwNewLong);
-  GB_DLL_IMPORT BOOL     WINAPI GetClientRect(HWND hWnd, RECT *lpRect);
-  GB_DLL_IMPORT BOOL     WINAPI IsIconic(HWND hWnd);
-  GB_DLL_IMPORT HWND     WINAPI GetFocus(void);
-  GB_DLL_IMPORT int      WINAPI ShowCursor(BOOL bShow);
-  GB_DLL_IMPORT SHORT    WINAPI GetAsyncKeyState(int key);
-  GB_DLL_IMPORT BOOL     WINAPI GetCursorPos(POINT *lpPoint);
-  GB_DLL_IMPORT BOOL     WINAPI SetCursorPos(int x, int y);
-  GB_DLL_IMPORT BOOL            ScreenToClient(HWND hWnd, POINT *lpPoint);
-  GB_DLL_IMPORT BOOL            ClientToScreen(HWND hWnd, POINT *lpPoint);
-  GB_DLL_IMPORT BOOL     WINAPI MoveWindow(HWND hWnd, int X, int Y, int nWidth, int nHeight, BOOL bRepaint);
-  GB_DLL_IMPORT BOOL     WINAPI SetWindowTextW(HWND hWnd, wchar_t const *lpString);
-  GB_DLL_IMPORT DWORD    WINAPI GetWindowLongW(HWND hWnd, int nIndex);
+  GB_IMPORT_LINK BOOL     WINAPI SetForegroundWindow(HWND hWnd);
+  GB_IMPORT_LINK HWND     WINAPI SetFocus(HWND hWnd);
+  GB_IMPORT_LINK LONG_PTR WINAPI SetWindowLongPtrW(HWND hWnd, int nIndex, LONG_PTR dwNewLong);
+  GB_IMPORT_LINK BOOL     WINAPI GetClientRect(HWND hWnd, RECT *lpRect);
+  GB_IMPORT_LINK BOOL     WINAPI IsIconic(HWND hWnd);
+  GB_IMPORT_LINK HWND     WINAPI GetFocus(void);
+  GB_IMPORT_LINK int      WINAPI ShowCursor(BOOL bShow);
+  GB_IMPORT_LINK SHORT    WINAPI GetAsyncKeyState(int key);
+  GB_IMPORT_LINK BOOL     WINAPI GetCursorPos(POINT *lpPoint);
+  GB_IMPORT_LINK BOOL     WINAPI SetCursorPos(int x, int y);
+  GB_IMPORT_LINK BOOL            ScreenToClient(HWND hWnd, POINT *lpPoint);
+  GB_IMPORT_LINK BOOL            ClientToScreen(HWND hWnd, POINT *lpPoint);
+  GB_IMPORT_LINK BOOL     WINAPI MoveWindow(HWND hWnd, int X, int Y, int nWidth, int nHeight, BOOL bRepaint);
+  GB_IMPORT_LINK BOOL     WINAPI SetWindowTextW(HWND hWnd, wchar_t const *lpString);
+  GB_IMPORT_LINK DWORD    WINAPI GetWindowLongW(HWND hWnd, int nIndex);
 
 
 
@@ -1279,9 +1279,9 @@ extern "C++" {
 #define PM_NOREMOVE 0
 #define PM_REMOVE   1
 
-  GB_DLL_IMPORT BOOL    WINAPI PeekMessageW(MSG *lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg);
-  GB_DLL_IMPORT BOOL    WINAPI TranslateMessage(MSG const *lpMsg);
-  GB_DLL_IMPORT LRESULT WINAPI DispatchMessageW(MSG const *lpMsg);
+  GB_IMPORT_LINK BOOL    WINAPI PeekMessageW(MSG *lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg);
+  GB_IMPORT_LINK BOOL    WINAPI TranslateMessage(MSG const *lpMsg);
+  GB_IMPORT_LINK LRESULT WINAPI DispatchMessageW(MSG const *lpMsg);
 
   typedef  enum
   {
@@ -1306,9 +1306,9 @@ extern "C++" {
 #define BLACKNESS   (u32)0x00000042
 #define WHITENESS   (u32)0x00FF0062
 
-  GB_DLL_IMPORT BOOL WINAPI SwapBuffers(HDC hdc);
-  GB_DLL_IMPORT BOOL WINAPI DestroyWindow(HWND hWnd);
-  GB_DLL_IMPORT int         StretchDIBits(HDC hdc, int XDest, int YDest, int nDestWidth, int nDestHeight,
+  GB_IMPORT_LINK BOOL WINAPI SwapBuffers(HDC hdc);
+  GB_IMPORT_LINK BOOL WINAPI DestroyWindow(HWND hWnd);
+  GB_IMPORT_LINK int         StretchDIBits(HDC hdc, int XDest, int YDest, int nDestWidth, int nDestHeight,
                                           int XSrc, int YSrc, int nSrcWidth, int nSrcHeight,
                                           void const *lpBits, /*BITMAPINFO*/void const *lpBitsInfo, UINT iUsage, DWORD dwRop);
                                           // IMPORTANT TODO(bill): FIX THIS!!!!

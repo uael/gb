@@ -27,7 +27,7 @@
 
 #include "gb/platform.h"
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 gb_inline void gb_exit(u32 code) { ExitProcess(code); }
 #else
 
@@ -35,7 +35,7 @@ gb_inline void gb_exit(u32 code) { exit(code); }
 #endif
 
 gb_inline void gb_yield(void) {
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   Sleep(0);
 #else
   sched_yield();
@@ -43,7 +43,7 @@ gb_inline void gb_yield(void) {
 }
 
 gb_inline void gb_set_env(char const *name, char const *value) {
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   // TODO(bill): Should this be a Wide version?
   SetEnvironmentVariableA(name, value);
 #else
@@ -52,7 +52,7 @@ gb_inline void gb_set_env(char const *name, char const *value) {
 }
 
 gb_inline void gb_unset_env(char const *name) {
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   // TODO(bill): Should this be a Wide version?
   SetEnvironmentVariableA(name, NULL);
 #else
@@ -106,7 +106,7 @@ gb_inline void gb_key_state_update(gbKeyState *s, b32 is_down) {
   GB_MASK_SET(*s,  was_down && !is_down, gbKeyState_Released);
 }
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 
 #ifndef ERROR_DEVICE_NOT_CONNECTED
 #define ERROR_DEVICE_NOT_CONNECTED 1167
@@ -1075,7 +1075,7 @@ char *gb_platform_get_clipboard_text(gbPlatform *p, gbAllocator a) {
   return text;
 }
 
-#elif defined(GB_SYSTEM_OSX)
+#elif GB_SYSTEM_APPLE
 
 #include <CoreGraphics/CoreGraphics.h>
 #include <objc/objc.h>

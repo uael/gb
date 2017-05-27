@@ -30,21 +30,21 @@
 
 #include "gb/types.h"
 
-GB_DEF void gb_exit(u32 code);
+GB_API void gb_exit(u32 code);
 
-GB_DEF void gb_yield(void);
+GB_API void gb_yield(void);
 
-GB_DEF void gb_set_env(char const *name, char const *value);
+GB_API void gb_set_env(char const *name, char const *value);
 
-GB_DEF void gb_unset_env(char const *name);
+GB_API void gb_unset_env(char const *name);
 
-GB_DEF u16 gb_endian_swap16(u16 i);
+GB_API u16 gb_endian_swap16(u16 i);
 
-GB_DEF u32 gb_endian_swap32(u32 i);
+GB_API u32 gb_endian_swap32(u32 i);
 
-GB_DEF u64 gb_endian_swap64(u64 i);
+GB_API u64 gb_endian_swap64(u64 i);
 
-GB_DEF isize gb_count_set_bits(u64 mask);
+GB_API isize gb_count_set_bits(u64 mask);
 
 #if defined(GB_PLATFORM)
 
@@ -195,7 +195,7 @@ typedef enum gbKeyStateFlag {
   gbKeyState_Released = GB_BIT(2)
 } gbKeyStateFlag;
 
-GB_DEF void gb_key_state_update(gbKeyState *s, b32 is_down);
+GB_API void gb_key_state_update(gbKeyState *s, b32 is_down);
 
 typedef enum gbMouseButtonType {
   gbMouseButton_Left,
@@ -244,7 +244,7 @@ typedef struct gbGameController {
   gbKeyState buttons[gbControllerButton_Count];
 } gbGameController;
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   typedef struct _XINPUT_GAMEPAD XINPUT_GAMEPAD;
   typedef struct _XINPUT_STATE   XINPUT_STATE;
   typedef struct _XINPUT_VIBRATION XINPUT_VIBRATION;
@@ -276,7 +276,7 @@ typedef enum gbRendererType {
 
 
 
-#if defined(GB_SYSTEM_WINDOWS) && !defined(_WINDOWS_)
+#if GB_SYSTEM_WINDOWS && !defined(_WINDOWS_)
 typedef struct tagBITMAPINFOHEADER {
   unsigned long biSize;
   long          biWidth;
@@ -311,9 +311,9 @@ typedef struct gbPlatform {
   u32   window_flags;
   b16   window_is_closed, window_has_focus;
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   void *win32_dc;
-#elif defined(GB_SYSTEM_OSX)
+#elif GB_SYSTEM_APPLE
   void *osx_autorelease_pool; // TODO(bill): Is this really needed?
 #endif
 
@@ -329,7 +329,7 @@ typedef struct gbPlatform {
 
     // NOTE(bill): Software rendering
     struct {
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
       BITMAPINFO win32_bmi;
 #endif
       void *     memory;
@@ -362,7 +362,7 @@ typedef struct gbPlatform {
   f64              dt_for_frame;
   b32              quit_requested;
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
   struct {
     gbXInputGetStateProc *get_state;
     gbXInputSetStateProc *set_state;
@@ -376,34 +376,34 @@ typedef struct gbVideoMode {
   i32 bits_per_pixel;
 } gbVideoMode;
 
-GB_DEF gbVideoMode gb_video_mode                     (i32 width, i32 height, i32 bits_per_pixel);
-GB_DEF b32         gb_video_mode_is_valid            (gbVideoMode mode);
-GB_DEF gbVideoMode gb_video_mode_get_desktop         (void);
-GB_DEF isize       gb_video_mode_get_fullscreen_modes(gbVideoMode *modes, isize max_mode_count); // NOTE(bill): returns mode count
-GB_DEF GB_COMPARE_PROC(gb_video_mode_cmp);     // NOTE(bill): Sort smallest to largest (Ascending)
-GB_DEF GB_COMPARE_PROC(gb_video_mode_dsc_cmp); // NOTE(bill): Sort largest to smallest (Descending)
+GB_API gbVideoMode gb_video_mode                     (i32 width, i32 height, i32 bits_per_pixel);
+GB_API b32         gb_video_mode_is_valid            (gbVideoMode mode);
+GB_API gbVideoMode gb_video_mode_get_desktop         (void);
+GB_API isize       gb_video_mode_get_fullscreen_modes(gbVideoMode *modes, isize max_mode_count); // NOTE(bill): returns mode count
+GB_API GB_COMPARE_PROC(gb_video_mode_cmp);     // NOTE(bill): Sort smallest to largest (Ascending)
+GB_API GB_COMPARE_PROC(gb_video_mode_dsc_cmp); // NOTE(bill): Sort largest to smallest (Descending)
 
 
 // NOTE(bill): Software rendering
-GB_DEF b32   gb_platform_init_with_software         (gbPlatform *p, char const *window_title, i32 width, i32 height, u32 window_flags);
+GB_API b32   gb_platform_init_with_software         (gbPlatform *p, char const *window_title, i32 width, i32 height, u32 window_flags);
 // NOTE(bill): OpenGL Rendering
-GB_DEF b32   gb_platform_init_with_opengl           (gbPlatform *p, char const *window_title, i32 width, i32 height, u32 window_flags, i32 major, i32 minor, b32 core, b32 compatible);
-GB_DEF void  gb_platform_update                     (gbPlatform *p);
-GB_DEF void  gb_platform_display                    (gbPlatform *p);
-GB_DEF void  gb_platform_destroy                    (gbPlatform *p);
-GB_DEF void  gb_platform_show_cursor                (gbPlatform *p, b32 show);
-GB_DEF void  gb_platform_set_mouse_position         (gbPlatform *p, i32 x, i32 y);
-GB_DEF void  gb_platform_set_controller_vibration   (gbPlatform *p, isize index, f32 left_motor, f32 right_motor);
-GB_DEF b32   gb_platform_has_clipboard_text         (gbPlatform *p);
-GB_DEF void  gb_platform_set_clipboard_text         (gbPlatform *p, char const *str);
-GB_DEF char *gb_platform_get_clipboard_text         (gbPlatform *p, gbAllocator a);
-GB_DEF void  gb_platform_set_window_position        (gbPlatform *p, i32 x, i32 y);
-GB_DEF void  gb_platform_set_window_title           (gbPlatform *p, char const *title, ...) GB_PRINTF_ARGS(2);
-GB_DEF void  gb_platform_toggle_fullscreen          (gbPlatform *p, b32 fullscreen_desktop);
-GB_DEF void  gb_platform_toggle_borderless          (gbPlatform *p);
-GB_DEF void  gb_platform_make_opengl_context_current(gbPlatform *p);
-GB_DEF void  gb_platform_show_window                (gbPlatform *p);
-GB_DEF void  gb_platform_hide_window                (gbPlatform *p);
+GB_API b32   gb_platform_init_with_opengl           (gbPlatform *p, char const *window_title, i32 width, i32 height, u32 window_flags, i32 major, i32 minor, b32 core, b32 compatible);
+GB_API void  gb_platform_update                     (gbPlatform *p);
+GB_API void  gb_platform_display                    (gbPlatform *p);
+GB_API void  gb_platform_destroy                    (gbPlatform *p);
+GB_API void  gb_platform_show_cursor                (gbPlatform *p, b32 show);
+GB_API void  gb_platform_set_mouse_position         (gbPlatform *p, i32 x, i32 y);
+GB_API void  gb_platform_set_controller_vibration   (gbPlatform *p, isize index, f32 left_motor, f32 right_motor);
+GB_API b32   gb_platform_has_clipboard_text         (gbPlatform *p);
+GB_API void  gb_platform_set_clipboard_text         (gbPlatform *p, char const *str);
+GB_API char *gb_platform_get_clipboard_text         (gbPlatform *p, gbAllocator a);
+GB_API void  gb_platform_set_window_position        (gbPlatform *p, i32 x, i32 y);
+GB_API void  gb_platform_set_window_title           (gbPlatform *p, char const *title, ...) GB_PRINTF_ARGS(2);
+GB_API void  gb_platform_toggle_fullscreen          (gbPlatform *p, b32 fullscreen_desktop);
+GB_API void  gb_platform_toggle_borderless          (gbPlatform *p);
+GB_API void  gb_platform_make_opengl_context_current(gbPlatform *p);
+GB_API void  gb_platform_show_window                (gbPlatform *p);
+GB_API void  gb_platform_hide_window                (gbPlatform *p);
 
 
 #endif // GB_PLATFORM

@@ -28,7 +28,7 @@
 #ifndef  GB_COMPILER_H__
 # define GB_COMPILER_H__
 
-#include "gb/arch.h"
+#include "gb/system.h"
 
 #if defined(_MSC_VER)
 #define GB_COMPILER_MSVC 1
@@ -38,42 +38,6 @@
 #define GB_COMPILER_CLANG 1
 #else
 #error Unknown compiler
-#endif
-
-#if defined(_M_IX86) || defined(_M_X64) || defined(__i386__) || defined(__x86_64__)
-#ifndef GB_CPU_X86
-#define GB_CPU_X86 1
-#endif
-#ifndef GB_CACHE_LINE_SIZE
-#define GB_CACHE_LINE_SIZE 64
-#endif
-
-#elif defined(_M_PPC) || defined(__powerpc__) || defined(__powerpc64__)
-#ifndef GB_CPU_PPC
-#define GB_CPU_PPC 1
-#endif
-#ifndef GB_CACHE_LINE_SIZE
-#define GB_CACHE_LINE_SIZE 128
-#endif
-
-#elif defined(__arm__)
-#ifndef GB_CPU_ARM
-#define GB_CPU_ARM 1
-#endif
-#ifndef GB_CACHE_LINE_SIZE
-#define GB_CACHE_LINE_SIZE 64
-#endif
-
-#elif defined(__MIPSEL__) || defined(__mips_isa_rev)
-#ifndef GB_CPU_MIPS
-#define GB_CPU_MIPS 1
-#endif
-#ifndef GB_CACHE_LINE_SIZE
-#define GB_CACHE_LINE_SIZE 64
-#endif
-
-#else
-#error Unknown CPU Type
 #endif
 
 #ifndef GB_STATIC_ASSERT
@@ -97,7 +61,7 @@
 #endif
 #endif
 
-#if defined(GB_SYSTEM_UNIX)
+#if GB_SYSTEM_POSIX
 #define _GNU_SOURCE
 #define _LARGEFILE64_SOURCE
 #endif
@@ -108,7 +72,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 
-#if defined(GB_SYSTEM_WINDOWS)
+#if GB_SYSTEM_WINDOWS
 #if !defined(GB_NO_WINDOWS_H)
 #define NOMINMAX            1
 #define WIN32_LEAN_AND_MEAN 1
@@ -137,7 +101,7 @@
 #include <stdlib.h> // NOTE(bill): malloc on linux
 #include <sys/mman.h>
 
-#if !defined(GB_SYSTEM_OSX)
+#if !GB_SYSTEM_APPLE
 
 #include <sys/sendfile.h>
 
@@ -152,7 +116,7 @@
 
 #endif
 
-#if defined(GB_SYSTEM_OSX)
+#if GB_SYSTEM_APPLE
 #include <mach/mach.h>
 #include <mach/mach_init.h>
 #include <mach/mach_time.h>
@@ -163,7 +127,7 @@
 #include <mach/clock.h>
 #endif
 
-#if defined(GB_SYSTEM_UNIX)
+#if GB_SYSTEM_POSIX
 
 #include <semaphore.h>
 
