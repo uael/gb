@@ -29,7 +29,7 @@
 #include "gb/alloc.h"
 
 #if defined(GB_SYSTEM_WINDOWS)
-void gb_affinity_init(gbAffinity *a) {
+void gb_affinity_init(gb_affinity_t *a) {
   SYSTEM_LOGICAL_PROCESSOR_INFORMATION *start_processor_info = NULL;
   DWORD length = 0;
   b32 result  = GetLogicalProcessorInformation(NULL, &length);
@@ -78,12 +78,12 @@ void gb_affinity_init(gbAffinity *a) {
   }
 
 }
-void gb_affinity_destroy(gbAffinity *a) {
+void gb_affinity_destroy(gb_affinity_t *a) {
   gb_unused(a);
 }
 
 
-b32 gb_affinity_set(gbAffinity *a, isize core, isize thread) {
+b32 gb_affinity_set(gb_affinity_t *a, isize core, isize thread) {
   usize available_mask, check_mask = 1;
   GB_ASSERT(thread < gb_affinity_thread_count_for_core(a, core));
 
@@ -99,13 +99,13 @@ b32 gb_affinity_set(gbAffinity *a, isize core, isize thread) {
   }
 }
 
-isize gb_affinity_thread_count_for_core(gbAffinity *a, isize core) {
+isize gb_affinity_thread_count_for_core(gb_affinity_t *a, isize core) {
   GB_ASSERT(core >= 0 && core < a->core_count);
   return gb_count_set_bits(a->core_masks[core]);
 }
 
 #elif defined(GB_SYSTEM_OSX)
-void gb_affinity_init(gbAffinity *a) {
+void gb_affinity_init(gb_affinity_t *a) {
   usize count, count_size = gb_size_of(count);
 
   a->is_accurate      = false;
@@ -132,11 +132,11 @@ void gb_affinity_init(gbAffinity *a) {
 
 }
 
-void gb_affinity_destroy(gbAffinity *a) {
+void gb_affinity_destroy(gb_affinity_t *a) {
   gb_unused(a);
 }
 
-b32 gb_affinity_set(gbAffinity *a, isize core, isize thread_index) {
+b32 gb_affinity_set(gb_affinity_t *a, isize core, isize thread_index) {
   isize index;
   thread_t thread;
   thread_affinity_policy_data_t info;
@@ -152,17 +152,17 @@ b32 gb_affinity_set(gbAffinity *a, isize core, isize thread_index) {
   return result == KERN_SUCCESS;
 }
 
-isize gb_affinity_thread_count_for_core(gbAffinity *a, isize core) {
+isize gb_affinity_thread_count_for_core(gb_affinity_t *a, isize core) {
   GB_ASSERT(core >= 0 && core < a->core_count);
   return a->threads_per_core;
 }
 
 #elif defined(GB_SYSTEM_LINUX)
-// IMPORTANT TODO(bill): This gbAffinity stuff for linux needs be improved a lot!
+// IMPORTANT TODO(bill): This gb_affinity_t stuff for linux needs be improved a lot!
 // NOTE(zangent): I have to read /proc/cpuinfo to get the number of threads per core.
 #include <stdio.h>
 
-void gb_affinity_init(gbAffinity *a) {
+void gb_affinity_init(gb_affinity_t *a) {
   b32 accurate = true;
   isize threads = 0;
   FILE *fp;
@@ -224,15 +224,15 @@ void gb_affinity_init(gbAffinity *a) {
 
 }
 
-void gb_affinity_destroy(gbAffinity *a) {
+void gb_affinity_destroy(gb_affinity_t *a) {
   gb_unused(a);
 }
 
-b32 gb_affinity_set(gbAffinity *a, isize core, isize thread_index) {
+b32 gb_affinity_set(gb_affinity_t *a, isize core, isize thread_index) {
   return true;
 }
 
-isize gb_affinity_thread_count_for_core(gbAffinity *a, isize core) {
+isize gb_affinity_thread_count_for_core(gb_affinity_t *a, isize core) {
   GB_ASSERT(0 <= core && core < a->core_count);
   return a->threads_per_core;
 }
