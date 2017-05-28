@@ -61,7 +61,7 @@ gb_inline void gb_thread_start(gbThread *t, gbThreadProc *proc, void *data) {
   gb_thread_start_with_stack(t, proc, data, 0);
 }
 
-gb_inline void gb_thread_start_with_stack(gbThread *t, gbThreadProc *proc, void *data, isize stack_size) {
+gb_inline void gb_thread_start_with_stack(gbThread *t, gbThreadProc *proc, void *data, ssize_t stack_size) {
   GB_ASSERT(!t->is_running);
   GB_ASSERT(proc != NULL);
   t->proc = proc;
@@ -101,15 +101,15 @@ gb_inline void gb_thread_join(gbThread *t) {
   t->is_running = false;
 }
 
-gb_inline b32 gb_thread_is_running(gbThread const *t) { return t->is_running != 0; }
+gb_inline byte32_t gb_thread_is_running(gbThread const *t) { return t->is_running != 0; }
 
-gb_inline u32 gb_thread_current_id(void) {
-  u32 thread_id;
+gb_inline uint32_t gb_thread_current_id(void) {
+  uint32_t thread_id;
 #if defined(GB_SYSTEM_WINDOWS)
 #if defined(GB_ARCH_32_BIT) && defined(GB_CPU_X86)
-  thread_id = (cast(u32 *)__readfsdword(24))[9];
+  thread_id = (cast(uint32_t *)__readfsdword(24))[9];
 #elif defined(GB_ARCH_64_BIT) && defined(GB_CPU_X86)
-  thread_id = (cast(u32 *)__readgsqword(48))[18];
+  thread_id = (cast(uint32_t *)__readgsqword(48))[18];
 #else
   thread_id = GetCurrentThreadId();
 #endif
@@ -176,7 +176,7 @@ void gb_sync_destroy(gbSync *s) {
   gb_semaphore_destroy(&s->release);
 }
 
-void gb_sync_set_target(gbSync *s, i32 count) {
+void gb_sync_set_target(gbSync *s, int32_t count) {
   gb_mutex_lock(&s->start);
 
   gb_mutex_lock(&s->mutex);
@@ -196,8 +196,8 @@ void gb_sync_release(gbSync *s) {
   }
 }
 
-i32 gb_sync_reach(gbSync *s) {
-  i32 n;
+int32_t gb_sync_reach(gbSync *s) {
+  int32_t n;
   gb_mutex_lock(&s->mutex);
   GB_ASSERT(s->current < s->target);
   n = ++s->current; // NOTE(bill): Record this value to avoid possible race if `return s->current` was done

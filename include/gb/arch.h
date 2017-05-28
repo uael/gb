@@ -65,7 +65,7 @@
 #ifndef GB_EDIAN_ORDER
 #define GB_EDIAN_ORDER
 // TODO(bill): Is the a good way or is it better to test for certain compilers and macros?
-#define GB_IS_BIG_EDIAN    (!*(u8*)&(u16){1})
+#define GB_IS_BIG_EDIAN    (!*(uint8_t*)&(uint16_t){1})
 #define GB_IS_LITTLE_EDIAN (!GB_IS_BIG_EDIAN)
 #endif
 

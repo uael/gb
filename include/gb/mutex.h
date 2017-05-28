@@ -34,7 +34,7 @@ typedef struct gbMutex {
   gbSemaphore semaphore;
   gbAtomic32 counter;
   gbAtomic32 owner;
-  i32 recursion;
+  int32_t recursion;
 } gbMutex;
 
 GB_DEF void gb_mutex_init(gbMutex *m);
@@ -43,7 +43,7 @@ GB_DEF void gb_mutex_destroy(gbMutex *m);
 
 GB_DEF void gb_mutex_lock(gbMutex *m);
 
-GB_DEF b32 gb_mutex_try_lock(gbMutex *m);
+GB_DEF byte32_t gb_mutex_try_lock(gbMutex *m);
 
 GB_DEF void gb_mutex_unlock(gbMutex *m);
 

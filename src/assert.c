@@ -28,7 +28,7 @@
 #include "gb/assert.h"
 #include "gb/io.h"
 
-void gb_assert_handler(char const *condition, char const *file, i32 line, char const *msg, ...) {
+void gb_assert_handler(char const *condition, char const *file, int32_t line, char const *msg, ...) {
   gb_printf_err("%s:%d: Assert Failure: ", file, line);
   if (condition)
     gb_printf_err("`%s` ", condition);

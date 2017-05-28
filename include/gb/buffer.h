@@ -39,8 +39,8 @@
 //
 
 typedef struct gbBufferHeader {
-  isize count;
-  isize capacity;
+  ssize_t count;
+  ssize_t capacity;
 } gbBufferHeader;
 
 #define gbBuffer(Type) Type *

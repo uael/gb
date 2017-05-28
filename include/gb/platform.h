@@ -30,7 +30,7 @@
 
 #include "gb/types.h"
 
-GB_DEF void gb_exit(u32 code);
+GB_DEF void gb_exit(uint32_t code);
 
 GB_DEF void gb_yield(void);
 
@@ -38,13 +38,13 @@ GB_DEF void gb_set_env(char const *name, char const *value);
 
 GB_DEF void gb_unset_env(char const *name);
 
-GB_DEF u16 gb_endian_swap16(u16 i);
+GB_DEF uint16_t gb_endian_swap16(uint16_t i);
 
-GB_DEF u32 gb_endian_swap32(u32 i);
+GB_DEF uint32_t gb_endian_swap32(uint32_t i);
 
-GB_DEF u64 gb_endian_swap64(u64 i);
+GB_DEF uint64_t gb_endian_swap64(uint64_t i);
 
-GB_DEF isize gb_count_set_bits(u64 mask);
+GB_DEF ssize_t gb_count_set_bits(uint64_t mask);
 
 #if defined(GB_PLATFORM)
 
@@ -188,14 +188,14 @@ typedef enum gbKeyType {
 } gbKeyType;
 
 /* TODO(bill): Change name? */
-typedef u8 gbKeyState;
+typedef uint8_t gbKeyState;
 typedef enum gbKeyStateFlag {
   gbKeyState_Down     = GB_BIT(0),
   gbKeyState_Pressed  = GB_BIT(1),
   gbKeyState_Released = GB_BIT(2)
 } gbKeyStateFlag;
 
-GB_DEF void gb_key_state_update(gbKeyState *s, b32 is_down);
+GB_DEF void gb_key_state_update(gbKeyState *s, byte32_t is_down);
 
 typedef enum gbMouseButtonType {
   gbMouseButton_Left,
@@ -238,9 +238,9 @@ typedef enum gbControllerButtonType {
 } gbControllerButtonType;
 
 typedef struct gbGameController {
-  b16 is_connected, is_analog;
+  byte16_t is_connected, is_analog;
 
-  f32        axes[gbControllerAxis_Count];
+  float32_t        axes[gbControllerAxis_Count];
   gbKeyState buttons[gbControllerButton_Count];
 } gbGameController;
 
@@ -281,8 +281,8 @@ typedef struct tagBITMAPINFOHEADER {
   unsigned long biSize;
   long          biWidth;
   long          biHeight;
-  u16           biPlanes;
-  u16           biBitCount;
+  uint16_t           biPlanes;
+  uint16_t           biBitCount;
   unsigned long biCompression;
   unsigned long biSizeImage;
   long          biXPelsPerMeter;
@@ -291,10 +291,10 @@ typedef struct tagBITMAPINFOHEADER {
   unsigned long biClrImportant;
 } BITMAPINFOHEADER, *PBITMAPINFOHEADER;
 typedef struct tagRGBQUAD {
-  u8 rgbBlue;
-  u8 rgbGreen;
-  u8 rgbRed;
-  u8 rgbReserved;
+  uint8_t rgbBlue;
+  uint8_t rgbGreen;
+  uint8_t rgbRed;
+  uint8_t rgbReserved;
 } RGBQUAD;
 typedef struct tagBITMAPINFO {
   BITMAPINFOHEADER bmiHeader;
@@ -303,13 +303,13 @@ typedef struct tagBITMAPINFO {
 #endif
 
 typedef struct gbPlatform {
-  b32 is_initialized;
+  byte32_t is_initialized;
 
   void *window_handle;
-  i32   window_x, window_y;
-  i32   window_width, window_height;
-  u32   window_flags;
-  b16   window_is_closed, window_has_focus;
+  int32_t   window_x, window_y;
+  int32_t   window_width, window_height;
+  uint32_t   window_flags;
+  byte16_t   window_is_closed, window_has_focus;
 
 #if defined(GB_SYSTEM_WINDOWS)
   void *win32_dc;
@@ -321,9 +321,9 @@ typedef struct gbPlatform {
   union {
     struct {
       void *      context;
-      i32         major;
-      i32         minor;
-      b16         core, compatible;
+      int32_t         major;
+      int32_t         minor;
+      byte16_t         core, compatible;
       gbDllHandle dll_handle;
     } opengl;
 
@@ -333,9 +333,9 @@ typedef struct gbPlatform {
       BITMAPINFO win32_bmi;
 #endif
       void *     memory;
-      isize      memory_size;
-      i32        pitch;
-      i32        bits_per_pixel;
+      ssize_t      memory_size;
+      int32_t        pitch;
+      int32_t        bits_per_pixel;
     } sw_framebuffer;
   };
 
@@ -346,21 +346,21 @@ typedef struct gbPlatform {
     gbKeyState shift;
   } key_modifiers;
 
-  Rune  char_buffer[256];
-  isize char_buffer_count;
+  rune_t  char_buffer[256];
+  ssize_t char_buffer_count;
 
-  b32 mouse_clip;
-  i32 mouse_x, mouse_y;
-  i32 mouse_dx, mouse_dy; // NOTE(bill): Not raw mouse movement
-  i32 mouse_raw_dx, mouse_raw_dy; // NOTE(bill): Raw mouse movement
-  f32 mouse_wheel_delta;
+  byte32_t mouse_clip;
+  int32_t mouse_x, mouse_y;
+  int32_t mouse_dx, mouse_dy; // NOTE(bill): Not raw mouse movement
+  int32_t mouse_raw_dx, mouse_raw_dy; // NOTE(bill): Raw mouse movement
+  float32_t mouse_wheel_delta;
   gbKeyState mouse_buttons[gbMouseButton_Count];
 
   gbGameController game_controllers[GB_MAX_GAME_CONTROLLER_COUNT];
 
-  f64              curr_time;
-  f64              dt_for_frame;
-  b32              quit_requested;
+  float64_t              curr_time;
+  float64_t              dt_for_frame;
+  byte32_t              quit_requested;
 
 #if defined(GB_SYSTEM_WINDOWS)
   struct {
@@ -372,34 +372,34 @@ typedef struct gbPlatform {
 
 
 typedef struct gbVideoMode {
-  i32 width, height;
-  i32 bits_per_pixel;
+  int32_t width, height;
+  int32_t bits_per_pixel;
 } gbVideoMode;
 
-GB_DEF gbVideoMode gb_video_mode                     (i32 width, i32 height, i32 bits_per_pixel);
-GB_DEF b32         gb_video_mode_is_valid            (gbVideoMode mode);
+GB_DEF gbVideoMode gb_video_mode                     (int32_t width, int32_t height, int32_t bits_per_pixel);
+GB_DEF byte32_t         gb_video_mode_is_valid            (gbVideoMode mode);
 GB_DEF gbVideoMode gb_video_mode_get_desktop         (void);
-GB_DEF isize       gb_video_mode_get_fullscreen_modes(gbVideoMode *modes, isize max_mode_count); // NOTE(bill): returns mode count
+GB_DEF ssize_t       gb_video_mode_get_fullscreen_modes(gbVideoMode *modes, ssize_t max_mode_count); // NOTE(bill): returns mode count
 GB_DEF GB_COMPARE_PROC(gb_video_mode_cmp);     // NOTE(bill): Sort smallest to largest (Ascending)
 GB_DEF GB_COMPARE_PROC(gb_video_mode_dsc_cmp); // NOTE(bill): Sort largest to smallest (Descending)
 
 
 // NOTE(bill): Software rendering
-GB_DEF b32   gb_platform_init_with_software         (gbPlatform *p, char const *window_title, i32 width, i32 height, u32 window_flags);
+GB_DEF byte32_t   gb_platform_init_with_software         (gbPlatform *p, char const *window_title, int32_t width, int32_t height, uint32_t window_flags);
 // NOTE(bill): OpenGL Rendering
-GB_DEF b32   gb_platform_init_with_opengl           (gbPlatform *p, char const *window_title, i32 width, i32 height, u32 window_flags, i32 major, i32 minor, b32 core, b32 compatible);
+GB_DEF byte32_t   gb_platform_init_with_opengl           (gbPlatform *p, char const *window_title, int32_t width, int32_t height, uint32_t window_flags, int32_t major, int32_t minor, byte32_t core, byte32_t compatible);
 GB_DEF void  gb_platform_update                     (gbPlatform *p);
 GB_DEF void  gb_platform_display                    (gbPlatform *p);
 GB_DEF void  gb_platform_destroy                    (gbPlatform *p);
-GB_DEF void  gb_platform_show_cursor                (gbPlatform *p, b32 show);
-GB_DEF void  gb_platform_set_mouse_position         (gbPlatform *p, i32 x, i32 y);
-GB_DEF void  gb_platform_set_controller_vibration   (gbPlatform *p, isize index, f32 left_motor, f32 right_motor);
-GB_DEF b32   gb_platform_has_clipboard_text         (gbPlatform *p);
+GB_DEF void  gb_platform_show_cursor                (gbPlatform *p, byte32_t show);
+GB_DEF void  gb_platform_set_mouse_position         (gbPlatform *p, int32_t x, int32_t y);
+GB_DEF void  gb_platform_set_controller_vibration   (gbPlatform *p, ssize_t index, float32_t left_motor, float32_t right_motor);
+GB_DEF byte32_t   gb_platform_has_clipboard_text         (gbPlatform *p);
 GB_DEF void  gb_platform_set_clipboard_text         (gbPlatform *p, char const *str);
 GB_DEF char *gb_platform_get_clipboard_text         (gbPlatform *p, gbAllocator a);
-GB_DEF void  gb_platform_set_window_position        (gbPlatform *p, i32 x, i32 y);
+GB_DEF void  gb_platform_set_window_position        (gbPlatform *p, int32_t x, int32_t y);
 GB_DEF void  gb_platform_set_window_title           (gbPlatform *p, char const *title, ...) GB_PRINTF_ARGS(2);
-GB_DEF void  gb_platform_toggle_fullscreen          (gbPlatform *p, b32 fullscreen_desktop);
+GB_DEF void  gb_platform_toggle_fullscreen          (gbPlatform *p, byte32_t fullscreen_desktop);
 GB_DEF void  gb_platform_toggle_borderless          (gbPlatform *p);
 GB_DEF void  gb_platform_make_opengl_context_current(gbPlatform *p);
 GB_DEF void  gb_platform_show_window                (gbPlatform *p);

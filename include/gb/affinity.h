@@ -33,22 +33,22 @@
 typedef struct gb_affinity gb_affinity_t;
 
 struct gb_affinity {
-  b32 is_accurate;
-  isize core_count;
-  isize thread_count;
+  byte32_t is_accurate;
+  ssize_t core_count;
+  ssize_t thread_count;
 #if defined(GB_SYSTEM_WINDOWS)
-  # define GB_WIN32_MAX_THREADS (8 * gb_size_of(usize))
-  usize core_masks[GB_WIN32_MAX_THREADS];
+  # define GB_WIN32_MAX_THREADS (8 * gb_size_of(size_t))
+  size_t core_masks[GB_WIN32_MAX_THREADS];
 #elif defined(GB_SYSTEM_OSX) || defined(GB_SYSTEM_LINUX)
-  isize threads_per_core;
+  ssize_t threads_per_core;
 #else
 #error TODO(bill): Unknown system
 #endif
 };
 
-GB_DEF void  gb_affinity_init(gb_affinity_t *a);
-GB_DEF void  gb_affinity_destroy(gb_affinity_t *a);
-GB_DEF b32   gb_affinity_set(gb_affinity_t *a, isize core, isize thread);
-GB_DEF isize gb_affinity_thread_count_for_core(gb_affinity_t *a, isize core);
+GB_DEF void     gb_affinity_init(gb_affinity_t *a);
+GB_DEF void     gb_affinity_destroy(gb_affinity_t *a);
+GB_DEF byte32_t gb_affinity_set(gb_affinity_t *a, ssize_t core, ssize_t thread);
+GB_DEF ssize_t  gb_affinity_thread_count_for_core(gb_affinity_t *a, ssize_t core);
 
 #endif /* GB_AFFINITY_H__ */

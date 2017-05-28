@@ -28,10 +28,10 @@
 #include "gb/platform.h"
 
 #if defined(GB_SYSTEM_WINDOWS)
-gb_inline void gb_exit(u32 code) { ExitProcess(code); }
+gb_inline void gb_exit(uint32_t code) { ExitProcess(code); }
 #else
 
-gb_inline void gb_exit(u32 code) { exit(code); }
+gb_inline void gb_exit(uint32_t code) { exit(code); }
 #endif
 
 gb_inline void gb_yield(void) {
@@ -60,24 +60,24 @@ gb_inline void gb_unset_env(char const *name) {
 #endif
 }
 
-gb_inline u16 gb_endian_swap16(u16 i) {
+gb_inline uint16_t gb_endian_swap16(uint16_t i) {
   return (i >> 8) | (i << 8);
 }
 
-gb_inline u32 gb_endian_swap32(u32 i) {
+gb_inline uint32_t gb_endian_swap32(uint32_t i) {
   return (i >> 24) | (i << 24) |
          ((i & 0x00ff0000u) >> 8) | ((i & 0x0000ff00u) << 8);
 }
 
-gb_inline u64 gb_endian_swap64(u64 i) {
+gb_inline uint64_t gb_endian_swap64(uint64_t i) {
   return (i >> 56) | (i << 56) |
          ((i & 0x00ff000000000000ull) >> 40) | ((i & 0x000000000000ff00ull) << 40) |
          ((i & 0x0000ff0000000000ull) >> 24) | ((i & 0x0000000000ff0000ull) << 24) |
          ((i & 0x000000ff00000000ull) >> 8) | ((i & 0x00000000ff000000ull) << 8);
 }
 
-gb_inline isize gb_count_set_bits(u64 mask) {
-  isize count = 0;
+gb_inline ssize_t gb_count_set_bits(uint64_t mask) {
+  ssize_t count = 0;
   while (mask) {
     count += (mask & 1);
     mask >>= 1;
@@ -98,8 +98,8 @@ gb_inline isize gb_count_set_bits(u64 mask) {
 
 #if defined(GB_PLATFORM)
 
-gb_inline void gb_key_state_update(gbKeyState *s, b32 is_down) {
-  b32 was_down = (*s & gbKeyState_Down) != 0;
+gb_inline void gb_key_state_update(gbKeyState *s, byte32_t is_down) {
+  byte32_t was_down = (*s & gbKeyState_Down) != 0;
   is_down = is_down != 0; // NOTE(bill): Make sure it's a boolean
   GB_MASK_SET(*s, is_down,               gbKeyState_Down);
   GB_MASK_SET(*s, !was_down &&  is_down, gbKeyState_Pressed);
@@ -122,18 +122,18 @@ GB_XINPUT_SET_STATE(gbXInputSetState_Stub) {
 }
 
 
-gb_internal gb_inline f32 gb__process_xinput_stick_value(i16 value, i16 dead_zone_threshold) {
-  f32 result = 0;
+gb_internal gb_inline float32_t gb__process_xinput_stick_value(int16_t value, int16_t dead_zone_threshold) {
+  float32_t result = 0;
 
   if (value < -dead_zone_threshold)
-    result = cast(f32) (value + dead_zone_threshold) / (32768.0f - dead_zone_threshold);
+    result = cast(float32_t) (value + dead_zone_threshold) / (32768.0f - dead_zone_threshold);
   else if (value > dead_zone_threshold)
-    result = cast(f32) (value - dead_zone_threshold) / (32767.0f - dead_zone_threshold);
+    result = cast(float32_t) (value - dead_zone_threshold) / (32767.0f - dead_zone_threshold);
 
   return result;
 }
 
-gb_internal void gb__platform_resize_dib_section(gbPlatform *p, i32 width, i32 height) {
+gb_internal void gb__platform_resize_dib_section(gbPlatform *p, int32_t width, int32_t height) {
   if ((p->renderer_type == gbRenderer_Software) &&
       !(p->window_width == width && p->window_height == height)) {
     BITMAPINFO bmi = {0};
@@ -152,7 +152,7 @@ gb_internal void gb__platform_resize_dib_section(gbPlatform *p, i32 width, i32 h
     bmi.bmiHeader.biWidth       = width;
     bmi.bmiHeader.biHeight      = height; // NOTE(bill): -ve is top-down, +ve is bottom-up
     bmi.bmiHeader.biPlanes      = 1;
-    bmi.bmiHeader.biBitCount    = cast(u16)p->sw_framebuffer.bits_per_pixel;
+    bmi.bmiHeader.biBitCount    = cast(uint16_t)p->sw_framebuffer.bits_per_pixel;
     bmi.bmiHeader.biCompression = 0 /*BI_RGB*/;
 
     p->sw_framebuffer.win32_bmi = bmi;
@@ -162,7 +162,7 @@ gb_internal void gb__platform_resize_dib_section(gbPlatform *p, i32 width, i32 h
       gb_vm_free(gb_virtual_memory(p->sw_framebuffer.memory, p->sw_framebuffer.memory_size));
 
     {
-      isize memory_size = p->sw_framebuffer.pitch * height;
+      ssize_t memory_size = p->sw_framebuffer.pitch * height;
       gbVirtualMemory vm = gb_vm_alloc(0, memory_size);
       p->sw_framebuffer.memory      = vm.data;
       p->sw_framebuffer.memory_size = vm.size;
@@ -258,7 +258,7 @@ gb_internal gbKeyType gb__win32_from_vk(unsigned int key) {
 LRESULT CALLBACK gb__win32_window_callback(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   // NOTE(bill): Silly callbacks
   gbPlatform *platform = cast(gbPlatform *)GetWindowLongPtrW(hWnd, GWLP_USERDATA);
-  b32 window_has_focus = (platform != NULL) && platform->window_has_focus;
+  byte32_t window_has_focus = (platform != NULL) && platform->window_has_focus;
 
   if (msg == WM_CREATE) { // NOTE(bill): Doesn't need the platform
     // NOTE(bill): https://msdn.microsoft.com/en-us/library/windows/desktop/ms645536(v=vs.85).aspx
@@ -301,7 +301,7 @@ LRESULT CALLBACK gb__win32_window_callback(HWND hWnd, UINT msg, WPARAM wParam, L
       if (wParam == '\r')
         wParam = '\n';
       // TODO(bill): Does this need to be thread-safe?
-      platform->char_buffer[platform->char_buffer_count++] = cast(Rune)wParam;
+      platform->char_buffer[platform->char_buffer_count++] = cast(rune_t)wParam;
     }
   } break;
 
@@ -323,10 +323,10 @@ LRESULT CALLBACK gb__win32_window_callback(HWND hWnd, UINT msg, WPARAM wParam, L
       unsigned int flags = raw_kb->Flags;
       // NOTE(bill): e0 and e1 are escape sequences used for certain special keys, such as PRINT and PAUSE/BREAK.
       // NOTE(bill): http://www.win.tue.nl/~aeb/linux/kbd/scancodes-1.html
-      b32 is_e0   = (flags & RI_KEY_E0) != 0;
-      b32 is_e1   = (flags & RI_KEY_E1) != 0;
-      b32 is_up   = (flags & RI_KEY_BREAK) != 0;
-      b32 is_down = !is_up;
+      byte32_t is_e0   = (flags & RI_KEY_E0) != 0;
+      byte32_t is_e1   = (flags & RI_KEY_E1) != 0;
+      byte32_t is_up   = (flags & RI_KEY_BREAK) != 0;
+      byte32_t is_down = !is_up;
 
       // TODO(bill): Should I handle scan codes?
 
@@ -379,12 +379,12 @@ LRESULT CALLBACK gb__win32_window_callback(HWND hWnd, UINT msg, WPARAM wParam, L
     } break;
     case RIM_TYPEMOUSE: {
       RAWMOUSE *raw_mouse = &raw.data.mouse;
-      u16 flags = raw_mouse->usButtonFlags;
+      uint16_t flags = raw_mouse->usButtonFlags;
       long dx = +raw_mouse->lLastX;
       long dy = -raw_mouse->lLastY;
 
       if (flags & RI_MOUSE_WHEEL)
-        platform->mouse_wheel_delta = cast(i16)raw_mouse->usButtonData;
+        platform->mouse_wheel_delta = cast(int16_t)raw_mouse->usButtonData;
 
       platform->mouse_raw_dx = dx;
       platform->mouse_raw_dy = dy;
@@ -402,11 +402,11 @@ LRESULT CALLBACK gb__win32_window_callback(HWND hWnd, UINT msg, WPARAM wParam, L
 typedef void *wglCreateContextAttribsARB_Proc(void *hDC, void *hshareContext, int const *attribList);
 
 
-b32 gb__platform_init(gbPlatform *p, char const *window_title, gbVideoMode mode, gbRendererType type, u32 window_flags) {
+byte32_t gb__platform_init(gbPlatform *p, char const *window_title, gbVideoMode mode, gbRendererType type, uint32_t window_flags) {
   WNDCLASSEXW wc = {gb_size_of(WNDCLASSEXW)};
   DWORD ex_style = 0, style = 0;
   RECT wr;
-  u16 title_buffer[256] = {0}; // TODO(bill): gb_local_persist this?
+  uint16_t title_buffer[256] = {0}; // TODO(bill): gb_local_persist this?
 
   wc.style = CS_HREDRAW | CS_VREDRAW; // | CS_OWNDC
   wc.lpfnWndProc   = gb__win32_window_callback;
@@ -494,8 +494,8 @@ b32 gb__platform_init(gbPlatform *p, char const *window_title, gbVideoMode mode,
   switch (p->renderer_type) {
   case gbRenderer_Opengl: {
     wglCreateContextAttribsARB_Proc *wglCreateContextAttribsARB;
-    i32 attribs[8] = {0};
-    isize c = 0;
+    int32_t attribs[8] = {0};
+    ssize_t c = 0;
 
     PIXELFORMATDESCRIPTOR pfd = {gb_size_of(PIXELFORMATDESCRIPTOR)};
     pfd.nVersion     = 1;
@@ -587,8 +587,8 @@ b32 gb__platform_init(gbPlatform *p, char const *window_title, gbVideoMode mode,
   return true;
 }
 
-gb_inline b32 gb_platform_init_with_software(gbPlatform *p, char const *window_title,
-                                             i32 width, i32 height, u32 window_flags) {
+gb_inline byte32_t gb_platform_init_with_software(gbPlatform *p, char const *window_title,
+                                             int32_t width, int32_t height, uint32_t window_flags) {
   gbVideoMode mode;
   mode.width          = width;
   mode.height         = height;
@@ -596,28 +596,28 @@ gb_inline b32 gb_platform_init_with_software(gbPlatform *p, char const *window_t
   return gb__platform_init(p, window_title, mode, gbRenderer_Software, window_flags);
 }
 
-gb_inline b32 gb_platform_init_with_opengl(gbPlatform *p, char const *window_title,
-                                           i32 width, i32 height, u32 window_flags, i32 major, i32 minor, b32 core, b32 compatible) {
+gb_inline byte32_t gb_platform_init_with_opengl(gbPlatform *p, char const *window_title,
+                                           int32_t width, int32_t height, uint32_t window_flags, int32_t major, int32_t minor, byte32_t core, byte32_t compatible) {
   gbVideoMode mode;
   mode.width          = width;
   mode.height         = height;
   mode.bits_per_pixel = 32;
   p->opengl.major      = major;
   p->opengl.minor      = minor;
-  p->opengl.core       = cast(b16)core;
-  p->opengl.compatible = cast(b16)compatible;
+  p->opengl.core       = cast(byte16_t)core;
+  p->opengl.compatible = cast(byte16_t)compatible;
   return gb__platform_init(p, window_title, mode, gbRenderer_Opengl, window_flags);
 }
 
 #ifndef _XINPUT_H_
 typedef struct _XINPUT_GAMEPAD {
-  u16 wButtons;
-  u8  bLeftTrigger;
-  u8  bRightTrigger;
-  u16 sThumbLX;
-  u16 sThumbLY;
-  u16 sThumbRX;
-  u16 sThumbRY;
+  uint16_t wButtons;
+  uint8_t  bLeftTrigger;
+  uint8_t  bRightTrigger;
+  uint16_t sThumbLX;
+  uint16_t sThumbLY;
+  uint16_t sThumbRX;
+  uint16_t sThumbRY;
 } XINPUT_GAMEPAD;
 
 typedef struct _XINPUT_STATE {
@@ -626,8 +626,8 @@ typedef struct _XINPUT_STATE {
 } XINPUT_STATE;
 
 typedef struct _XINPUT_VIBRATION {
-  u16 wLeftMotorSpeed;
-  u16 wRightMotorSpeed;
+  uint16_t wLeftMotorSpeed;
+  uint16_t wRightMotorSpeed;
 } XINPUT_VIBRATION;
 
 #define XINPUT_GAMEPAD_DPAD_UP              0x00000001
@@ -654,12 +654,12 @@ typedef struct _XINPUT_VIBRATION {
 #endif
 
 void gb_platform_update(gbPlatform *p) {
-  isize i;
+  ssize_t i;
 
   { // NOTE(bill): Set window state
     // TODO(bill): Should this be moved to gb__win32_window_callback ?
     RECT window_rect;
-    i32 x, y, w, h;
+    int32_t x, y, w, h;
 
     GetClientRect(cast(HWND)p->window_handle, &window_rect);
     x = window_rect.left;
@@ -700,8 +700,8 @@ void gb_platform_update(gbPlatform *p) {
     GetCursorPos(&mouse_pos);
     ScreenToClient(cast(HWND)p->window_handle, &mouse_pos);
     {
-      i32 x = mouse_pos.x;
-      i32 y = p->window_height-1 - mouse_pos.y;
+      int32_t x = mouse_pos.x;
+      int32_t y = p->window_height-1 - mouse_pos.y;
       p->mouse_dx = x - p->mouse_x;
       p->mouse_dy = y - p->mouse_y;
       p->mouse_x = x;
@@ -709,9 +709,9 @@ void gb_platform_update(gbPlatform *p) {
     }
 
     if (p->mouse_clip) {
-      b32 update = false;
-      i32 x = p->mouse_x;
-      i32 y = p->mouse_y;
+      byte32_t update = false;
+      int32_t x = p->mouse_x;
+      int32_t y = p->mouse_y;
       if (p->mouse_x < 0) {
         x = 0;
         update = true;
@@ -742,7 +742,7 @@ void gb_platform_update(gbPlatform *p) {
 
     // NOTE(bill): Need to update as the keys only get updates on events
     for (i = 0; i < gbKey_Count; i++) {
-      b32 is_down = (p->keys[i] & gbKeyState_Down) != 0;
+      byte32_t is_down = (p->keys[i] & gbKeyState_Down) != 0;
       gb_key_state_update(&p->keys[i], is_down);
     }
 
@@ -753,7 +753,7 @@ void gb_platform_update(gbPlatform *p) {
   }
 
   { // NOTE(bill): Set Controller states
-    isize max_controller_count = XUSER_MAX_COUNT;
+    ssize_t max_controller_count = XUSER_MAX_COUNT;
     if (max_controller_count > gb_count_of(p->game_controllers))
       max_controller_count = gb_count_of(p->game_controllers);
 
@@ -776,8 +776,8 @@ void gb_platform_update(gbPlatform *p) {
         controller->axes[gbControllerAxis_RightX] = gb__process_xinput_stick_value(pad->sThumbRX, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
         controller->axes[gbControllerAxis_RightY] = gb__process_xinput_stick_value(pad->sThumbRY, XINPUT_GAMEPAD_RIGHT_THUMB_DEADZONE);
 
-        controller->axes[gbControllerAxis_LeftTrigger]  = cast(f32)pad->bLeftTrigger / 255.0f;
-        controller->axes[gbControllerAxis_RightTrigger] = cast(f32)pad->bRightTrigger / 255.0f;
+        controller->axes[gbControllerAxis_LeftTrigger]  = cast(float32_t)pad->bLeftTrigger / 255.0f;
+        controller->axes[gbControllerAxis_RightTrigger] = cast(float32_t)pad->bRightTrigger / 255.0f;
 
 
         if ((controller->axes[gbControllerAxis_LeftX] != 0.0f) ||
@@ -842,8 +842,8 @@ void gb_platform_display(gbPlatform *p) {
   }
 
   {
-    f64 prev_time = p->curr_time;
-    f64 curr_time = gb_time_now();
+    float64_t prev_time = p->curr_time;
+    float64_t curr_time = gb_time_now();
     p->dt_for_frame = curr_time - prev_time;
     p->curr_time = curr_time;
   }
@@ -859,12 +859,12 @@ void gb_platform_destroy(gbPlatform *p) {
   DestroyWindow(cast(HWND)p->window_handle);
 }
 
-void gb_platform_show_cursor(gbPlatform *p, b32 show) {
+void gb_platform_show_cursor(gbPlatform *p, byte32_t show) {
   gb_unused(p);
   ShowCursor(show);
 }
 
-void gb_platform_set_mouse_position(gbPlatform *p, i32 x, i32 y) {
+void gb_platform_set_mouse_position(gbPlatform *p, int32_t x, int32_t y) {
   POINT point;
   point.x = cast(LONG)x;
   point.y = cast(LONG)(p->window_height-1 - y);
@@ -877,7 +877,7 @@ void gb_platform_set_mouse_position(gbPlatform *p, i32 x, i32 y) {
 
 
 
-void gb_platform_set_controller_vibration(gbPlatform *p, isize index, f32 left_motor, f32 right_motor) {
+void gb_platform_set_controller_vibration(gbPlatform *p, ssize_t index, float32_t left_motor, float32_t right_motor) {
   if (gb_is_between(index, 0, GB_MAX_GAME_CONTROLLER_COUNT-1)) {
     XINPUT_VIBRATION vibration = {0};
     left_motor  = gb_clamp01(left_motor);
@@ -890,9 +890,9 @@ void gb_platform_set_controller_vibration(gbPlatform *p, isize index, f32 left_m
 }
 
 
-void gb_platform_set_window_position(gbPlatform *p, i32 x, i32 y) {
+void gb_platform_set_window_position(gbPlatform *p, int32_t x, int32_t y) {
   RECT rect;
-  i32 width, height;
+  int32_t width, height;
 
   GetClientRect(cast(HWND)p->window_handle, &rect);
   width  = rect.right - rect.left;
@@ -901,7 +901,7 @@ void gb_platform_set_window_position(gbPlatform *p, i32 x, i32 y) {
 }
 
 void gb_platform_set_window_title(gbPlatform *p, char const *title, ...) {
-  u16 buffer[256] = {0};
+  uint16_t buffer[256] = {0};
   char str[512] = {0};
   va_list va;
   va_start(va, title);
@@ -912,7 +912,7 @@ void gb_platform_set_window_title(gbPlatform *p, char const *title, ...) {
     SetWindowTextW(cast(HWND)p->window_handle, cast(wchar_t const *)gb_utf8_to_ucs2(buffer, gb_size_of(buffer), str));
 }
 
-void gb_platform_toggle_fullscreen(gbPlatform *p, b32 fullscreen_desktop) {
+void gb_platform_toggle_fullscreen(gbPlatform *p, byte32_t fullscreen_desktop) {
   // NOTE(bill): From the man himself, Raymond Chen! (Modified for my need.)
   HWND handle = cast(HWND)p->window_handle;
   DWORD style = cast(DWORD)GetWindowLongW(handle, GWL_STYLE);
@@ -955,7 +955,7 @@ void gb_platform_toggle_fullscreen(gbPlatform *p, b32 fullscreen_desktop) {
 void gb_platform_toggle_borderless(gbPlatform *p) {
   HWND handle = cast(HWND)p->window_handle;
   DWORD style = GetWindowLongW(handle, GWL_STYLE);
-  b32 is_borderless = (style & WS_POPUP) != 0;
+  byte32_t is_borderless = (style & WS_POPUP) != 0;
 
   GB_MASK_SET(style, is_borderless,  WS_OVERLAPPEDWINDOW | WS_CAPTION);
   GB_MASK_SET(style, !is_borderless, WS_POPUP);
@@ -989,9 +989,9 @@ gb_inline gbVideoMode gb_video_mode_get_desktop(void) {
   return gb_video_mode(win32_mode.dmPelsWidth, win32_mode.dmPelsHeight, win32_mode.dmBitsPerPel);
 }
 
-isize gb_video_mode_get_fullscreen_modes(gbVideoMode *modes, isize max_mode_count) {
+ssize_t gb_video_mode_get_fullscreen_modes(gbVideoMode *modes, ssize_t max_mode_count) {
   DEVMODEW win32_mode = {gb_size_of(win32_mode)};
-  i32 count;
+  int32_t count;
   for (count = 0;
        count < max_mode_count && EnumDisplaySettingsW(NULL, count, &win32_mode);
        count++) {
@@ -1004,8 +1004,8 @@ isize gb_video_mode_get_fullscreen_modes(gbVideoMode *modes, isize max_mode_coun
 
 
 
-b32 gb_platform_has_clipboard_text(gbPlatform *p) {
-  b32 result = false;
+byte32_t gb_platform_has_clipboard_text(gbPlatform *p) {
+  byte32_t result = false;
 
   if (IsClipboardFormatAvailable(1/*CF_TEXT*/) &&
       OpenClipboard(cast(HWND)p->window_handle)) {
@@ -1028,7 +1028,7 @@ b32 gb_platform_has_clipboard_text(gbPlatform *p) {
 // TODO(bill): Handle UTF-8
 void gb_platform_set_clipboard_text(gbPlatform *p, char const *str) {
   if (OpenClipboard(cast(HWND)p->window_handle)) {
-    isize i, len = gb_strlen(str)+1;
+    ssize_t i, len = gb_strlen(str)+1;
 
     HANDLE mem = cast(HANDLE)GlobalAlloc(0x0002/*GMEM_MOVEABLE*/, len);
     if (mem) {
@@ -1141,13 +1141,13 @@ gb_internal void gb__osx_window_did_become_key(id self, SEL _sel, id notificatio
   }
 }
 
-b32 gb__platform_init(gbPlatform *p, char const *window_title, gbVideoMode mode, gbRendererType type, u32 window_flags) {
+byte32_t gb__platform_init(gbPlatform *p, char const *window_title, gbVideoMode mode, gbRendererType type, uint32_t window_flags) {
   if (p->is_initialized)
     return true;
   // Init Platform
   { // Initial OSX State
     Class appDelegateClass;
-    b32 resultAddProtoc, resultAddMethod;
+    byte32_t resultAddProtoc, resultAddMethod;
     id dgAlloc, dg, menubarAlloc, menubar;
     id appMenuItemAlloc, appMenuItem;
     id appMenuAlloc, appMenu;
@@ -1220,7 +1220,7 @@ b32 gb__platform_init(gbPlatform *p, char const *window_title, gbVideoMode mode,
     NSRect rect = {{0, 0}, {cast(CGFloat)mode.width, cast(CGFloat)mode.height}};
     id windowAlloc, window, wdgAlloc, wdg, contentView, titleString;
     Class WindowDelegateClass;
-    b32 resultAddProtoc, resultAddIvar, resultAddMethod;
+    byte32_t resultAddProtoc, resultAddIvar, resultAddMethod;
 
     windowAlloc = objc_msgSend_id(cast(id)objc_getClass("NSWindow"), sel_registerName("alloc"));
     window = ((id (*)(id, SEL, NSRect, NSUInteger, NSUInteger, BOOL))objc_msgSend)(windowAlloc, sel_registerName("initWithContentRect:styleMask:backing:defer:"), rect, 15, 2, NO);
@@ -1264,8 +1264,8 @@ b32 gb__platform_init(gbPlatform *p, char const *window_title, gbVideoMode mode,
 
     if (type == gbRenderer_Opengl) {
       // TODO(bill): Make sure this works correctly
-      u32 opengl_hex_version = (p->opengl.major << 12) | (p->opengl.minor << 8);
-      u32 gl_attribs[] = {
+      uint32_t opengl_hex_version = (p->opengl.major << 12) | (p->opengl.minor << 8);
+      uint32_t gl_attribs[] = {
         8, 24,                  // NSOpenGLPFAColorSize, 24,
         11, 8,                  // NSOpenGLPFAAlphaSize, 8,
         5,                      // NSOpenGLPFADoubleBuffer,
@@ -1317,13 +1317,13 @@ b32 gb__platform_init(gbPlatform *p, char const *window_title, gbVideoMode mode,
 }
 
 // NOTE(bill): Software rendering
-b32 gb_platform_init_with_software(gbPlatform *p, char const *window_title, i32 width, i32 height, u32 window_flags) {
+byte32_t gb_platform_init_with_software(gbPlatform *p, char const *window_title, int32_t width, int32_t height, uint32_t window_flags) {
   GB_PANIC("TODO(bill): Software rendering in not yet implemented on OS X\n");
   return gb__platform_init(p, window_title, gb_video_mode(width, height, 32), gbRenderer_Software, window_flags);
 }
 // NOTE(bill): OpenGL Rendering
-b32 gb_platform_init_with_opengl(gbPlatform *p, char const *window_title, i32 width, i32 height, u32 window_flags,
-                                 i32 major, i32 minor, b32 core, b32 compatible) {
+byte32_t gb_platform_init_with_opengl(gbPlatform *p, char const *window_title, int32_t width, int32_t height, uint32_t window_flags,
+                                 int32_t major, int32_t minor, byte32_t core, byte32_t compatible) {
 
   p->opengl.major = major;
   p->opengl.minor = minor;
@@ -1333,7 +1333,7 @@ b32 gb_platform_init_with_opengl(gbPlatform *p, char const *window_title, i32 wi
 }
 
 // NOTE(bill): Reverse engineering can be fun!!!
-gb_internal gbKeyType gb__osx_from_key_code(u16 key_code) {
+gb_internal gbKeyType gb__osx_from_key_code(uint16_t key_code) {
   switch (key_code) {
   default: return gbKey_Unknown;
   // NOTE(bill): WHO THE FUCK DESIGNED THIS VIRTUAL KEY CODE SYSTEM?!
@@ -1491,19 +1491,19 @@ gb_internal void gb__osx_on_cocoa_event(gbPlatform *p, id event, id window) {
 #if 0
       // TODO(bill): Reverse engineer this properly
       NSUInteger modifiers = ((NSUInteger (*)(id, SEL))objc_msgSend)(event, sel_registerName("modifierFlags"));
-      u32 upper_mask = (modifiers & 0xffff0000ul) >> 16;
-      b32 shift   = (upper_mask & 0x02) != 0;
-      b32 control = (upper_mask & 0x04) != 0;
-      b32 alt     = (upper_mask & 0x08) != 0;
-      b32 command = (upper_mask & 0x10) != 0;
+      uint32_t upper_mask = (modifiers & 0xffff0000ul) >> 16;
+      byte32_t shift   = (upper_mask & 0x02) != 0;
+      byte32_t control = (upper_mask & 0x04) != 0;
+      byte32_t alt     = (upper_mask & 0x08) != 0;
+      byte32_t command = (upper_mask & 0x10) != 0;
 #endif
 
       // gb_printf("%u\n", keys.mask);
-      // gb_printf("%x\n", cast(u32)modifiers);
+      // gb_printf("%x\n", cast(uint32_t)modifiers);
     } break;
 
     case 10: { // NSKeyDown
-      u16 key_code;
+      uint16_t key_code;
 
       id input_text = objc_msgSend_id(event, sel_registerName("characters"));
       char const *input_text_utf8 = ((char const *(*)(id, SEL))objc_msgSend)(input_text, sel_registerName("UTF8String"));
@@ -1515,7 +1515,7 @@ gb_internal void gb__osx_on_cocoa_event(gbPlatform *p, id event, id window) {
     } break;
 
     case 11: { // NSKeyUp
-      u16 key_code = ((unsigned short (*)(id, SEL))objc_msgSend)(event, sel_registerName("keyCode"));
+      uint16_t key_code = ((unsigned short (*)(id, SEL))objc_msgSend)(event, sel_registerName("keyCode"));
       gb_key_state_update(&p->keys[gb__osx_from_key_code(key_code)], false);
     } break;
 
@@ -1537,17 +1537,17 @@ void gb_platform_update(gbPlatform *p) {
 
 
   if (p->window_has_focus) {
-    isize i;
+    ssize_t i;
     p->char_buffer_count = 0; // TODO(bill): Reset buffer count here or else where?
 
     // NOTE(bill): Need to update as the keys only get updates on events
     for (i = 0; i < gbKey_Count; i++) {
-      b32 is_down = (p->keys[i] & gbKeyState_Down) != 0;
+      byte32_t is_down = (p->keys[i] & gbKeyState_Down) != 0;
       gb_key_state_update(&p->keys[i], is_down);
     }
 
     for (i = 0; i < gbMouseButton_Count; i++) {
-      b32 is_down = (p->mouse_buttons[i] & gbKeyState_Down) != 0;
+      byte32_t is_down = (p->mouse_buttons[i] & gbKeyState_Down) != 0;
       gb_key_state_update(&p->mouse_buttons[i], is_down);
     }
 
@@ -1598,8 +1598,8 @@ void gb_platform_update(gbPlatform *p) {
     mouse_pos.y = gb_clamp(mouse_pos.y, 0, frame.size.height-1);
 
     {
-      i32 x = mouse_pos.x;
-      i32 y = mouse_pos.y;
+      int32_t x = mouse_pos.x;
+      int32_t y = mouse_pos.y;
       p->mouse_dx = x - p->mouse_x;
       p->mouse_dy = y - p->mouse_y;
       p->mouse_x = x;
@@ -1607,9 +1607,9 @@ void gb_platform_update(gbPlatform *p) {
     }
 
     if (p->mouse_clip) {
-      b32 update = false;
-      i32 x = p->mouse_x;
-      i32 y = p->mouse_y;
+      byte32_t update = false;
+      int32_t x = p->mouse_x;
+      int32_t y = p->mouse_y;
       if (p->mouse_x < 0) {
         x = 0;
         update = true;
@@ -1655,8 +1655,8 @@ void gb_platform_display(gbPlatform *p) {
   }
 
   {
-    f64 prev_time = p->curr_time;
-    f64 curr_time = gb_time_now();
+    float64_t prev_time = p->curr_time;
+    float64_t curr_time = gb_time_now();
     p->dt_for_frame = curr_time - prev_time;
     p->curr_time = curr_time;
   }
@@ -1674,7 +1674,7 @@ void gb_platform_destroy(gbPlatform *p) {
 #endif
 }
 
-void gb_platform_show_cursor(gbPlatform *p, b32 show) {
+void gb_platform_show_cursor(gbPlatform *p, byte32_t show) {
   if (show ) {
     // objc_msgSend_void(class_registerName("NSCursor"), sel_registerName("unhide"));
   } else {
@@ -1682,7 +1682,7 @@ void gb_platform_show_cursor(gbPlatform *p, b32 show) {
   }
 }
 
-void gb_platform_set_mouse_position(gbPlatform *p, i32 x, i32 y) {
+void gb_platform_set_mouse_position(gbPlatform *p, int32_t x, int32_t y) {
   // TODO(bill):
   CGPoint pos = {cast(CGFloat)x, cast(CGFloat)y};
   pos.x += p->window_x;
@@ -1690,11 +1690,11 @@ void gb_platform_set_mouse_position(gbPlatform *p, i32 x, i32 y) {
   CGWarpMouseCursorPosition(pos);
 }
 
-void gb_platform_set_controller_vibration(gbPlatform *p, isize index, f32 left_motor, f32 right_motor) {
+void gb_platform_set_controller_vibration(gbPlatform *p, ssize_t index, float32_t left_motor, float32_t right_motor) {
   // TODO(bill):
 }
 
-b32 gb_platform_has_clipboard_text(gbPlatform *p) {
+byte32_t gb_platform_has_clipboard_text(gbPlatform *p) {
   // TODO(bill):
   return false;
 }
@@ -1708,7 +1708,7 @@ char *gb_platform_get_clipboard_text(gbPlatform *p, gbAllocator a) {
   return NULL;
 }
 
-void gb_platform_set_window_position(gbPlatform *p, i32 x, i32 y) {
+void gb_platform_set_window_position(gbPlatform *p, int32_t x, int32_t y) {
   // TODO(bill):
 }
 
@@ -1724,7 +1724,7 @@ void gb_platform_set_window_title(gbPlatform *p, char const *title, ...) {
   objc_msgSend_void_id(cast(id)p->window_handle, sel_registerName("setTitle:"), title_string);
 }
 
-void gb_platform_toggle_fullscreen(gbPlatform *p, b32 fullscreen_desktop) {
+void gb_platform_toggle_fullscreen(gbPlatform *p, byte32_t fullscreen_desktop) {
   // TODO(bill):
 }
 
@@ -1744,8 +1744,8 @@ void gb_platform_hide_window(gbPlatform *p) {
   // TODO(bill):
 }
 
-i32 gb__osx_mode_bits_per_pixel(CGDisplayModeRef mode) {
-  i32 bits_per_pixel = 0;
+int32_t gb__osx_mode_bits_per_pixel(CGDisplayModeRef mode) {
+  int32_t bits_per_pixel = 0;
   CFStringRef pixel_encoding = CGDisplayModeCopyPixelEncoding(mode);
   if(CFStringCompare(pixel_encoding, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo) {
     bits_per_pixel = 32;
@@ -1759,9 +1759,9 @@ i32 gb__osx_mode_bits_per_pixel(CGDisplayModeRef mode) {
   return bits_per_pixel;
 }
 
-i32 gb__osx_display_bits_per_pixel(CGDirectDisplayID display) {
+int32_t gb__osx_display_bits_per_pixel(CGDirectDisplayID display) {
   CGDisplayModeRef mode = CGDisplayCopyDisplayMode(display);
-  i32 bits_per_pixel = gb__osx_mode_bits_per_pixel(mode);
+  int32_t bits_per_pixel = gb__osx_mode_bits_per_pixel(mode);
   CGDisplayModeRelease(mode);
   return bits_per_pixel;
 }
@@ -1774,7 +1774,7 @@ gbVideoMode gb_video_mode_get_desktop(void) {
 }
 
 
-isize gb_video_mode_get_fullscreen_modes(gbVideoMode *modes, isize max_mode_count) {
+ssize_t gb_video_mode_get_fullscreen_modes(gbVideoMode *modes, ssize_t max_mode_count) {
   CFArrayRef cg_modes = CGDisplayCopyAllDisplayModes(CGMainDisplayID(), NULL);
   CFIndex i, count;
   if (cg_modes == NULL) {
@@ -1792,7 +1792,7 @@ isize gb_video_mode_get_fullscreen_modes(gbVideoMode *modes, isize max_mode_coun
   CFRelease(cg_modes);
 
   gb_sort_array(modes, count, gb_video_mode_dsc_cmp);
-  return cast(isize)count;
+  return cast(ssize_t)count;
 }
 
 #endif
@@ -1801,7 +1801,7 @@ isize gb_video_mode_get_fullscreen_modes(gbVideoMode *modes, isize max_mode_coun
 // TODO(bill): OSX Platform Layer
 // NOTE(bill): Use this as a guide so there is no need for Obj-C https://github.com/jimon/osx_app_in_plain_c
 
-gb_inline gbVideoMode gb_video_mode(i32 width, i32 height, i32 bits_per_pixel) {
+gb_inline gbVideoMode gb_video_mode(int32_t width, int32_t height, int32_t bits_per_pixel) {
   gbVideoMode m;
   m.width = width;
   m.height = height;
@@ -1809,11 +1809,11 @@ gb_inline gbVideoMode gb_video_mode(i32 width, i32 height, i32 bits_per_pixel) {
   return m;
 }
 
-gb_inline b32 gb_video_mode_is_valid(gbVideoMode mode) {
+gb_inline byte32_t gb_video_mode_is_valid(gbVideoMode mode) {
   gb_local_persist gbVideoMode modes[256] = {0};
-  gb_local_persist isize mode_count = 0;
-  gb_local_persist b32 is_set = false;
-  isize i;
+  gb_local_persist ssize_t mode_count = 0;
+  gb_local_persist byte32_t is_set = false;
+  ssize_t i;
 
   if (!is_set) {
     mode_count = gb_video_mode_get_fullscreen_modes(modes, gb_count_of(modes));

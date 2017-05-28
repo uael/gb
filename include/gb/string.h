@@ -35,48 +35,48 @@ GB_DEF void gb_str_to_lower(char *str);
 
 GB_DEF void gb_str_to_upper(char *str);
 
-GB_DEF isize gb_strlen(char const *str);
+GB_DEF ssize_t gb_strlen(char const *str);
 
-GB_DEF isize gb_strnlen(char const *str, isize max_len);
+GB_DEF ssize_t gb_strnlen(char const *str, ssize_t max_len);
 
-GB_DEF i32 gb_strcmp(char const *s1, char const *s2);
+GB_DEF int32_t gb_strcmp(char const *s1, char const *s2);
 
-GB_DEF i32 gb_strncmp(char const *s1, char const *s2, isize len);
+GB_DEF int32_t gb_strncmp(char const *s1, char const *s2, ssize_t len);
 
 GB_DEF char *gb_strcpy(char *dest, char const *source);
 
-GB_DEF char *gb_strncpy(char *dest, char const *source, isize len);
+GB_DEF char *gb_strncpy(char *dest, char const *source, ssize_t len);
 
-GB_DEF isize gb_strlcpy(char *dest, char const *source, isize len);
+GB_DEF ssize_t gb_strlcpy(char *dest, char const *source, ssize_t len);
 
 GB_DEF char *gb_strrev(char *str); // NOTE(bill): ASCII only
 
 // NOTE(bill): A less fucking crazy strtok!
 GB_DEF char const *gb_strtok(char *output, char const *src, char const *delimit);
 
-GB_DEF b32 gb_str_has_prefix(char const *str, char const *prefix);
+GB_DEF byte32_t gb_str_has_prefix(char const *str, char const *prefix);
 
-GB_DEF b32 gb_str_has_suffix(char const *str, char const *suffix);
+GB_DEF byte32_t gb_str_has_suffix(char const *str, char const *suffix);
 
 GB_DEF char const *gb_char_first_occurence(char const *str, char c);
 
 GB_DEF char const *gb_char_last_occurence(char const *str, char c);
 
-GB_DEF void gb_str_concat(char *dest, isize dest_len,
-                          char const *src_a, isize src_a_len,
-                          char const *src_b, isize src_b_len);
+GB_DEF void gb_str_concat(char *dest, ssize_t dest_len,
+                          char const *src_a, ssize_t src_a_len,
+                          char const *src_b, ssize_t src_b_len);
 
-GB_DEF u64
-gb_str_to_u64(char const *str, char **end_ptr, i32 base); // TODO(bill): Support more than just decimal and hexadecimal
-GB_DEF i64
-gb_str_to_i64(char const *str, char **end_ptr, i32 base); // TODO(bill): Support more than just decimal and hexadecimal
-GB_DEF f32 gb_str_to_f32(char const *str, char **end_ptr);
+GB_DEF uint64_t
+gb_str_to_u64(char const *str, char **end_ptr, int32_t base); // TODO(bill): Support more than just decimal and hexadecimal
+GB_DEF int64_t
+gb_str_to_i64(char const *str, char **end_ptr, int32_t base); // TODO(bill): Support more than just decimal and hexadecimal
+GB_DEF float32_t gb_str_to_f32(char const *str, char **end_ptr);
 
-GB_DEF f64 gb_str_to_f64(char const *str, char **end_ptr);
+GB_DEF float64_t gb_str_to_f64(char const *str, char **end_ptr);
 
-GB_DEF void gb_i64_to_str(i64 value, char *string, i32 base);
+GB_DEF void gb_i64_to_str(int64_t value, char *string, int32_t base);
 
-GB_DEF void gb_u64_to_str(u64 value, char *string, i32 base);
+GB_DEF void gb_u64_to_str(uint64_t value, char *string, int32_t base);
 
 ////////////////////////////////////////////////////////////////
 //
@@ -176,44 +176,44 @@ int main(int argc, char **argv) {
 // TODO(bill): Should this be a wrapper to gbArray(char) or this extra type safety better?
 typedef char *gbString;
 
-// NOTE(bill): If you only need a small string, just use a standard c string or change the size from isize to u16, etc.
+// NOTE(bill): If you only need a small string, just use a standard c string or change the size from ssize_t to uint16_t, etc.
 typedef struct gbStringHeader {
   gbAllocator allocator;
-  isize length;
-  isize capacity;
+  ssize_t length;
+  ssize_t capacity;
 } gbStringHeader;
 
 #define GB_STRING_HEADER(str) (cast(gbStringHeader *)(str) - 1)
 
 GB_DEF gbString gb_string_make(gbAllocator a, char const *str);
 
-GB_DEF gbString gb_string_make_length(gbAllocator a, void const *str, isize num_bytes);
+GB_DEF gbString gb_string_make_length(gbAllocator a, void const *str, ssize_t num_bytes);
 
 GB_DEF void gb_string_free(gbString str);
 
 GB_DEF gbString gb_string_duplicate(gbAllocator a, gbString const str);
 
-GB_DEF isize gb_string_length(gbString const str);
+GB_DEF ssize_t gb_string_length(gbString const str);
 
-GB_DEF isize gb_string_capacity(gbString const str);
+GB_DEF ssize_t gb_string_capacity(gbString const str);
 
-GB_DEF isize gb_string_available_space(gbString const str);
+GB_DEF ssize_t gb_string_available_space(gbString const str);
 
 GB_DEF void gb_string_clear(gbString str);
 
 GB_DEF gbString gb_string_append(gbString str, gbString const other);
 
-GB_DEF gbString gb_string_append_length(gbString str, void const *other, isize num_bytes);
+GB_DEF gbString gb_string_append_length(gbString str, void const *other, ssize_t num_bytes);
 
 GB_DEF gbString gb_string_appendc(gbString str, char const *other);
 
 GB_DEF gbString gb_string_set(gbString str, char const *cstr);
 
-GB_DEF gbString gb_string_make_space_for(gbString str, isize add_len);
+GB_DEF gbString gb_string_make_space_for(gbString str, ssize_t add_len);
 
-GB_DEF isize gb_string_allocation_size(gbString const str);
+GB_DEF ssize_t gb_string_allocation_size(gbString const str);
 
-GB_DEF b32 gb_string_are_equal(gbString const lhs, gbString const rhs);
+GB_DEF byte32_t gb_string_are_equal(gbString const lhs, gbString const rhs);
 
 GB_DEF gbString gb_string_trim(gbString str, char const *cut_set);
 

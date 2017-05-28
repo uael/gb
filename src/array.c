@@ -27,7 +27,7 @@
 
 #include "gb/array.h"
 
-gb_no_inline void *gb__array_set_capacity(void *array, isize capacity, isize element_size) {
+gb_no_inline void *gb__array_set_capacity(void *array, ssize_t capacity, ssize_t element_size) {
   gbArrayHeader *h = GB_ARRAY_HEADER(array);
 
   GB_ASSERT(element_size > 0);
@@ -37,7 +37,7 @@ gb_no_inline void *gb__array_set_capacity(void *array, isize capacity, isize ele
 
   if (capacity < h->count) {
     if (h->capacity < capacity) {
-      isize new_capacity = GB_ARRAY_GROW_FORMULA(h->capacity);
+      ssize_t new_capacity = GB_ARRAY_GROW_FORMULA(h->capacity);
       if (new_capacity < capacity)
         new_capacity = capacity;
       gb__array_set_capacity(array, new_capacity, element_size);
@@ -46,7 +46,7 @@ gb_no_inline void *gb__array_set_capacity(void *array, isize capacity, isize ele
   }
 
   {
-    isize size = gb_size_of(gbArrayHeader) + element_size * capacity;
+    ssize_t size = gb_size_of(gbArrayHeader) + element_size * capacity;
     gbArrayHeader *nh = cast(gbArrayHeader *) gb_alloc(h->allocator, size);
     gb_memmove(nh, h, gb_size_of(gbArrayHeader) + element_size * h->count);
     nh->allocator = h->allocator;

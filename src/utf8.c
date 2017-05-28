@@ -27,9 +27,9 @@
 
 #include "gb/utf8.h"
 
-u16 *gb_utf8_to_ucs2(u16 *buffer, isize len, u8 const *str) {
-  Rune c;
-  isize i = 0;
+uint16_t *gb_utf8_to_ucs2(uint16_t *buffer, ssize_t len, uint8_t const *str) {
+  rune_t c;
+  ssize_t i = 0;
   len--;
   while (*str) {
     if (i >= len)
@@ -42,7 +42,7 @@ u16 *gb_utf8_to_ucs2(u16 *buffer, isize len, u8 const *str) {
       c = (*str++ & 0x1f) << 6;
       if ((*str & 0xc0) != 0x80)
         return NULL;
-      buffer[i++] = cast(u16) (c + (*str++ & 0x3f));
+      buffer[i++] = cast(uint16_t) (c + (*str++ & 0x3f));
     } else if ((*str & 0xf0) == 0xe0) {
       if (*str == 0xe0 &&
           (str[1] < 0xa0 || str[1] > 0xbf))
@@ -55,7 +55,7 @@ u16 *gb_utf8_to_ucs2(u16 *buffer, isize len, u8 const *str) {
       c += (*str++ & 0x3f) << 6;
       if ((*str & 0xc0) != 0x80)
         return NULL;
-      buffer[i++] = cast(u16) (c + (*str++ & 0x3f));
+      buffer[i++] = cast(uint16_t) (c + (*str++ & 0x3f));
     } else if ((*str & 0xf8) == 0xf0) {
       if (*str > 0xf4)
         return NULL;
@@ -91,8 +91,8 @@ u16 *gb_utf8_to_ucs2(u16 *buffer, isize len, u8 const *str) {
   return buffer;
 }
 
-u8 *gb_ucs2_to_utf8(u8 *buffer, isize len, u16 const *str) {
-  isize i = 0;
+uint8_t *gb_ucs2_to_utf8(uint8_t *buffer, ssize_t len, uint16_t const *str) {
+  ssize_t i = 0;
   len--;
   while (*str) {
     if (*str < 0x80) {
@@ -106,7 +106,7 @@ u8 *gb_ucs2_to_utf8(u8 *buffer, isize len, u16 const *str) {
       buffer[i++] = cast(char) (0x80 + (*str & 0x3f));
       str += 1;
     } else if (*str >= 0xd800 && *str < 0xdc00) {
-      Rune c;
+      rune_t c;
       if (i + 4 > len)
         return NULL;
       c = ((str[0] - 0xd800) << 10) + ((str[1]) - 0xdc00) + 0x10000;
@@ -130,17 +130,17 @@ u8 *gb_ucs2_to_utf8(u8 *buffer, isize len, u16 const *str) {
   return buffer;
 }
 
-u16 *gb_utf8_to_ucs2_buf(u8 const *str) { // NOTE(bill): Uses locally persisting buffer
-  gb_local_persist u16 buf[4096];
+uint16_t *gb_utf8_to_ucs2_buf(uint8_t const *str) { // NOTE(bill): Uses locally persisting buffer
+  gb_local_persist uint16_t buf[4096];
   return gb_utf8_to_ucs2(buf, gb_count_of(buf), str);
 }
 
-u8 *gb_ucs2_to_utf8_buf(u16 const *str) { // NOTE(bill): Uses locally persisting buffer
-  gb_local_persist u8 buf[4096];
+uint8_t *gb_ucs2_to_utf8_buf(uint16_t const *str) { // NOTE(bill): Uses locally persisting buffer
+  gb_local_persist uint8_t buf[4096];
   return gb_ucs2_to_utf8(buf, gb_count_of(buf), str);
 }
 
-gb_global u8 const gb__utf8_first[256] = {
+gb_global uint8_t const gb__utf8_first[256] = {
   0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, // 0x00-0x0F
   0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, // 0x10-0x1F
   0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, 0xf0, // 0x20-0x2F
@@ -160,7 +160,7 @@ gb_global u8 const gb__utf8_first[256] = {
 };
 
 typedef struct gbUtf8AcceptRange {
-  u8 lo, hi;
+  uint8_t lo, hi;
 } gbUtf8AcceptRange;
 
 gb_global gbUtf8AcceptRange const gb__utf8_accept_ranges[] = {
@@ -171,19 +171,19 @@ gb_global gbUtf8AcceptRange const gb__utf8_accept_ranges[] = {
   {0x80, 0x8f},
 };
 
-isize gb_utf8_decode(u8 const *str, isize str_len, Rune *codepoint_out) {
+ssize_t gb_utf8_decode(uint8_t const *str, ssize_t str_len, rune_t *codepoint_out) {
 
-  isize width = 0;
-  Rune codepoint = GB_RUNE_INVALID;
+  ssize_t width = 0;
+  rune_t codepoint = GB_RUNE_INVALID;
 
   if (str_len > 0) {
-    u8 s0 = str[0];
-    u8 x = gb__utf8_first[s0], sz;
-    u8 b1, b2, b3;
+    uint8_t s0 = str[0];
+    uint8_t x = gb__utf8_first[s0], sz;
+    uint8_t b1, b2, b3;
     gbUtf8AcceptRange accept;
     if (x > 0xf0) {
-      Rune mask = (cast(Rune) x >> 31) << 31;
-      codepoint = (cast(Rune) s0 & (~mask)) | (GB_RUNE_INVALID & mask);
+      rune_t mask = (cast(rune_t) x >> 31) << 31;
+      codepoint = (cast(rune_t) s0 & (~mask)) | (GB_RUNE_INVALID & mask);
       width = 1;
       goto end;
     }
@@ -203,7 +203,7 @@ isize gb_utf8_decode(u8 const *str, isize str_len, Rune *codepoint_out) {
       goto invalid_codepoint;
 
     if (sz == 2) {
-      codepoint = (cast(Rune) s0 & 0x1f) << 6 | (cast(Rune) b1 & 0x3f);
+      codepoint = (cast(rune_t) s0 & 0x1f) << 6 | (cast(rune_t) b1 & 0x3f);
       width = 2;
       goto end;
     }
@@ -213,7 +213,7 @@ isize gb_utf8_decode(u8 const *str, isize str_len, Rune *codepoint_out) {
       goto invalid_codepoint;
 
     if (sz == 3) {
-      codepoint = (cast(Rune) s0 & 0x1f) << 12 | (cast(Rune) b1 & 0x3f) << 6 | (cast(Rune) b2 & 0x3f);
+      codepoint = (cast(rune_t) s0 & 0x1f) << 12 | (cast(rune_t) b1 & 0x3f) << 6 | (cast(rune_t) b2 & 0x3f);
       width = 3;
       goto end;
     }
@@ -222,8 +222,8 @@ isize gb_utf8_decode(u8 const *str, isize str_len, Rune *codepoint_out) {
     if (!gb_is_between(b3, 0x80, 0xbf))
       goto invalid_codepoint;
 
-    codepoint = (cast(Rune) s0 & 0x07) << 18 | (cast(Rune) b1 & 0x3f) << 12 | (cast(Rune) b2 & 0x3f) << 6 |
-                (cast(Rune) b3 & 0x3f);
+    codepoint = (cast(rune_t) s0 & 0x07) << 18 | (cast(rune_t) b1 & 0x3f) << 12 | (cast(rune_t) b2 & 0x3f) << 6 |
+                (cast(rune_t) b3 & 0x3f);
     width = 4;
     goto end;
 
@@ -237,8 +237,8 @@ isize gb_utf8_decode(u8 const *str, isize str_len, Rune *codepoint_out) {
   return width;
 }
 
-isize gb_utf8_codepoint_size(u8 const *str, isize str_len) {
-  isize i = 0;
+ssize_t gb_utf8_codepoint_size(uint8_t const *str, ssize_t str_len) {
+  ssize_t i = 0;
   for (; i < str_len && str[i]; i++) {
     if ((str[i] & 0xc0) != 0x80)
       break;
@@ -246,16 +246,16 @@ isize gb_utf8_codepoint_size(u8 const *str, isize str_len) {
   return i + 1;
 }
 
-isize gb_utf8_encode_rune(u8 buf[4], Rune r) {
-  u32 i = cast(u32) r;
-  u8 mask = 0x3f;
+ssize_t gb_utf8_encode_rune(uint8_t buf[4], rune_t r) {
+  uint32_t i = cast(uint32_t) r;
+  uint8_t mask = 0x3f;
   if (i <= (1 << 7) - 1) {
-    buf[0] = cast(u8) r;
+    buf[0] = cast(uint8_t) r;
     return 1;
   }
   if (i <= (1 << 11) - 1) {
-    buf[0] = 0xc0 | cast(u8) (r >> 6);
-    buf[1] = 0x80 | (cast(u8) (r) & mask);
+    buf[0] = 0xc0 | cast(uint8_t) (r >> 6);
+    buf[1] = 0x80 | (cast(uint8_t) (r) & mask);
     return 2;
   }
 
@@ -264,22 +264,22 @@ isize gb_utf8_encode_rune(u8 buf[4], Rune r) {
       gb_is_between(i, 0xd800, 0xdfff)) {
     r = GB_RUNE_INVALID;
 
-    buf[0] = 0xe0 | cast(u8) (r >> 12);
-    buf[1] = 0x80 | (cast(u8) (r >> 6) & mask);
-    buf[2] = 0x80 | (cast(u8) (r) & mask);
+    buf[0] = 0xe0 | cast(uint8_t) (r >> 12);
+    buf[1] = 0x80 | (cast(uint8_t) (r >> 6) & mask);
+    buf[2] = 0x80 | (cast(uint8_t) (r) & mask);
     return 3;
   }
 
   if (i <= (1 << 16) - 1) {
-    buf[0] = 0xe0 | cast(u8) (r >> 12);
-    buf[1] = 0x80 | (cast(u8) (r >> 6) & mask);
-    buf[2] = 0x80 | (cast(u8) (r) & mask);
+    buf[0] = 0xe0 | cast(uint8_t) (r >> 12);
+    buf[1] = 0x80 | (cast(uint8_t) (r >> 6) & mask);
+    buf[2] = 0x80 | (cast(uint8_t) (r) & mask);
     return 3;
   }
 
-  buf[0] = 0xf0 | cast(u8) (r >> 18);
-  buf[1] = 0x80 | (cast(u8) (r >> 12) & mask);
-  buf[2] = 0x80 | (cast(u8) (r >> 6) & mask);
-  buf[3] = 0x80 | (cast(u8) (r) & mask);
+  buf[0] = 0xf0 | cast(uint8_t) (r >> 18);
+  buf[1] = 0x80 | (cast(uint8_t) (r >> 12) & mask);
+  buf[2] = 0x80 | (cast(uint8_t) (r >> 6) & mask);
+  buf[3] = 0x80 | (cast(uint8_t) (r) & mask);
   return 4;
 }

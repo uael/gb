@@ -290,22 +290,22 @@ gbString gb_trim_string(gbString str, char const *cut_set);
 namespace gb
 {
 typedef gbString String;
-typedef gbUsize usize;
+typedef gbUsize size_t;
 
 gb_inline String make_string(char const *str = "") { return gb_make_string(str); }
-gb_inline String make_string(void const *str, usize len) { return gb_make_string_length(str, len); }
+gb_inline String make_string(void const *str, size_t len) { return gb_make_string_length(str, len); }
 gb_inline void free_string(String& str) { gb_free_string(str); str = GB_NULLPTR; }
 gb_inline String duplicate_string(const String str) { return gb_duplicate_string(str); }
-gb_inline usize string_length(const String str) { return gb_string_length(str); }
-gb_inline usize string_capacity(const String str) { return gb_string_capacity(str); }
-gb_inline usize string_available_space(const String str) { return gb_string_available_space(str); }
+gb_inline size_t string_length(const String str) { return gb_string_length(str); }
+gb_inline size_t string_capacity(const String str) { return gb_string_capacity(str); }
+gb_inline size_t string_available_space(const String str) { return gb_string_available_space(str); }
 gb_inline void clear_string(String str) { gb_clear_string(str); }
-gb_inline void append_string_length(String& str, void const *other, usize len) { str = gb_append_string_length(str, other, len); }
+gb_inline void append_string_length(String& str, void const *other, size_t len) { str = gb_append_string_length(str, other, len); }
 gb_inline void append_string(String& str, const String other) { str = gb_append_string(str, other); }
 gb_inline void append_cstring(String& str, char const *other) { str = gb_append_cstring(str, other); }
 gb_inline void set_string(String& str, char const *cstr) { str = gb_set_string(str, cstr); }
-gb_inline void string_make_space_for(String& str, usize add_len) { str = gb_string_make_space_for(str, add_len); }
-gb_inline usize string_allocation_size(const String str) { return gb_string_allocation_size(str); }
+gb_inline void string_make_space_for(String& str, size_t add_len) { str = gb_string_make_space_for(str, add_len); }
+gb_inline size_t string_allocation_size(const String str) { return gb_string_allocation_size(str); }
 gb_inline bool strings_are_equal(const String lhs, const String rhs) { return gb_strings_are_equal(lhs, rhs) == GB_TRUE; }
 gb_inline void trim_string(String& str, char const *cut_set) { str = gb_trim_string(str, cut_set); }
 } /* namespace gb */

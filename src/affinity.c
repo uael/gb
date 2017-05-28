@@ -32,7 +32,7 @@
 void gb_affinity_init(gb_affinity_t *a) {
   SYSTEM_LOGICAL_PROCESSOR_INFORMATION *start_processor_info = NULL;
   DWORD length = 0;
-  b32 result  = GetLogicalProcessorInformation(NULL, &length);
+  byte32_t result  = GetLogicalProcessorInformation(NULL, &length);
 
   gb_zero_item(a);
 
@@ -51,7 +51,7 @@ void gb_affinity_init(gb_affinity_t *a) {
            processor_info < end_processor_info;
            processor_info++) {
         if (processor_info->Relationship == RelationProcessorCore) {
-          isize thread = gb_count_set_bits(processor_info->ProcessorMask);
+          ssize_t thread = gb_count_set_bits(processor_info->ProcessorMask);
           if (thread == 0) {
             a->is_accurate = false;
           } else if (a->thread_count + thread > GB_WIN32_MAX_THREADS) {
@@ -83,15 +83,15 @@ void gb_affinity_destroy(gb_affinity_t *a) {
 }
 
 
-b32 gb_affinity_set(gb_affinity_t *a, isize core, isize thread) {
-  usize available_mask, check_mask = 1;
+byte32_t gb_affinity_set(gb_affinity_t *a, ssize_t core, ssize_t thread) {
+  size_t available_mask, check_mask = 1;
   GB_ASSERT(thread < gb_affinity_thread_count_for_core(a, core));
 
   available_mask = a->core_masks[core];
   for (;;) {
     if ((available_mask & check_mask) != 0) {
       if (thread-- == 0) {
-        usize result = SetThreadAffinityMask(GetCurrentThread(), check_mask);
+        size_t result = SetThreadAffinityMask(GetCurrentThread(), check_mask);
         return result != 0;
       }
     }
@@ -99,14 +99,14 @@ b32 gb_affinity_set(gb_affinity_t *a, isize core, isize thread) {
   }
 }
 
-isize gb_affinity_thread_count_for_core(gb_affinity_t *a, isize core) {
+ssize_t gb_affinity_thread_count_for_core(gb_affinity_t *a, ssize_t core) {
   GB_ASSERT(core >= 0 && core < a->core_count);
   return gb_count_set_bits(a->core_masks[core]);
 }
 
 #elif defined(GB_SYSTEM_OSX)
 void gb_affinity_init(gb_affinity_t *a) {
-  usize count, count_size = gb_size_of(count);
+  size_t count, count_size = gb_size_of(count);
 
   a->is_accurate      = false;
   a->thread_count     = 1;
@@ -136,8 +136,8 @@ void gb_affinity_destroy(gb_affinity_t *a) {
   gb_unused(a);
 }
 
-b32 gb_affinity_set(gb_affinity_t *a, isize core, isize thread_index) {
-  isize index;
+byte32_t gb_affinity_set(gb_affinity_t *a, ssize_t core, ssize_t thread_index) {
+  ssize_t index;
   thread_t thread;
   thread_affinity_policy_data_t info;
   kern_return_t result;
@@ -152,7 +152,7 @@ b32 gb_affinity_set(gb_affinity_t *a, isize core, isize thread_index) {
   return result == KERN_SUCCESS;
 }
 
-isize gb_affinity_thread_count_for_core(gb_affinity_t *a, isize core) {
+ssize_t gb_affinity_thread_count_for_core(gb_affinity_t *a, ssize_t core) {
   GB_ASSERT(core >= 0 && core < a->core_count);
   return a->threads_per_core;
 }
@@ -163,8 +163,8 @@ isize gb_affinity_thread_count_for_core(gb_affinity_t *a, isize core) {
 #include <stdio.h>
 
 void gb_affinity_init(gb_affinity_t *a) {
-  b32 accurate = true;
-  isize threads = 0;
+  byte32_t accurate = true;
+  ssize_t threads = 0;
   FILE *fp;
 
   a->thread_count = 1;
@@ -228,11 +228,11 @@ void gb_affinity_destroy(gb_affinity_t *a) {
   gb_unused(a);
 }
 
-b32 gb_affinity_set(gb_affinity_t *a, isize core, isize thread_index) {
+byte32_t gb_affinity_set(gb_affinity_t *a, ssize_t core, ssize_t thread_index) {
   return true;
 }
 
-isize gb_affinity_thread_count_for_core(gb_affinity_t *a, isize core) {
+ssize_t gb_affinity_thread_count_for_core(gb_affinity_t *a, ssize_t core) {
   GB_ASSERT(0 <= core && core < a->core_count);
   return a->threads_per_core;
 }

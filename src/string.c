@@ -43,19 +43,19 @@ gb_inline void gb_str_to_upper(char *str) {
   }
 }
 
-#define GB__ONES        (cast(usize)-1/U8_MAX)
-#define GB__HIGHS       (GB__ONES * (U8_MAX/2+1))
+#define GB__ONES        (cast(size_t)-1/UINT8_MAX)
+#define GB__HIGHS       (GB__ONES * (UINT8_MAX/2+1))
 #define GB__HAS_ZERO(x) (((x)-GB__ONES) & ~(x) & GB__HIGHS)
 
-gb_inline isize gb_strlen(char const *str) {
+gb_inline ssize_t gb_strlen(char const *str) {
   char const *begin = str;
-  isize const *w;
-  while (cast(uintptr) str % sizeof(usize)) {
+  ssize_t const *w;
+  while (cast(uintptr_t) str % sizeof(size_t)) {
     if (!*str)
       return str - begin;
     str++;
   }
-  w = cast(isize const *) str;
+  w = cast(ssize_t const *) str;
   while (!GB__HAS_ZERO(*w))
     w++;
   str = cast(char const *) w;
@@ -64,18 +64,18 @@ gb_inline isize gb_strlen(char const *str) {
   return str - begin;
 }
 
-gb_inline isize gb_strnlen(char const *str, isize max_len) {
+gb_inline ssize_t gb_strnlen(char const *str, ssize_t max_len) {
   char const *end = cast(char const *) gb_memchr(str, 0, max_len);
   if (end)
     return end - str;
   return max_len;
 }
 
-gb_inline isize gb_utf8_strlen(u8 const *str) {
-  isize count = 0;
+gb_inline ssize_t gb_utf8_strlen(uint8_t const *str) {
+  ssize_t count = 0;
   for (; *str; count++) {
-    u8 c = *str;
-    isize inc = 0;
+    uint8_t c = *str;
+    ssize_t inc = 0;
     if (c < 0x80) inc = 1;
     else if ((c & 0xe0) == 0xc0) inc = 2;
     else if ((c & 0xf0) == 0xe0) inc = 3;
@@ -87,11 +87,11 @@ gb_inline isize gb_utf8_strlen(u8 const *str) {
   return count;
 }
 
-gb_inline isize gb_utf8_strnlen(u8 const *str, isize max_len) {
-  isize count = 0;
+gb_inline ssize_t gb_utf8_strnlen(uint8_t const *str, ssize_t max_len) {
+  ssize_t count = 0;
   for (; *str && max_len > 0; count++) {
-    u8 c = *str;
-    isize inc = 0;
+    uint8_t c = *str;
+    ssize_t inc = 0;
     if (c < 0x80) inc = 1;
     else if ((c & 0xe0) == 0xc0) inc = 2;
     else if ((c & 0xf0) == 0xe0) inc = 3;
@@ -104,11 +104,11 @@ gb_inline isize gb_utf8_strnlen(u8 const *str, isize max_len) {
   return count;
 }
 
-gb_inline i32 gb_strcmp(char const *s1, char const *s2) {
+gb_inline int32_t gb_strcmp(char const *s1, char const *s2) {
   while (*s1 && (*s1 == *s2)) {
     s1++, s2++;
   }
-  return *(u8 *) s1 - *(u8 *) s2;
+  return *(uint8_t *) s1 - *(uint8_t *) s2;
 }
 
 gb_inline char *gb_strcpy(char *dest, char const *source) {
@@ -120,7 +120,7 @@ gb_inline char *gb_strcpy(char *dest, char const *source) {
   return dest;
 }
 
-gb_inline char *gb_strncpy(char *dest, char const *source, isize len) {
+gb_inline char *gb_strncpy(char *dest, char const *source, ssize_t len) {
   GB_ASSERT_NOT_NULL(dest);
   if (source) {
     char *str = dest;
@@ -136,8 +136,8 @@ gb_inline char *gb_strncpy(char *dest, char const *source, isize len) {
   return dest;
 }
 
-gb_inline isize gb_strlcpy(char *dest, char const *source, isize len) {
-  isize result = 0;
+gb_inline ssize_t gb_strlcpy(char *dest, char const *source, ssize_t len) {
+  ssize_t result = 0;
   GB_ASSERT_NOT_NULL(dest);
   if (source) {
     char const *source_start = source;
@@ -157,7 +157,7 @@ gb_inline isize gb_strlcpy(char *dest, char const *source, isize len) {
 }
 
 gb_inline char *gb_strrev(char *str) {
-  isize len = gb_strlen(str);
+  ssize_t len = gb_strlen(str);
   char *a = str + 0;
   char *b = str + len - 1;
   len /= 2;
@@ -168,7 +168,7 @@ gb_inline char *gb_strrev(char *str) {
   return str;
 }
 
-gb_inline i32 gb_strncmp(char const *s1, char const *s2, isize len) {
+gb_inline int32_t gb_strncmp(char const *s1, char const *s2, ssize_t len) {
   for (; len > 0;
          s1++, s2++, len--) {
     if (*s1 != *s2)
@@ -187,7 +187,7 @@ gb_inline char const *gb_strtok(char *output, char const *src, char const *delim
   return *src ? src + 1 : src;
 }
 
-gb_inline b32 gb_str_has_prefix(char const *str, char const *prefix) {
+gb_inline byte32_t gb_str_has_prefix(char const *str, char const *prefix) {
   while (*prefix) {
     if (*str++ != *prefix++)
       return false;
@@ -195,9 +195,9 @@ gb_inline b32 gb_str_has_prefix(char const *str, char const *prefix) {
   return true;
 }
 
-gb_inline b32 gb_str_has_suffix(char const *str, char const *suffix) {
-  isize i = gb_strlen(str);
-  isize j = gb_strlen(suffix);
+gb_inline byte32_t gb_str_has_suffix(char const *str, char const *suffix) {
+  ssize_t i = gb_strlen(str);
+  ssize_t j = gb_strlen(suffix);
   if (j <= i)
     return gb_strcmp(str + i - j, suffix) == 0;
   return false;
@@ -222,9 +222,9 @@ gb_inline char const *gb_char_last_occurence(char const *s, char c) {
   return result;
 }
 
-gb_inline void gb_str_concat(char *dest, isize dest_len,
-                             char const *src_a, isize src_a_len,
-                             char const *src_b, isize src_b_len) {
+gb_inline void gb_str_concat(char *dest, ssize_t dest_len,
+                             char const *src_a, ssize_t src_a_len,
+                             char const *src_b, ssize_t src_b_len) {
   GB_ASSERT(dest_len >= src_a_len + src_b_len + 1);
   if (dest) {
     gb_memcopy(dest, src_a, src_a_len);
@@ -233,10 +233,10 @@ gb_inline void gb_str_concat(char *dest, isize dest_len,
   }
 }
 
-gb_internal isize gb__scan_i64(char const *text, i32 base, i64 *value) {
+gb_internal ssize_t gb__scan_i64(char const *text, int32_t base, int64_t *value) {
   char const *text_begin = text;
-  i64 result = 0;
-  b32 negative = false;
+  int64_t result = 0;
+  byte32_t negative = false;
 
   if (*text == '-') {
     negative = true;
@@ -247,7 +247,7 @@ gb_internal isize gb__scan_i64(char const *text, i32 base, i64 *value) {
     text += 2;
 
   for (;;) {
-    i64 v;
+    int64_t v;
     if (gb_char_is_digit(*text))
       v = *text - '0';
     else if (base == 16 && gb_char_is_hex_digit(*text))
@@ -268,15 +268,15 @@ gb_internal isize gb__scan_i64(char const *text, i32 base, i64 *value) {
   return (text - text_begin);
 }
 
-gb_internal isize gb__scan_u64(char const *text, i32 base, u64 *value) {
+gb_internal ssize_t gb__scan_u64(char const *text, int32_t base, uint64_t *value) {
   char const *text_begin = text;
-  u64 result = 0;
+  uint64_t result = 0;
 
   if (base == 16 && gb_strncmp(text, "0x", 2) == 0)
     text += 2;
 
   for (;;) {
-    u64 v;
+    uint64_t v;
     if (gb_char_is_digit(*text))
       v = *text - '0';
     else if (base == 16 && gb_char_is_hex_digit(*text))
@@ -297,9 +297,9 @@ gb_internal isize gb__scan_u64(char const *text, i32 base, u64 *value) {
 }
 
 // TODO(bill): Make better
-u64 gb_str_to_u64(char const *str, char **end_ptr, i32 base) {
-  isize len;
-  u64 value = 0;
+uint64_t gb_str_to_u64(char const *str, char **end_ptr, int32_t base) {
+  ssize_t len;
+  uint64_t value = 0;
 
   if (!base) {
     if ((gb_strlen(str) > 2) && (gb_strncmp(str, "0x", 2) == 0))
@@ -314,9 +314,9 @@ u64 gb_str_to_u64(char const *str, char **end_ptr, i32 base) {
   return value;
 }
 
-i64 gb_str_to_i64(char const *str, char **end_ptr, i32 base) {
-  isize len;
-  i64 value;
+int64_t gb_str_to_i64(char const *str, char **end_ptr, int32_t base) {
+  ssize_t len;
+  int64_t value;
 
   if (!base) {
     if ((gb_strlen(str) > 2) && (gb_strncmp(str, "0x", 2) == 0))
@@ -338,9 +338,9 @@ gb_global char const gb__num_to_char_table[] =
     "abcdefghijklmnopqrstuvwxyz"
     "@$";
 
-gb_inline void gb_i64_to_str(i64 value, char *string, i32 base) {
+gb_inline void gb_i64_to_str(int64_t value, char *string, int32_t base) {
   char *buf = string;
-  b32 negative = false;
+  byte32_t negative = false;
   if (value < 0) {
     negative = true;
     value = -value;
@@ -359,7 +359,7 @@ gb_inline void gb_i64_to_str(i64 value, char *string, i32 base) {
   gb_strrev(string);
 }
 
-gb_inline void gb_u64_to_str(u64 value, char *string, i32 base) {
+gb_inline void gb_u64_to_str(uint64_t value, char *string, int32_t base) {
   char *buf = string;
 
   if (value) {
@@ -375,15 +375,15 @@ gb_inline void gb_u64_to_str(u64 value, char *string, i32 base) {
   gb_strrev(string);
 }
 
-gb_inline f32 gb_str_to_f32(char const *str, char **end_ptr) {
-  f64 f = gb_str_to_f64(str, end_ptr);
-  f32 r = cast(f32) f;
+gb_inline float32_t gb_str_to_f32(char const *str, char **end_ptr) {
+  float64_t f = gb_str_to_f64(str, end_ptr);
+  float32_t r = cast(float32_t) f;
   return r;
 }
 
-gb_inline f64 gb_str_to_f64(char const *str, char **end_ptr) {
-  f64 result, value, sign, scale;
-  i32 frac;
+gb_inline float64_t gb_str_to_f64(char const *str, char **end_ptr) {
+  float64_t result, value, sign, scale;
+  int32_t frac;
 
   while (gb_char_is_space(*str)) {
     str++;
@@ -402,7 +402,7 @@ gb_inline f64 gb_str_to_f64(char const *str, char **end_ptr) {
   }
 
   if (*str == '.') {
-    f64 pow10 = 10.0;
+    float64_t pow10 = 10.0;
     str++;
     while (gb_char_is_digit(*str)) {
       value += (*str - '0') / pow10;
@@ -414,7 +414,7 @@ gb_inline f64 gb_str_to_f64(char const *str, char **end_ptr) {
   frac = 0;
   scale = 1.0;
   if ((*str == 'e') || (*str == 'E')) {
-    u32 exp;
+    uint32_t exp;
 
     str++;
     if (*str == '-') {
@@ -450,17 +450,17 @@ gb_inline f64 gb_str_to_f64(char const *str, char **end_ptr) {
   return result;
 }
 
-gb_inline void gb__set_string_length(gbString str, isize len) { GB_STRING_HEADER(str)->length = len; }
+gb_inline void gb__set_string_length(gbString str, ssize_t len) { GB_STRING_HEADER(str)->length = len; }
 
-gb_inline void gb__set_string_capacity(gbString str, isize cap) { GB_STRING_HEADER(str)->capacity = cap; }
+gb_inline void gb__set_string_capacity(gbString str, ssize_t cap) { GB_STRING_HEADER(str)->capacity = cap; }
 
 gb_inline gbString gb_string_make(gbAllocator a, char const *str) {
-  isize len = str ? gb_strlen(str) : 0;
+  ssize_t len = str ? gb_strlen(str) : 0;
   return gb_string_make_length(a, str, len);
 }
 
-gbString gb_string_make_length(gbAllocator a, void const *init_str, isize num_bytes) {
-  isize header_size = gb_size_of(gbStringHeader);
+gbString gb_string_make_length(gbAllocator a, void const *init_str, ssize_t num_bytes) {
+  ssize_t header_size = gb_size_of(gbStringHeader);
   void *ptr = gb_alloc(a, header_size + num_bytes + 1);
 
   gbString str;
@@ -493,11 +493,11 @@ gb_inline gbString gb_string_duplicate(gbAllocator a, gbString const str) {
   return gb_string_make_length(a, str, gb_string_length(str));
 }
 
-gb_inline isize gb_string_length(gbString const str) { return GB_STRING_HEADER(str)->length; }
+gb_inline ssize_t gb_string_length(gbString const str) { return GB_STRING_HEADER(str)->length; }
 
-gb_inline isize gb_string_capacity(gbString const str) { return GB_STRING_HEADER(str)->capacity; }
+gb_inline ssize_t gb_string_capacity(gbString const str) { return GB_STRING_HEADER(str)->capacity; }
 
-gb_inline isize gb_string_available_space(gbString const str) {
+gb_inline ssize_t gb_string_available_space(gbString const str) {
   gbStringHeader *h = GB_STRING_HEADER(str);
   if (h->capacity > h->length)
     return h->capacity - h->length;
@@ -513,9 +513,9 @@ gb_inline gbString gb_string_append(gbString str, gbString const other) {
   return gb_string_append_length(str, other, gb_string_length(other));
 }
 
-gbString gb_string_append_length(gbString str, void const *other, isize other_len) {
+gbString gb_string_append_length(gbString str, void const *other, ssize_t other_len) {
   if (other_len > 0) {
-    isize curr_len = gb_string_length(str);
+    ssize_t curr_len = gb_string_length(str);
 
     str = gb_string_make_space_for(str, other_len);
     if (str == NULL)
@@ -533,7 +533,7 @@ gb_inline gbString gb_string_appendc(gbString str, char const *other) {
 }
 
 gbString gb_string_set(gbString str, char const *cstr) {
-  isize len = gb_strlen(cstr);
+  ssize_t len = gb_strlen(cstr);
   if (gb_string_capacity(str) < len) {
     str = gb_string_make_space_for(str, len - gb_string_length(str));
     if (str == NULL)
@@ -547,14 +547,14 @@ gbString gb_string_set(gbString str, char const *cstr) {
   return str;
 }
 
-gbString gb_string_make_space_for(gbString str, isize add_len) {
-  isize available = gb_string_available_space(str);
+gbString gb_string_make_space_for(gbString str, ssize_t add_len) {
+  ssize_t available = gb_string_available_space(str);
 
 // NOTE(bill): Return if there is enough space left
   if (available >= add_len) {
     return str;
   } else {
-    isize new_len, old_size, new_size;
+    ssize_t new_len, old_size, new_size;
     void *ptr, *new_ptr;
     gbAllocator a = GB_STRING_HEADER(str)->allocator;
     gbStringHeader *header;
@@ -577,13 +577,13 @@ gbString gb_string_make_space_for(gbString str, isize add_len) {
   }
 }
 
-gb_inline isize gb_string_allocation_size(gbString const str) {
-  isize cap = gb_string_capacity(str);
+gb_inline ssize_t gb_string_allocation_size(gbString const str) {
+  ssize_t cap = gb_string_capacity(str);
   return gb_size_of(gbStringHeader) + cap;
 }
 
-gb_inline b32 gb_string_are_equal(gbString const lhs, gbString const rhs) {
-  isize lhs_len, rhs_len, i;
+gb_inline byte32_t gb_string_are_equal(gbString const lhs, gbString const rhs) {
+  ssize_t lhs_len, rhs_len, i;
   lhs_len = gb_string_length(lhs);
   rhs_len = gb_string_length(rhs);
   if (lhs_len != rhs_len)
@@ -599,7 +599,7 @@ gb_inline b32 gb_string_are_equal(gbString const lhs, gbString const rhs) {
 
 gbString gb_string_trim(gbString str, char const *cut_set) {
   char *start, *end, *start_pos, *end_pos;
-  isize len;
+  ssize_t len;
 
   start_pos = start = str;
   end_pos = end = str + gb_string_length(str) - 1;
@@ -609,7 +609,7 @@ gbString gb_string_trim(gbString str, char const *cut_set) {
   while (end_pos > start_pos && gb_char_first_occurence(cut_set, *end_pos))
     end_pos--;
 
-  len = cast(isize) ((start_pos > end_pos) ? 0 : ((end_pos - start_pos) + 1));
+  len = cast(ssize_t) ((start_pos > end_pos) ? 0 : ((end_pos - start_pos) + 1));
 
   if (str != start_pos)
     gb_memmove(str, start_pos, len);

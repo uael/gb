@@ -27,11 +27,11 @@
 
 #include "gb/hash.h"
 
-u32 gb_adler32(void const *data, isize len) {
-  u32 const MOD_ALDER = 65521;
-  u32 a = 1, b = 0;
-  isize i, block_len;
-  u8 const *bytes = cast(u8 const *) data;
+uint32_t gb_adler32(void const *data, ssize_t len) {
+  uint32_t const MOD_ALDER = 65521;
+  uint32_t a = 1, b = 0;
+  ssize_t i, block_len;
+  uint8_t const *bytes = cast(uint8_t const *) data;
 
   block_len = len % 5552;
 
@@ -59,7 +59,7 @@ u32 gb_adler32(void const *data, isize len) {
   return (b << 16) | a;
 }
 
-gb_global u32 const GB__CRC32_TABLE[256] = {
+gb_global uint32_t const GB__CRC32_TABLE[256] = {
   0x00000000, 0x77073096, 0xee0e612c, 0x990951ba,
   0x076dc419, 0x706af48f, 0xe963a535, 0x9e6495a3,
   0x0edb8832, 0x79dcb8a4, 0xe0d5e91e, 0x97d2d988,
@@ -126,7 +126,7 @@ gb_global u32 const GB__CRC32_TABLE[256] = {
   0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d,
 };
 
-gb_global u64 const GB__CRC64_TABLE[256] = {
+gb_global uint64_t const GB__CRC64_TABLE[256] = {
   0x0000000000000000ull, 0x42f0e1eba9ea3693ull, 0x85e1c3d753d46d26ull, 0xc711223cfa3e5bb5ull,
   0x493366450e42ecdfull, 0x0bc387aea7a8da4cull, 0xccd2a5925d9681f9ull, 0x8e224479f47cb76aull,
   0x9266cc8a1c85d9beull, 0xd0962d61b56fef2dull, 0x17870f5d4f51b498ull, 0x5577eeb6e6bb820bull,
@@ -193,28 +193,28 @@ gb_global u64 const GB__CRC64_TABLE[256] = {
   0x5dedc41a34bbeeb2ull, 0x1f1d25f19d51d821ull, 0xd80c07cd676f8394ull, 0x9afce626ce85b507ull,
 };
 
-u32 gb_crc32(void const *data, isize len) {
-  isize remaining;
-  u32 result = ~(cast(u32) 0);
-  u8 const *c = cast(u8 const *) data;
+uint32_t gb_crc32(void const *data, ssize_t len) {
+  ssize_t remaining;
+  uint32_t result = ~(cast(uint32_t) 0);
+  uint8_t const *c = cast(uint8_t const *) data;
   for (remaining = len; remaining--; c++)
     result = (result >> 8) ^ (GB__CRC32_TABLE[(result ^ *c) & 0xff]);
   return ~result;
 }
 
-u64 gb_crc64(void const *data, isize len) {
-  isize remaining;
-  u64 result = ~(cast(u64) 0);
-  u8 const *c = cast(u8 const *) data;
+uint64_t gb_crc64(void const *data, ssize_t len) {
+  ssize_t remaining;
+  uint64_t result = ~(cast(uint64_t) 0);
+  uint8_t const *c = cast(uint8_t const *) data;
   for (remaining = len; remaining--; c++)
     result = (result >> 8) ^ (GB__CRC64_TABLE[(result ^ *c) & 0xff]);
   return ~result;
 }
 
-u32 gb_fnv32(void const *data, isize len) {
-  isize i;
-  u32 h = 0x811c9dc5;
-  u8 const *c = cast(u8 const *) data;
+uint32_t gb_fnv32(void const *data, ssize_t len) {
+  ssize_t i;
+  uint32_t h = 0x811c9dc5;
+  uint8_t const *c = cast(uint8_t const *) data;
 
   for (i = 0; i < len; i++)
     h = (h * 0x01000193) ^ c[i];
@@ -222,10 +222,10 @@ u32 gb_fnv32(void const *data, isize len) {
   return h;
 }
 
-u64 gb_fnv64(void const *data, isize len) {
-  isize i;
-  u64 h = 0xcbf29ce484222325ull;
-  u8 const *c = cast(u8 const *) data;
+uint64_t gb_fnv64(void const *data, ssize_t len) {
+  ssize_t i;
+  uint64_t h = 0xcbf29ce484222325ull;
+  uint8_t const *c = cast(uint8_t const *) data;
 
   for (i = 0; i < len; i++)
     h = (h * 0x100000001b3ll) ^ c[i];
@@ -233,10 +233,10 @@ u64 gb_fnv64(void const *data, isize len) {
   return h;
 }
 
-u32 gb_fnv32a(void const *data, isize len) {
-  isize i;
-  u32 h = 0x811c9dc5;
-  u8 const *c = cast(u8 const *) data;
+uint32_t gb_fnv32a(void const *data, ssize_t len) {
+  ssize_t i;
+  uint32_t h = 0x811c9dc5;
+  uint8_t const *c = cast(uint8_t const *) data;
 
   for (i = 0; i < len; i++)
     h = (h ^ c[i]) * 0x01000193;
@@ -244,10 +244,10 @@ u32 gb_fnv32a(void const *data, isize len) {
   return h;
 }
 
-u64 gb_fnv64a(void const *data, isize len) {
-  isize i;
-  u64 h = 0xcbf29ce484222325ull;
-  u8 const *c = cast(u8 const *) data;
+uint64_t gb_fnv64a(void const *data, ssize_t len) {
+  ssize_t i;
+  uint64_t h = 0xcbf29ce484222325ull;
+  uint8_t const *c = cast(uint8_t const *) data;
 
   for (i = 0; i < len; i++)
     h = (h ^ c[i]) * 0x100000001b3ll;
@@ -255,25 +255,25 @@ u64 gb_fnv64a(void const *data, isize len) {
   return h;
 }
 
-gb_inline u32 gb_murmur32(void const *data, isize len) { return gb_murmur32_seed(data, len, 0x9747b28c); }
+gb_inline uint32_t gb_murmur32(void const *data, ssize_t len) { return gb_murmur32_seed(data, len, 0x9747b28c); }
 
-gb_inline u64 gb_murmur64(void const *data, isize len) { return gb_murmur64_seed(data, len, 0x9747b28c); }
+gb_inline uint64_t gb_murmur64(void const *data, ssize_t len) { return gb_murmur64_seed(data, len, 0x9747b28c); }
 
-u32 gb_murmur32_seed(void const *data, isize len, u32 seed) {
-  u32 const c1 = 0xcc9e2d51;
-  u32 const c2 = 0x1b873593;
-  u32 const r1 = 15;
-  u32 const r2 = 13;
-  u32 const m = 5;
-  u32 const n = 0xe6546b64;
+uint32_t gb_murmur32_seed(void const *data, ssize_t len, uint32_t seed) {
+  uint32_t const c1 = 0xcc9e2d51;
+  uint32_t const c2 = 0x1b873593;
+  uint32_t const r1 = 15;
+  uint32_t const r2 = 13;
+  uint32_t const m = 5;
+  uint32_t const n = 0xe6546b64;
 
-  isize i, nblocks = len / 4;
-  u32 hash = seed, k1 = 0;
-  u32 const *blocks = cast(u32 const*) data;
-  u8 const *tail = cast(u8 const *) (data) + nblocks * 4;
+  ssize_t i, nblocks = len / 4;
+  uint32_t hash = seed, k1 = 0;
+  uint32_t const *blocks = cast(uint32_t const*) data;
+  uint8_t const *tail = cast(uint8_t const *) (data) + nblocks * 4;
 
   for (i = 0; i < nblocks; i++) {
-    u32 k = blocks[i];
+    uint32_t k = blocks[i];
     k *= c1;
     k = (k << r1) | (k >> (32 - r1));
     k *= c2;
@@ -306,19 +306,19 @@ u32 gb_murmur32_seed(void const *data, isize len, u32 seed) {
   return hash;
 }
 
-u64 gb_murmur64_seed(void const *data_, isize len, u64 seed) {
+uint64_t gb_murmur64_seed(void const *data_, ssize_t len, uint64_t seed) {
 #if defined(GB_ARCH_64_BIT)
-  u64 const m = 0xc6a4a7935bd1e995ULL;
-  i32 const r = 47;
+  uint64_t const m = 0xc6a4a7935bd1e995ULL;
+  int32_t const r = 47;
 
-  u64 h = seed ^(len * m);
+  uint64_t h = seed ^(len * m);
 
-  u64 const *data = cast(u64 const *) data_;
-  u8 const *data2 = cast(u8 const *) data_;
-  u64 const *end = data + (len / 8);
+  uint64_t const *data = cast(uint64_t const *) data_;
+  uint8_t const *data2 = cast(uint8_t const *) data_;
+  uint64_t const *end = data + (len / 8);
 
   while (data != end) {
-    u64 k = *data++;
+    uint64_t k = *data++;
 
     k *= m;
     k ^= k >> r;
@@ -330,19 +330,19 @@ u64 gb_murmur64_seed(void const *data_, isize len, u64 seed) {
 
   switch (len & 7) {
     case 7:
-      h ^= cast(u64) (data2[6]) << 48;
+      h ^= cast(uint64_t) (data2[6]) << 48;
     case 6:
-      h ^= cast(u64) (data2[5]) << 40;
+      h ^= cast(uint64_t) (data2[5]) << 40;
     case 5:
-      h ^= cast(u64) (data2[4]) << 32;
+      h ^= cast(uint64_t) (data2[4]) << 32;
     case 4:
-      h ^= cast(u64) (data2[3]) << 24;
+      h ^= cast(uint64_t) (data2[3]) << 24;
     case 3:
-      h ^= cast(u64) (data2[2]) << 16;
+      h ^= cast(uint64_t) (data2[2]) << 16;
     case 2:
-      h ^= cast(u64) (data2[1]) << 8;
+      h ^= cast(uint64_t) (data2[1]) << 8;
     case 1:
-      h ^= cast(u64) (data2[0]);
+      h ^= cast(uint64_t) (data2[0]);
       h *= m;
   };
 
@@ -352,17 +352,17 @@ u64 gb_murmur64_seed(void const *data_, isize len, u64 seed) {
 
   return h;
 #else
-  u64 h;
-  u32 const m = 0x5bd1e995;
-  i32 const r = 24;
+  uint64_t h;
+  uint32_t const m = 0x5bd1e995;
+  int32_t const r = 24;
 
-  u32 h1 = cast(u32)(seed) ^ cast(u32)(len);
-  u32 h2 = cast(u32)(seed >> 32);
+  uint32_t h1 = cast(uint32_t)(seed) ^ cast(uint32_t)(len);
+  uint32_t h2 = cast(uint32_t)(seed >> 32);
 
-  u32 const *data = cast(u32 const *)data_;
+  uint32_t const *data = cast(uint32_t const *)data_;
 
   while (len >= 8) {
-    u32 k1, k2;
+    uint32_t k1, k2;
     k1 = *data++;
     k1 *= m;
     k1 ^= k1 >> r;
@@ -381,7 +381,7 @@ u64 gb_murmur64_seed(void const *data_, isize len, u64 seed) {
   }
 
   if (len >= 4) {
-    u32 k1 = *data++;
+    uint32_t k1 = *data++;
     k1 *= m;
     k1 ^= k1 >> r;
     k1 *= m;
@@ -391,9 +391,9 @@ u64 gb_murmur64_seed(void const *data_, isize len, u64 seed) {
   }
 
   switch (len) {
-    case 3: h2 ^= (cast(u8 const *)data)[2] << 16;
-    case 2: h2 ^= (cast(u8 const *)data)[1] <<  8;
-    case 1: h2 ^= (cast(u8 const *)data)[0] <<  0;
+    case 3: h2 ^= (cast(uint8_t const *)data)[2] << 16;
+    case 2: h2 ^= (cast(uint8_t const *)data)[1] <<  8;
+    case 1: h2 ^= (cast(uint8_t const *)data)[0] <<  0;
       h2 *= m;
   };
 

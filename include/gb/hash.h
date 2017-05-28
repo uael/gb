@@ -30,28 +30,28 @@
 
 #include "gb/array.h"
 
-GB_EXTERN u32 gb_adler32(void const *data, isize len);
+GB_EXTERN uint32_t gb_adler32(void const *data, ssize_t len);
 
-GB_EXTERN u32 gb_crc32(void const *data, isize len);
+GB_EXTERN uint32_t gb_crc32(void const *data, ssize_t len);
 
-GB_EXTERN u64 gb_crc64(void const *data, isize len);
+GB_EXTERN uint64_t gb_crc64(void const *data, ssize_t len);
 
-GB_EXTERN u32 gb_fnv32(void const *data, isize len);
+GB_EXTERN uint32_t gb_fnv32(void const *data, ssize_t len);
 
-GB_EXTERN u64 gb_fnv64(void const *data, isize len);
+GB_EXTERN uint64_t gb_fnv64(void const *data, ssize_t len);
 
-GB_EXTERN u32 gb_fnv32a(void const *data, isize len);
+GB_EXTERN uint32_t gb_fnv32a(void const *data, ssize_t len);
 
-GB_EXTERN u64 gb_fnv64a(void const *data, isize len);
+GB_EXTERN uint64_t gb_fnv64a(void const *data, ssize_t len);
 
 // NOTE(bill): Default seed of 0x9747b28c
 // NOTE(bill): I prefer using murmur64 for most hashes
-GB_EXTERN u32 gb_murmur32(void const *data, isize len);
+GB_EXTERN uint32_t gb_murmur32(void const *data, ssize_t len);
 
-GB_EXTERN u64 gb_murmur64(void const *data, isize len);
+GB_EXTERN uint64_t gb_murmur64(void const *data, ssize_t len);
 
-GB_EXTERN u32 gb_murmur32_seed(void const *data, isize len, u32 seed);
+GB_EXTERN uint32_t gb_murmur32_seed(void const *data, ssize_t len, uint32_t seed);
 
-GB_EXTERN u64 gb_murmur64_seed(void const *data, isize len, u64 seed);
+GB_EXTERN uint64_t gb_murmur64_seed(void const *data, ssize_t len, uint64_t seed);
 
 #endif /* GB_HASH_H__ */

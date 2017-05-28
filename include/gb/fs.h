@@ -30,7 +30,7 @@
 
 #include "gb/htable.h"
 
-typedef u32 gbFileMode;
+typedef uint32_t gbFileMode;
 typedef enum gbFileModeFlag {
   gbFileMode_Read = GB_BIT(0),
   gbFileMode_Write = GB_BIT(1),
@@ -58,16 +58,16 @@ typedef enum gbFileError {
 
 typedef union gbFileDescriptor {
   void *p;
-  intptr i;
-  uintptr u;
+  intptr_t i;
+  uintptr_t u;
 } gbFileDescriptor;
 
 typedef struct gbFileOperations gbFileOperations;
 
 #define GB_FILE_OPEN_PROC(name)     gbFileError name(gbFileDescriptor *fd, gbFileOperations *ops, gbFileMode mode, char const *filename)
-#define GB_FILE_READ_AT_PROC(name)  b32         name(gbFileDescriptor fd, void *buffer, isize size, i64 offset, isize *bytes_read)
-#define GB_FILE_WRITE_AT_PROC(name) b32         name(gbFileDescriptor fd, void const *buffer, isize size, i64 offset, isize *bytes_written)
-#define GB_FILE_SEEK_PROC(name)     b32         name(gbFileDescriptor fd, i64 offset, gbSeekWhenceType whence, i64 *new_offset)
+#define GB_FILE_READ_AT_PROC(name)  byte32_t         name(gbFileDescriptor fd, void *buffer, ssize_t size, int64_t offset, ssize_t *bytes_read)
+#define GB_FILE_WRITE_AT_PROC(name) byte32_t         name(gbFileDescriptor fd, void const *buffer, ssize_t size, int64_t offset, ssize_t *bytes_written)
+#define GB_FILE_SEEK_PROC(name)     byte32_t         name(gbFileDescriptor fd, int64_t offset, gbSeekWhenceType whence, int64_t *new_offset)
 #define GB_FILE_CLOSE_PROC(name)    void        name(gbFileDescriptor fd)
 
 typedef GB_FILE_OPEN_PROC(gbFileOpenProc);
@@ -91,12 +91,12 @@ extern gbFileOperations const gbDefaultFileOperations;
 
 
 // typedef struct gbDirInfo {
-// 	u8 *buf;
-// 	isize buf_count;
-// 	isize buf_pos;
+// 	uint8_t *buf;
+// 	ssize_t buf_count;
+// 	ssize_t buf_pos;
 // } gbDirInfo;
 
-typedef u64 gbFileTime;
+typedef uint64_t gbFileTime;
 
 typedef struct gbFile {
   gbFileOperations ops;
@@ -126,34 +126,34 @@ GB_DEF gbFileError gb_file_open_mode(gbFile *file, gbFileMode mode, char const *
 
 GB_DEF gbFileError gb_file_new(gbFile *file, gbFileDescriptor fd, gbFileOperations ops, char const *filename);
 
-GB_DEF b32 gb_file_read_at_check(gbFile *file, void *buffer, isize size, i64 offset, isize *bytes_read);
+GB_DEF byte32_t gb_file_read_at_check(gbFile *file, void *buffer, ssize_t size, int64_t offset, ssize_t *bytes_read);
 
-GB_DEF b32 gb_file_write_at_check(gbFile *file, void const *buffer, isize size, i64 offset, isize *bytes_written);
+GB_DEF byte32_t gb_file_write_at_check(gbFile *file, void const *buffer, ssize_t size, int64_t offset, ssize_t *bytes_written);
 
-GB_DEF b32 gb_file_read_at(gbFile *file, void *buffer, isize size, i64 offset);
+GB_DEF byte32_t gb_file_read_at(gbFile *file, void *buffer, ssize_t size, int64_t offset);
 
-GB_DEF b32 gb_file_write_at(gbFile *file, void const *buffer, isize size, i64 offset);
+GB_DEF byte32_t gb_file_write_at(gbFile *file, void const *buffer, ssize_t size, int64_t offset);
 
-GB_DEF i64 gb_file_seek(gbFile *file, i64 offset);
+GB_DEF int64_t gb_file_seek(gbFile *file, int64_t offset);
 
-GB_DEF i64 gb_file_seek_to_end(gbFile *file);
+GB_DEF int64_t gb_file_seek_to_end(gbFile *file);
 
-GB_DEF i64 gb_file_skip(gbFile *file, i64 bytes); // NOTE(bill): Skips a certain amount of bytes
-GB_DEF i64 gb_file_tell(gbFile *file);
+GB_DEF int64_t gb_file_skip(gbFile *file, int64_t bytes); // NOTE(bill): Skips a certain amount of bytes
+GB_DEF int64_t gb_file_tell(gbFile *file);
 
 GB_DEF gbFileError gb_file_close(gbFile *file);
 
-GB_DEF b32 gb_file_read(gbFile *file, void *buffer, isize size);
+GB_DEF byte32_t gb_file_read(gbFile *file, void *buffer, ssize_t size);
 
-GB_DEF b32 gb_file_write(gbFile *file, void const *buffer, isize size);
+GB_DEF byte32_t gb_file_write(gbFile *file, void const *buffer, ssize_t size);
 
-GB_DEF i64 gb_file_size(gbFile *file);
+GB_DEF int64_t gb_file_size(gbFile *file);
 
 GB_DEF char const *gb_file_name(gbFile *file);
 
-GB_DEF gbFileError gb_file_truncate(gbFile *file, i64 size);
+GB_DEF gbFileError gb_file_truncate(gbFile *file, int64_t size);
 
-GB_DEF b32 gb_file_has_changed(gbFile *file); // NOTE(bill): Changed since lasted checked
+GB_DEF byte32_t gb_file_has_changed(gbFile *file); // NOTE(bill): Changed since lasted checked
 // TODO(bill):
 // gbFileError gb_file_temp(gbFile *file);
 //
@@ -161,22 +161,22 @@ GB_DEF b32 gb_file_has_changed(gbFile *file); // NOTE(bill): Changed since laste
 typedef struct gbFileContents {
   gbAllocator allocator;
   void *data;
-  isize size;
+  ssize_t size;
 } gbFileContents;
 
-GB_DEF gbFileContents gb_file_read_contents(gbAllocator a, b32 zero_terminate, char const *filepath);
+GB_DEF gbFileContents gb_file_read_contents(gbAllocator a, byte32_t zero_terminate, char const *filepath);
 
 GB_DEF void gb_file_free_contents(gbFileContents *fc);
 
 
 // TODO(bill): Should these have different na,es as they do not take in a gbFile * ???
-GB_DEF b32 gb_file_exists(char const *filepath);
+GB_DEF byte32_t gb_file_exists(char const *filepath);
 
 GB_DEF gbFileTime gb_file_last_write_time(char const *filepath);
 
-GB_DEF b32 gb_file_copy(char const *existing_filename, char const *new_filename, b32 fail_if_exists);
+GB_DEF byte32_t gb_file_copy(char const *existing_filename, char const *new_filename, byte32_t fail_if_exists);
 
-GB_DEF b32 gb_file_move(char const *existing_filename, char const *new_filename);
+GB_DEF byte32_t gb_file_move(char const *existing_filename, char const *new_filename);
 
 #ifndef GB_PATH_SEPARATOR
 #if defined(GB_SYSTEM_WINDOWS)
@@ -186,11 +186,11 @@ GB_DEF b32 gb_file_move(char const *existing_filename, char const *new_filename)
 #endif
 #endif
 
-GB_DEF b32 gb_path_is_absolute(char const *path);
+GB_DEF byte32_t gb_path_is_absolute(char const *path);
 
-GB_DEF b32 gb_path_is_relative(char const *path);
+GB_DEF byte32_t gb_path_is_relative(char const *path);
 
-GB_DEF b32 gb_path_is_root(char const *path);
+GB_DEF byte32_t gb_path_is_root(char const *path);
 
 GB_DEF char const *gb_path_base_name(char const *path);
 

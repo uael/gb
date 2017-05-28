@@ -31,23 +31,23 @@
 #include "gb/ctype.h"
 
 // NOTE(bill): Does not check if utf-8 string is valid
-GB_DEF isize gb_utf8_strlen(u8 const *str);
+GB_DEF ssize_t gb_utf8_strlen(uint8_t const *str);
 
-GB_DEF isize gb_utf8_strnlen(u8 const *str, isize max_len);
+GB_DEF ssize_t gb_utf8_strnlen(uint8_t const *str, ssize_t max_len);
 
 // NOTE(bill): Windows doesn't handle 8 bit filenames well ('cause Micro$hit)
-GB_DEF u16 *gb_utf8_to_ucs2(u16 *buffer, isize len, u8 const *str);
+GB_DEF uint16_t *gb_utf8_to_ucs2(uint16_t *buffer, ssize_t len, uint8_t const *str);
 
-GB_DEF u8 *gb_ucs2_to_utf8(u8 *buffer, isize len, u16 const *str);
+GB_DEF uint8_t *gb_ucs2_to_utf8(uint8_t *buffer, ssize_t len, uint16_t const *str);
 
-GB_DEF u16 *gb_utf8_to_ucs2_buf(u8 const *str);   // NOTE(bill): Uses locally persisting buffer
-GB_DEF u8 *gb_ucs2_to_utf8_buf(u16 const *str); // NOTE(bill): Uses locally persisting buffer
+GB_DEF uint16_t *gb_utf8_to_ucs2_buf(uint8_t const *str);   // NOTE(bill): Uses locally persisting buffer
+GB_DEF uint8_t *gb_ucs2_to_utf8_buf(uint16_t const *str); // NOTE(bill): Uses locally persisting buffer
 
 // NOTE(bill): Returns size of codepoint in bytes
-GB_DEF isize gb_utf8_decode(u8 const *str, isize str_len, Rune *codepoint);
+GB_DEF ssize_t gb_utf8_decode(uint8_t const *str, ssize_t str_len, rune_t *codepoint);
 
-GB_DEF isize gb_utf8_codepoint_size(u8 const *str, isize str_len);
+GB_DEF ssize_t gb_utf8_codepoint_size(uint8_t const *str, ssize_t str_len);
 
-GB_DEF isize gb_utf8_encode_rune(u8 buf[4], Rune r);
+GB_DEF ssize_t gb_utf8_encode_rune(uint8_t buf[4], rune_t r);
 
 #endif /* GB_UTF8_H__ */

@@ -78,15 +78,15 @@ gb_inline void gb_lfence(void) {
 gb_inline void gb_semaphore_release(gbSemaphore *s) { gb_semaphore_post(s, 1); }
 
 #if defined(GB_SYSTEM_WINDOWS)
-gb_inline void gb_semaphore_init   (gbSemaphore *s)            { s->win32_handle = CreateSemaphoreA(NULL, 0, I32_MAX, NULL); }
+gb_inline void gb_semaphore_init   (gbSemaphore *s)            { s->win32_handle = CreateSemaphoreA(NULL, 0, INT32_MAX, NULL); }
   gb_inline void gb_semaphore_destroy(gbSemaphore *s)            { CloseHandle(s->win32_handle); }
-  gb_inline void gb_semaphore_post   (gbSemaphore *s, i32 count) { ReleaseSemaphore(s->win32_handle, count, NULL); }
+  gb_inline void gb_semaphore_post   (gbSemaphore *s, int32_t count) { ReleaseSemaphore(s->win32_handle, count, NULL); }
   gb_inline void gb_semaphore_wait   (gbSemaphore *s)            { WaitForSingleObject(s->win32_handle, INFINITE); }
 
 #elif defined(GB_SYSTEM_OSX)
 gb_inline void gb_semaphore_init   (gbSemaphore *s)            { semaphore_create(mach_task_self(), &s->osx_handle, SYNC_POLICY_FIFO, 0); }
   gb_inline void gb_semaphore_destroy(gbSemaphore *s)            { semaphore_destroy(mach_task_self(), s->osx_handle); }
-  gb_inline void gb_semaphore_post   (gbSemaphore *s, i32 count) { while (count --> 0) semaphore_signal(s->osx_handle); }
+  gb_inline void gb_semaphore_post   (gbSemaphore *s, int32_t count) { while (count --> 0) semaphore_signal(s->osx_handle); }
   gb_inline void gb_semaphore_wait   (gbSemaphore *s)            { semaphore_wait(s->osx_handle); }
 
 #elif defined(GB_SYSTEM_UNIX)
@@ -95,7 +95,7 @@ gb_inline void gb_semaphore_init(gbSemaphore *s) { sem_init(&s->unix_handle, 0, 
 
 gb_inline void gb_semaphore_destroy(gbSemaphore *s) { sem_destroy(&s->unix_handle); }
 
-gb_inline void gb_semaphore_post(gbSemaphore *s, i32 count) { while (count-- > 0) sem_post(&s->unix_handle); }
+gb_inline void gb_semaphore_post(gbSemaphore *s, int32_t count) { while (count-- > 0) sem_post(&s->unix_handle); }
 
 gb_inline void gb_semaphore_wait(gbSemaphore *s) {
   int i;

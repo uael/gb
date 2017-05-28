@@ -57,7 +57,7 @@
 
 #if 0 // Example
 void foo(void) {
-  isize i;
+  ssize_t i;
   int test_values[] = {4, 2, 1, 7};
   gbAllocator a = gb_heap_allocator();
   gbArray(int) items;
@@ -95,8 +95,8 @@ void foo(void) {
 
 typedef struct gbArrayHeader {
   gbAllocator allocator;
-  isize count;
-  isize capacity;
+  ssize_t count;
+  ssize_t capacity;
 } gbArrayHeader;
 
 // NOTE(bill): This thing is magic!
@@ -139,12 +139,12 @@ GB_STATIC_ASSERT(GB_ARRAY_GROW_FORMULA(0) > 0);
 } while (0)
 
 // NOTE(bill): Do not use the thing below directly, use the macro
-GB_DEF void *gb__array_set_capacity(void *array, isize capacity, isize element_size);
+GB_DEF void *gb__array_set_capacity(void *array, ssize_t capacity, ssize_t element_size);
 
 
 // TODO(bill): Decide on a decent growing formula for gbArray
 #define gb_array_grow(x, min_capacity) do { \
-  isize new_capacity = GB_ARRAY_GROW_FORMULA(gb_array_capacity(x)); \
+  ssize_t new_capacity = GB_ARRAY_GROW_FORMULA(gb_array_capacity(x)); \
   if (new_capacity < (min_capacity)) \
     new_capacity = (min_capacity); \
   gb_array_set_capacity(x, new_capacity); \

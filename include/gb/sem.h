@@ -55,7 +55,7 @@ GB_DEF void gb_semaphore_init(gbSemaphore *s);
 
 GB_DEF void gb_semaphore_destroy(gbSemaphore *s);
 
-GB_DEF void gb_semaphore_post(gbSemaphore *s, i32 count);
+GB_DEF void gb_semaphore_post(gbSemaphore *s, int32_t count);
 
 GB_DEF void gb_semaphore_release(gbSemaphore *s); // NOTE(bill): gb_semaphore_post(s, 1)
 GB_DEF void gb_semaphore_wait(gbSemaphore *s);

@@ -27,8 +27,8 @@
 
 #include "gb/io.h"
 
-isize gb_printf(char const *fmt, ...) {
-  isize res;
+ssize_t gb_printf(char const *fmt, ...) {
+  ssize_t res;
   va_list va;
   va_start(va, fmt);
   res = gb_printf_va(fmt, va);
@@ -36,8 +36,8 @@ isize gb_printf(char const *fmt, ...) {
   return res;
 }
 
-isize gb_printf_err(char const *fmt, ...) {
-  isize res;
+ssize_t gb_printf_err(char const *fmt, ...) {
+  ssize_t res;
   va_list va;
   va_start(va, fmt);
   res = gb_printf_err_va(fmt, va);
@@ -45,8 +45,8 @@ isize gb_printf_err(char const *fmt, ...) {
   return res;
 }
 
-isize gb_fprintf(struct gbFile *f, char const *fmt, ...) {
-  isize res;
+ssize_t gb_fprintf(struct gbFile *f, char const *fmt, ...) {
+  ssize_t res;
   va_list va;
   va_start(va, fmt);
   res = gb_fprintf_va(f, fmt, va);
@@ -63,8 +63,8 @@ char *gb_bprintf(char const *fmt, ...) {
   return str;
 }
 
-isize gb_snprintf(char *str, isize n, char const *fmt, ...) {
-  isize res;
+ssize_t gb_snprintf(char *str, ssize_t n, char const *fmt, ...) {
+  ssize_t res;
   va_list va;
   va_start(va, fmt);
   res = gb_snprintf_va(str, n, fmt, va);
@@ -72,17 +72,17 @@ isize gb_snprintf(char *str, isize n, char const *fmt, ...) {
   return res;
 }
 
-gb_inline isize gb_printf_va(char const *fmt, va_list va) {
+gb_inline ssize_t gb_printf_va(char const *fmt, va_list va) {
   return gb_fprintf_va(gb_file_get_standard(gbFileStandard_Output), fmt, va);
 }
 
-gb_inline isize gb_printf_err_va(char const *fmt, va_list va) {
+gb_inline ssize_t gb_printf_err_va(char const *fmt, va_list va) {
   return gb_fprintf_va(gb_file_get_standard(gbFileStandard_Error), fmt, va);
 }
 
-gb_inline isize gb_fprintf_va(struct gbFile *f, char const *fmt, va_list va) {
+gb_inline ssize_t gb_fprintf_va(struct gbFile *f, char const *fmt, va_list va) {
   gb_local_persist char buf[4096];
-  isize len = gb_snprintf_va(buf, gb_size_of(buf), fmt, va);
+  ssize_t len = gb_snprintf_va(buf, gb_size_of(buf), fmt, va);
   gb_file_write(f, buf, len - 1); // NOTE(bill): prevent extra whitespace
   return len;
 }
@@ -118,17 +118,17 @@ enum {
 };
 
 typedef struct {
-  i32 base;
-  i32 flags;
-  i32 width;
-  i32 precision;
+  int32_t base;
+  int32_t flags;
+  int32_t width;
+  int32_t precision;
 } gbprivFmtInfo;
 
-gb_internal isize gb__print_string(char *text, isize max_len, gbprivFmtInfo *info, char const *str) {
+gb_internal ssize_t gb__print_string(char *text, ssize_t max_len, gbprivFmtInfo *info, char const *str) {
   // TODO(bill): Get precision and width to work correctly. How does it actually work?!
   // TODO(bill): This looks very buggy indeed.
-  isize res = 0, len;
-  isize remaining = max_len;
+  ssize_t res = 0, len;
+  ssize_t remaining = max_len;
 
   if (info && info->precision >= 0)
     len = gb_strnlen(str, info->precision);
@@ -142,14 +142,14 @@ gb_internal isize gb__print_string(char *text, isize max_len, gbprivFmtInfo *inf
     res += gb_strlcpy(text, str, len);
 
     if (info->width > res) {
-      isize padding = info->width - len;
+      ssize_t padding = info->width - len;
       char pad = (info->flags & gbFmt_Zero) ? '0' : ' ';
       while (padding-- > 0 && remaining-- > 0)
         *text++ = pad, res++;
     }
   } else {
     if (info && (info->width > res)) {
-      isize padding = info->width - len;
+      ssize_t padding = info->width - len;
       char pad = (info->flags & gbFmt_Zero) ? '0' : ' ';
       while (padding-- > 0 && remaining-- > 0)
         *text++ = pad, res++;
@@ -168,31 +168,31 @@ gb_internal isize gb__print_string(char *text, isize max_len, gbprivFmtInfo *inf
   return res;
 }
 
-gb_internal isize gb__print_char(char *text, isize max_len, gbprivFmtInfo *info, char arg) {
+gb_internal ssize_t gb__print_char(char *text, ssize_t max_len, gbprivFmtInfo *info, char arg) {
   char str[2] = "";
   str[0] = arg;
   return gb__print_string(text, max_len, info, str);
 }
 
-gb_internal isize gb__print_i64(char *text, isize max_len, gbprivFmtInfo *info, i64 value) {
+gb_internal ssize_t gb__print_i64(char *text, ssize_t max_len, gbprivFmtInfo *info, int64_t value) {
   char num[130];
   gb_i64_to_str(value, num, info ? info->base : 10);
   return gb__print_string(text, max_len, info, num);
 }
 
-gb_internal isize gb__print_u64(char *text, isize max_len, gbprivFmtInfo *info, u64 value) {
+gb_internal ssize_t gb__print_u64(char *text, ssize_t max_len, gbprivFmtInfo *info, uint64_t value) {
   char num[130];
   gb_u64_to_str(value, num, info ? info->base : 10);
   return gb__print_string(text, max_len, info, num);
 }
 
-gb_internal isize gb__print_f64(char *text, isize max_len, gbprivFmtInfo *info, f64 arg) {
+gb_internal ssize_t gb__print_f64(char *text, ssize_t max_len, gbprivFmtInfo *info, float64_t arg) {
   // TODO(bill): Handle exponent notation
-  isize width, len, remaining = max_len;
+  ssize_t width, len, remaining = max_len;
   char *text_begin = text;
 
   if (arg) {
-    u64 value;
+    uint64_t value;
     if (arg < 0) {
       if (remaining > 1)
         *text = '-', remaining--;
@@ -204,7 +204,7 @@ gb_internal isize gb__print_f64(char *text, isize max_len, gbprivFmtInfo *info, 
       text++;
     }
 
-    value = cast(u64) arg;
+    value = cast(uint64_t) arg;
     len = gb__print_u64(text, remaining, NULL, value);
     text += len;
 
@@ -218,19 +218,19 @@ gb_internal isize gb__print_f64(char *text, isize max_len, gbprivFmtInfo *info, 
       info->precision = 6;
 
     if ((info->flags & gbFmt_Alt) || info->precision > 0) {
-      i64 mult = 10;
+      int64_t mult = 10;
       if (remaining > 1)
         *text = '.', remaining--;
       text++;
       while (info->precision-- > 0) {
-        value = cast(u64) (arg * mult);
+        value = cast(uint64_t) (arg * mult);
         len = gb__print_u64(text, remaining, NULL, value);
         text += len;
         if (len >= remaining)
           remaining = gb_min(remaining, 1);
         else
           remaining -= len;
-        arg -= cast(f64) value / mult;
+        arg -= cast(float64_t) value / mult;
         mult *= 10;
       }
     }
@@ -272,13 +272,13 @@ gb_internal isize gb__print_f64(char *text, isize max_len, gbprivFmtInfo *info, 
   return (text - text_begin);
 }
 
-gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va_list va) {
+gb_no_inline ssize_t gb_snprintf_va(char *text, ssize_t max_len, char const *fmt, va_list va) {
   char const *text_begin = text;
-  isize remaining = max_len, res;
+  ssize_t remaining = max_len, res;
 
   while (*fmt) {
     gbprivFmtInfo info = {0};
-    isize len = 0;
+    ssize_t len = 0;
     info.precision = -1;
 
     while (*fmt && *fmt != '%' && remaining)
@@ -320,7 +320,7 @@ gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va
       }
       fmt++;
     } else {
-      info.width = cast(i32) gb_str_to_i64(fmt, cast(char **) &fmt, 10);
+      info.width = cast(int32_t) gb_str_to_i64(fmt, cast(char **) &fmt, 10);
     }
 
     // NOTE(bill): Optional Precision
@@ -330,7 +330,7 @@ gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va
         info.precision = va_arg(va, int);
         fmt++;
       } else {
-        info.precision = cast(i32) gb_str_to_i64(fmt, cast(char **) &fmt, 10);
+        info.precision = cast(int32_t) gb_str_to_i64(fmt, cast(char **) &fmt, 10);
       }
       info.flags &= ~gbFmt_Zero;
     }
@@ -356,10 +356,10 @@ gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va
 
         break;
 
-      case 'z': // NOTE(bill): usize
+      case 'z': // NOTE(bill): size_t
         info.flags |= gbFmt_Unsigned;
         // fallthrough
-      case 't': // NOTE(bill): isize
+      case 't': // NOTE(bill): ssize_t
         info.flags |= gbFmt_Size;
         break;
 
@@ -395,7 +395,7 @@ gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va
       case 'F':
       case 'g':
       case 'G':
-        len = gb__print_f64(text, remaining, &info, va_arg(va, f64));
+        len = gb__print_f64(text, remaining, &info, va_arg(va, float64_t));
         break;
 
       case 'a':
@@ -429,56 +429,56 @@ gb_no_inline isize gb_snprintf_va(char *text, isize max_len, char const *fmt, va
 
     if (info.base != 0) {
       if (info.flags & gbFmt_Unsigned) {
-        u64 value = 0;
+        uint64_t value = 0;
         switch (info.flags & gbFmt_Ints) {
           case gbFmt_Char:
-            value = cast(u64) cast(u8) va_arg(va, int);
+            value = cast(uint64_t) cast(uint8_t) va_arg(va, int);
             break;
           case gbFmt_Short:
-            value = cast(u64) cast(u16) va_arg(va, int);
+            value = cast(uint64_t) cast(uint16_t) va_arg(va, int);
             break;
           case gbFmt_Long:
-            value = cast(u64) va_arg(va, unsigned long);
+            value = cast(uint64_t) va_arg(va, unsigned long);
             break;
           case gbFmt_Llong:
-            value = cast(u64) va_arg(va, unsigned long long);
+            value = cast(uint64_t) va_arg(va, unsigned long long);
             break;
           case gbFmt_Size:
-            value = cast(u64) va_arg(va, usize);
+            value = cast(uint64_t) va_arg(va, size_t);
             break;
           case gbFmt_Intptr:
-            value = cast(u64) va_arg(va, uintptr);
+            value = cast(uint64_t) va_arg(va, uintptr_t);
             break;
           default:
-            value = cast(u64) va_arg(va, unsigned int);
+            value = cast(uint64_t) va_arg(va, unsigned int);
             break;
         }
 
         len = gb__print_u64(text, remaining, &info, value);
 
       } else {
-        i64 value = 0;
+        int64_t value = 0;
         switch (info.flags & gbFmt_Ints) {
           case gbFmt_Char:
-            value = cast(i64) cast(i8) va_arg(va, int);
+            value = cast(int64_t) cast(int8_t) va_arg(va, int);
             break;
           case gbFmt_Short:
-            value = cast(i64) cast(i16) va_arg(va, int);
+            value = cast(int64_t) cast(int16_t) va_arg(va, int);
             break;
           case gbFmt_Long:
-            value = cast(i64) va_arg(va, long);
+            value = cast(int64_t) va_arg(va, long);
             break;
           case gbFmt_Llong:
-            value = cast(i64) va_arg(va, long long);
+            value = cast(int64_t) va_arg(va, long long);
             break;
           case gbFmt_Size:
-            value = cast(i64) va_arg(va, usize);
+            value = cast(int64_t) va_arg(va, size_t);
             break;
           case gbFmt_Intptr:
-            value = cast(i64) va_arg(va, uintptr);
+            value = cast(int64_t) va_arg(va, uintptr_t);
             break;
           default:
-            value = cast(i64) va_arg(va, int);
+            value = cast(int64_t) va_arg(va, int);
             break;
         }
 

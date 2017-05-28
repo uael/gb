@@ -34,7 +34,7 @@
 // Instantiated Hash Table
 //
 // This is an attempt to implement a templated hash table
-// NOTE(bill): The key is aways a u64 for simplicity and you will _probably_ _never_ need anything bigger.
+// NOTE(bill): The key is aways a uint64_t for simplicity and you will _probably_ _never_ need anything bigger.
 //
 // Hash table type and function declaration, call: GB_TABLE_DECLARE(PREFIX, NAME, N, VALUE)
 // Hash table function definitions, call: GB_TABLE_DEFINE(NAME, N, VALUE)
@@ -48,9 +48,9 @@
 //
 
 typedef struct gbHashTableFindResult {
-  isize hash_index;
-  isize entry_prev;
-  isize entry_index;
+  ssize_t hash_index;
+  ssize_t entry_prev;
+  ssize_t entry_index;
 } gbHashTableFindResult;
 
 #define GB_TABLE(PREFIX, NAME, FUNC, VALUE) \
@@ -59,22 +59,22 @@ typedef struct gbHashTableFindResult {
 
 #define GB_TABLE_DECLARE(PREFIX, NAME, FUNC, VALUE) \
 typedef struct GB_JOIN2(NAME,Entry) { \
-  u64 key; \
-  isize next; \
+  uint64_t key; \
+  ssize_t next; \
   VALUE value; \
 } GB_JOIN2(NAME,Entry); \
 \
 typedef struct NAME { \
-  gbArray(isize) hashes; \
+  gbArray(ssize_t) hashes; \
   gbArray(GB_JOIN2(NAME,Entry)) entries; \
 } NAME; \
 \
 PREFIX void                  GB_JOIN2(FUNC,init)       (NAME *h, gbAllocator a); \
 PREFIX void                  GB_JOIN2(FUNC,destroy)    (NAME *h); \
-PREFIX VALUE *               GB_JOIN2(FUNC,get)        (NAME *h, u64 key); \
-PREFIX void                  GB_JOIN2(FUNC,set)        (NAME *h, u64 key, VALUE value); \
+PREFIX VALUE *               GB_JOIN2(FUNC,get)        (NAME *h, uint64_t key); \
+PREFIX void                  GB_JOIN2(FUNC,set)        (NAME *h, uint64_t key, VALUE value); \
 PREFIX void                  GB_JOIN2(FUNC,grow)       (NAME *h); \
-PREFIX void                  GB_JOIN2(FUNC,rehash)     (NAME *h, isize new_count); \
+PREFIX void                  GB_JOIN2(FUNC,rehash)     (NAME *h, ssize_t new_count); \
 
 
 #define GB_TABLE_DEFINE(NAME, FUNC, VALUE) \
@@ -88,8 +88,8 @@ void GB_JOIN2(FUNC,destroy)(NAME *h) { \
   if (h->hashes)  gb_array_free(h->hashes); \
 } \
 \
-gb_internal isize GB_JOIN2(FUNC,_add_entry)(NAME *h, u64 key) { \
-  isize index; \
+gb_internal ssize_t GB_JOIN2(FUNC,_add_entry)(NAME *h, uint64_t key) { \
+  ssize_t index; \
   GB_JOIN2(NAME,Entry) e = {0}; \
   e.key = key; \
   e.next = -1; \
@@ -98,7 +98,7 @@ gb_internal isize GB_JOIN2(FUNC,_add_entry)(NAME *h, u64 key) { \
   return index; \
 } \
 \
-gb_internal gbHashTableFindResult GB_JOIN2(FUNC,_find)(NAME *h, u64 key) { \
+gb_internal gbHashTableFindResult GB_JOIN2(FUNC,_find)(NAME *h, uint64_t key) { \
   gbHashTableFindResult r = {-1, -1, -1}; \
   if (gb_array_count(h->hashes) > 0) { \
     r.hash_index  = key % gb_array_count(h->hashes); \
@@ -113,17 +113,17 @@ gb_internal gbHashTableFindResult GB_JOIN2(FUNC,_find)(NAME *h, u64 key) { \
   return r; \
 } \
 \
-gb_internal b32 GB_JOIN2(FUNC,_full)(NAME *h) { \
+gb_internal byte32_t GB_JOIN2(FUNC,_full)(NAME *h) { \
   return 0.75f * gb_array_count(h->hashes) < gb_array_count(h->entries); \
 } \
 \
 void GB_JOIN2(FUNC,grow)(NAME *h) { \
-  isize new_count = GB_ARRAY_GROW_FORMULA(gb_array_count(h->entries)); \
+  ssize_t new_count = GB_ARRAY_GROW_FORMULA(gb_array_count(h->entries)); \
   GB_JOIN2(FUNC,rehash)(h, new_count); \
 } \
 \
-void GB_JOIN2(FUNC,rehash)(NAME *h, isize new_count) { \
-  isize i, j; \
+void GB_JOIN2(FUNC,rehash)(NAME *h, ssize_t new_count) { \
+  ssize_t i, j; \
   NAME nh = {0}; \
   GB_JOIN2(FUNC,init)(&nh, gb_array_allocator(h->hashes)); \
   gb_array_resize(nh.hashes, new_count); \
@@ -152,15 +152,15 @@ void GB_JOIN2(FUNC,rehash)(NAME *h, isize new_count) { \
   h->entries = nh.entries; \
 } \
 \
-VALUE *GB_JOIN2(FUNC,get)(NAME *h, u64 key) { \
-  isize index = GB_JOIN2(FUNC,_find)(h, key).entry_index; \
+VALUE *GB_JOIN2(FUNC,get)(NAME *h, uint64_t key) { \
+  ssize_t index = GB_JOIN2(FUNC,_find)(h, key).entry_index; \
   if (index >= 0) \
     return &h->entries[index].value; \
   return NULL; \
 } \
 \
-void GB_JOIN2(FUNC,set)(NAME *h, u64 key, VALUE value) { \
-  isize index; \
+void GB_JOIN2(FUNC,set)(NAME *h, uint64_t key, VALUE value) { \
+  ssize_t index; \
   gbHashTableFindResult fr; \
   if (gb_array_count(h->hashes) == 0) \
     GB_JOIN2(FUNC,grow)(h); \

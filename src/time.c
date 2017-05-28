@@ -28,24 +28,24 @@
 #include "gb/time.h"
 
 #if defined(GB_COMPILER_MSVC) && !defined(__clang__)
-gb_inline u64 gb_rdtsc(void) { return __rdtsc(); }
+gb_inline uint64_t gb_rdtsc(void) { return __rdtsc(); }
 #elif defined(__i386__)
-gb_inline u64 gb_rdtsc(void) {
-    u64 x;
+gb_inline uint64_t gb_rdtsc(void) {
+    uint64_t x;
     __asm__ volatile (".byte 0x0f, 0x31" : "=A" (x));
     return x;
   }
 #elif defined(__x86_64__)
 
-gb_inline u64 gb_rdtsc(void) {
-  u32 hi, lo;
+gb_inline uint64_t gb_rdtsc(void) {
+  uint32_t hi, lo;
   __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));
-  return (cast(u64) lo) | ((cast(u64) hi) << 32);
+  return (cast(uint64_t) lo) | ((cast(uint64_t) hi) << 32);
 }
 #elif defined(__powerpc__)
-gb_inline u64 gb_rdtsc(void) {
-    u64 result = 0;
-    u32 upper, lower,tmp;
+gb_inline uint64_t gb_rdtsc(void) {
+    uint64_t result = 0;
+    uint32_t upper, lower,tmp;
     __asm__ volatile(
       "0:                   \n"
       "\tmftbu   %0         \n"
@@ -65,9 +65,9 @@ gb_inline u64 gb_rdtsc(void) {
 
 #if defined(GB_SYSTEM_WINDOWS)
 
-gb_inline f64 gb_time_now(void) {
+gb_inline float64_t gb_time_now(void) {
     gb_local_persist LARGE_INTEGER win32_perf_count_freq = {0};
-    f64 result;
+    float64_t result;
     LARGE_INTEGER counter;
     if (!win32_perf_count_freq.QuadPart) {
       QueryPerformanceFrequency(&win32_perf_count_freq);
@@ -76,11 +76,11 @@ gb_inline f64 gb_time_now(void) {
 
     QueryPerformanceCounter(&counter);
 
-    result = counter.QuadPart / cast(f64)(win32_perf_count_freq.QuadPart);
+    result = counter.QuadPart / cast(float64_t)(win32_perf_count_freq.QuadPart);
     return result;
   }
 
-  gb_inline u64 gb_utc_time_now(void) {
+  gb_inline uint64_t gb_utc_time_now(void) {
     FILETIME ft;
     ULARGE_INTEGER li;
 
@@ -91,16 +91,16 @@ gb_inline f64 gb_time_now(void) {
     return li.QuadPart/10;
   }
 
-  gb_inline void gb_sleep_ms(u32 ms) { Sleep(ms); }
+  gb_inline void gb_sleep_ms(uint32_t ms) { Sleep(ms); }
 
 #else
 
-gb_global f64 gb__timebase = 0.0;
-gb_global u64 gb__timestart = 0;
+gb_global float64_t gb__timebase = 0.0;
+gb_global uint64_t gb__timestart = 0;
 
-gb_inline f64 gb_time_now(void) {
+gb_inline float64_t gb_time_now(void) {
 #if defined(GB_SYSTEM_OSX)
-  f64 result;
+  float64_t result;
 
     if (!gb__timestart) {
       mach_timebase_info_data_t tb = {0};
@@ -115,7 +115,7 @@ gb_inline f64 gb_time_now(void) {
     return result;
 #else
   struct timespec t;
-  f64 result;
+  float64_t result;
 
   // IMPORTANT TODO(bill): THIS IS A HACK
   clock_gettime(1 /*CLOCK_MONOTONIC*/, &t);
@@ -124,7 +124,7 @@ gb_inline f64 gb_time_now(void) {
 #endif
 }
 
-gb_inline u64 gb_utc_time_now(void) {
+gb_inline uint64_t gb_utc_time_now(void) {
   struct timespec t;
 #if defined(GB_SYSTEM_OSX)
   clock_serv_t cclock;
@@ -138,10 +138,10 @@ gb_inline u64 gb_utc_time_now(void) {
   // IMPORTANT TODO(bill): THIS IS A HACK
   clock_gettime(0 /*CLOCK_REALTIME*/, &t);
 #endif
-  return cast(u64) t.tv_sec * 1000000ull + t.tv_nsec / 1000 + 11644473600000000ull;
+  return cast(uint64_t) t.tv_sec * 1000000ull + t.tv_nsec / 1000 + 11644473600000000ull;
 }
 
-gb_inline void gb_sleep_ms(u32 ms) {
+gb_inline void gb_sleep_ms(uint32_t ms) {
   struct timespec req = {cast(time_t) ms / 1000, cast(long) ((ms % 1000) * 1000000)};
   struct timespec rem = {0, 0};
   nanosleep(&req, &rem);

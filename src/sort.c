@@ -32,26 +32,26 @@
 // TODO(bill): Should I make all the macros local?
 
 #define GB__COMPARE_PROC(Type) \
-gb_global isize gb__##Type##_cmp_offset; GB_COMPARE_PROC(gb__##Type##_cmp) { \
+gb_global ssize_t gb__##Type##_cmp_offset; GB_COMPARE_PROC(gb__##Type##_cmp) { \
   Type const p = *cast(Type const *)gb_pointer_add_const(a, gb__##Type##_cmp_offset); \
   Type const q = *cast(Type const *)gb_pointer_add_const(b, gb__##Type##_cmp_offset); \
   return p < q ? -1 : p > q; \
 } \
-GB_COMPARE_PROC_PTR(gb_##Type##_cmp(isize offset)) { \
+GB_COMPARE_PROC_PTR(gb_##Type##_cmp(ssize_t offset)) { \
   gb__##Type##_cmp_offset = offset; \
   return &gb__##Type##_cmp; \
 }
 
-GB__COMPARE_PROC(i16);
-GB__COMPARE_PROC(i32);
-GB__COMPARE_PROC(i64);
-GB__COMPARE_PROC(isize);
-GB__COMPARE_PROC(f32);
-GB__COMPARE_PROC(f64);
+GB__COMPARE_PROC(int16_t);
+GB__COMPARE_PROC(int32_t);
+GB__COMPARE_PROC(int64_t);
+GB__COMPARE_PROC(ssize_t);
+GB__COMPARE_PROC(float32_t);
+GB__COMPARE_PROC(float64_t);
 GB__COMPARE_PROC(char);
 
 // NOTE(bill): str_cmp is special as it requires a funny type and funny comparison
-gb_global isize gb__str_cmp_offset;
+gb_global ssize_t gb__str_cmp_offset;
 
 GB_COMPARE_PROC(gb__str_cmp) {
   char const *p = *cast(char const **) gb_pointer_add_const(a, gb__str_cmp_offset);
@@ -59,7 +59,7 @@ GB_COMPARE_PROC(gb__str_cmp) {
   return gb_strcmp(p, q);
 }
 
-GB_COMPARE_PROC_PTR(gb_str_cmp(isize
+GB_COMPARE_PROC_PTR(gb_str_cmp(ssize_t
                       offset)) {
   gb__str_cmp_offset = offset;
   return &gb__str_cmp;
@@ -86,15 +86,15 @@ GB_COMPARE_PROC_PTR(gb_str_cmp(isize
   (_limit) = stack_ptr[1]; \
 } while (0)
 
-void gb_sort(void *base_, isize count, isize size, gbCompareProc cmp) {
-  u8 *i, *j;
-  u8 *base = cast(u8 *) base_;
-  u8 *limit = base + count * size;
-  isize threshold = GB__SORT_INSERT_SORT_THRESHOLD * size;
+void gb_sort(void *base_, ssize_t count, ssize_t size, gbCompareProc cmp) {
+  uint8_t *i, *j;
+  uint8_t *base = cast(uint8_t *) base_;
+  uint8_t *limit = base + count * size;
+  ssize_t threshold = GB__SORT_INSERT_SORT_THRESHOLD * size;
 
   // NOTE(bill): Prepare the stack
-  u8 *stack[GB__SORT_STACK_SIZE] = {0};
-  u8 **stack_ptr = stack;
+  uint8_t *stack[GB__SORT_STACK_SIZE] = {0};
+  uint8_t **stack_ptr = stack;
 
   for (;;) {
     if ((limit - base) > threshold) {
@@ -146,10 +146,10 @@ void gb_sort(void *base_, isize count, isize size, gbCompareProc cmp) {
 #define GB_RADIX_SORT_PROC_GEN(Type) GB_RADIX_SORT_PROC(Type) { \
   Type *source = items; \
   Type *dest   = temp; \
-  isize byte_index, i, byte_max = 8*gb_size_of(Type); \
+  ssize_t byte_index, i, byte_max = 8*gb_size_of(Type); \
   for (byte_index = 0; byte_index < byte_max; byte_index += 8) { \
-    isize offsets[256] = {0}; \
-    isize total = 0; \
+    ssize_t offsets[256] = {0}; \
+    ssize_t total = 0; \
     /* NOTE(bill): First pass - count how many of each key */ \
     for (i = 0; i < count; i++) { \
       Type radix_value = source[i]; \
@@ -158,7 +158,7 @@ void gb_sort(void *base_, isize count, isize size, gbCompareProc cmp) {
     } \
     /* NOTE(bill): Change counts to offsets */ \
     for (i = 0; i < gb_count_of(offsets); i++) { \
-      isize skcount = offsets[i]; \
+      ssize_t skcount = offsets[i]; \
       offsets[i] = total; \
       total += skcount; \
     } \
@@ -172,22 +172,22 @@ void gb_sort(void *base_, isize count, isize size, gbCompareProc cmp) {
   } \
 }
 
-GB_RADIX_SORT_PROC_GEN(u8);
+GB_RADIX_SORT_PROC_GEN(uint8_t);
 
-GB_RADIX_SORT_PROC_GEN(u16);
+GB_RADIX_SORT_PROC_GEN(uint16_t);
 
-GB_RADIX_SORT_PROC_GEN(u32);
+GB_RADIX_SORT_PROC_GEN(uint32_t);
 
-GB_RADIX_SORT_PROC_GEN(u64);
+GB_RADIX_SORT_PROC_GEN(uint64_t);
 
-gb_inline isize
-gb_binary_search(void const *base, isize count, isize size, void const *key, gbCompareProc compare_proc) {
-  isize start = 0;
-  isize end = count;
+gb_inline ssize_t
+gb_binary_search(void const *base, ssize_t count, ssize_t size, void const *key, gbCompareProc compare_proc) {
+  ssize_t start = 0;
+  ssize_t end = count;
 
   while (start < end) {
-    isize mid = start + (end - start) / 2;
-    isize result = compare_proc(key, cast(u8 *) base + mid * size);
+    ssize_t mid = start + (end - start) / 2;
+    ssize_t result = compare_proc(key, cast(uint8_t *) base + mid * size);
     if (result < 0)
       end = mid;
     else if (result > 0)
@@ -199,22 +199,22 @@ gb_binary_search(void const *base, isize count, isize size, void const *key, gbC
   return -1;
 }
 
-void gb_shuffle(void *base, isize count, isize size) {
-  u8 *a;
-  isize i, j;
+void gb_shuffle(void *base, ssize_t count, ssize_t size) {
+  uint8_t *a;
+  ssize_t i, j;
   gbRandom random;
   gb_random_init(&random);
 
-  a = cast(u8 *) base + (count - 1) * size;
+  a = cast(uint8_t *) base + (count - 1) * size;
   for (i = count; i > 1; i--) {
     j = gb_random_gen_isize(&random) % i;
-    gb_memswap(a, cast(u8 *) base + j * size, size);
+    gb_memswap(a, cast(uint8_t *) base + j * size, size);
     a -= size;
   }
 }
 
-void gb_reverse(void *base, isize count, isize size) {
-  isize i, j = count - 1;
+void gb_reverse(void *base, ssize_t count, ssize_t size) {
+  ssize_t i, j = count - 1;
   for (i = 0; i < j; i++, j++)
-    gb_memswap(cast(u8 *) base + i * size, cast(u8 *) base + j * size, size);
+    gb_memswap(cast(uint8_t *) base + i * size, cast(uint8_t *) base + j * size, size);
 }

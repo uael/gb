@@ -45,8 +45,8 @@ typedef struct gbThread {
   void *data;
 
   gbSemaphore semaphore;
-  isize stack_size;
-  b32 is_running;
+  ssize_t stack_size;
+  byte32_t is_running;
 } gbThread;
 
 GB_DEF void gb_thread_init(gbThread *t);
@@ -55,22 +55,22 @@ GB_DEF void gb_thread_destory(gbThread *t);
 
 GB_DEF void gb_thread_start(gbThread *t, gbThreadProc *proc, void *data);
 
-GB_DEF void gb_thread_start_with_stack(gbThread *t, gbThreadProc *proc, void *data, isize stack_size);
+GB_DEF void gb_thread_start_with_stack(gbThread *t, gbThreadProc *proc, void *data, ssize_t stack_size);
 
 GB_DEF void gb_thread_join(gbThread *t);
 
-GB_DEF b32 gb_thread_is_running(gbThread const *t);
+GB_DEF byte32_t gb_thread_is_running(gbThread const *t);
 
-GB_DEF u32 gb_thread_current_id(void);
+GB_DEF uint32_t gb_thread_current_id(void);
 
 GB_DEF void gb_thread_set_name(gbThread *t, char const *name);
 
 // NOTE(bill): Thread Merge Operation
 // Based on Sean Barrett's stb_sync
 typedef struct gbSync {
-  i32 target;  // Target Number of threads
-  i32 current; // Threads to hit
-  i32 waiting; // Threads waiting
+  int32_t target;  // Target Number of threads
+  int32_t current; // Threads to hit
+  int32_t waiting; // Threads waiting
 
   gbMutex start;
   gbMutex mutex;
@@ -81,11 +81,11 @@ GB_DEF void gb_sync_init(gbSync *s);
 
 GB_DEF void gb_sync_destroy(gbSync *s);
 
-GB_DEF void gb_sync_set_target(gbSync *s, i32 count);
+GB_DEF void gb_sync_set_target(gbSync *s, int32_t count);
 
 GB_DEF void gb_sync_release(gbSync *s);
 
-GB_DEF i32 gb_sync_reach(gbSync *s);
+GB_DEF int32_t gb_sync_reach(gbSync *s);
 
 GB_DEF void gb_sync_reach_and_wait(gbSync *s);
 

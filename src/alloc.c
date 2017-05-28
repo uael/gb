@@ -29,11 +29,11 @@
 #include "gb/string.h"
 #include "gb/io.h"
 
-gb_inline void *gb_alloc_align(gbAllocator a, isize size, isize alignment) {
+gb_inline void *gb_alloc_align(gbAllocator a, ssize_t size, ssize_t alignment) {
   return a.proc(a.data, gbAllocation_Alloc, size, alignment, NULL, 0, GB_DEFAULT_ALLOCATOR_FLAGS);
 }
 
-gb_inline void *gb_alloc(gbAllocator a, isize size) { return gb_alloc_align(a, size, GB_DEFAULT_MEMORY_ALIGNMENT); }
+gb_inline void *gb_alloc(gbAllocator a, ssize_t size) { return gb_alloc_align(a, size, GB_DEFAULT_MEMORY_ALIGNMENT); }
 
 gb_inline void gb_free(gbAllocator a, void *ptr) {
   if (ptr != NULL)
@@ -44,19 +44,19 @@ gb_inline void gb_free_all(gbAllocator a) {
   a.proc(a.data, gbAllocation_FreeAll, 0, 0, NULL, 0, GB_DEFAULT_ALLOCATOR_FLAGS);
 }
 
-gb_inline void *gb_resize(gbAllocator a, void *ptr, isize old_size, isize new_size) {
+gb_inline void *gb_resize(gbAllocator a, void *ptr, ssize_t old_size, ssize_t new_size) {
   return gb_resize_align(a, ptr, old_size, new_size, GB_DEFAULT_MEMORY_ALIGNMENT);
 }
 
-gb_inline void *gb_resize_align(gbAllocator a, void *ptr, isize old_size, isize new_size, isize alignment) {
+gb_inline void *gb_resize_align(gbAllocator a, void *ptr, ssize_t old_size, ssize_t new_size, ssize_t alignment) {
   return a.proc(a.data, gbAllocation_Resize, new_size, alignment, ptr, old_size, GB_DEFAULT_ALLOCATOR_FLAGS);
 }
 
-gb_inline void *gb_alloc_copy(gbAllocator a, void const *src, isize size) {
+gb_inline void *gb_alloc_copy(gbAllocator a, void const *src, ssize_t size) {
   return gb_memcopy(gb_alloc(a, size), src, size);
 }
 
-gb_inline void *gb_alloc_copy_align(gbAllocator a, void const *src, isize size, isize alignment) {
+gb_inline void *gb_alloc_copy_align(gbAllocator a, void const *src, ssize_t size, ssize_t alignment) {
   return gb_memcopy(gb_alloc_align(a, size, alignment), src, size);
 }
 
@@ -64,7 +64,7 @@ gb_inline char *gb_alloc_str(gbAllocator a, char const *str) {
   return gb_alloc_str_len(a, str, gb_strlen(str));
 }
 
-gb_inline char *gb_alloc_str_len(gbAllocator a, char const *str, isize len) {
+gb_inline char *gb_alloc_str_len(gbAllocator a, char const *str, ssize_t len) {
   char *result;
   result = cast(char *) gb_alloc_copy(a, str, len + 1);
   result[len] = '\0';
@@ -72,7 +72,7 @@ gb_inline char *gb_alloc_str_len(gbAllocator a, char const *str, isize len) {
 }
 
 gb_inline void *
-gb_default_resize_align(gbAllocator a, void *old_memory, isize old_size, isize new_size, isize alignment) {
+gb_default_resize_align(gbAllocator a, void *old_memory, ssize_t old_size, ssize_t new_size, ssize_t alignment) {
   if (!old_memory) return gb_alloc_align(a, new_size, alignment);
 
   if (new_size == 0) {
@@ -149,7 +149,7 @@ GB_ALLOCATOR_PROC(gb_heap_allocator_proc) {
   return ptr;
 }
 
-gbVirtualMemory gb_virtual_memory(void *data, isize size) {
+gbVirtualMemory gb_virtual_memory(void *data, ssize_t size) {
   gbVirtualMemory vm;
   vm.data = data;
   vm.size = size;
@@ -157,7 +157,7 @@ gbVirtualMemory gb_virtual_memory(void *data, isize size) {
 }
 
 #if defined(GB_SYSTEM_WINDOWS)
-gb_inline gbVirtualMemory gb_vm_alloc(void *addr, isize size) {
+gb_inline gbVirtualMemory gb_vm_alloc(void *addr, ssize_t size) {
   gbVirtualMemory vm;
   GB_ASSERT(size > 0);
   vm.data = VirtualAlloc(addr, size, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
@@ -165,14 +165,14 @@ gb_inline gbVirtualMemory gb_vm_alloc(void *addr, isize size) {
   return vm;
 }
 
-gb_inline b32 gb_vm_free(gbVirtualMemory vm) {
+gb_inline byte32_t gb_vm_free(gbVirtualMemory vm) {
   MEMORY_BASIC_INFORMATION info;
   while (vm.size > 0) {
     if (VirtualQuery(vm.data, &info, gb_size_of(info)) == 0)
       return false;
     if (info.BaseAddress != vm.data ||
         info.AllocationBase != vm.data ||
-        info.State != MEM_COMMIT || info.RegionSize > cast(usize)vm.size) {
+        info.State != MEM_COMMIT || info.RegionSize > cast(size_t)vm.size) {
       return false;
     }
     if (VirtualFree(vm.data, 0, MEM_RELEASE) == 0)
@@ -183,7 +183,7 @@ gb_inline b32 gb_vm_free(gbVirtualMemory vm) {
   return true;
 }
 
-gb_inline gbVirtualMemory gb_vm_trim(gbVirtualMemory vm, isize lead_size, isize size) {
+gb_inline gbVirtualMemory gb_vm_trim(gbVirtualMemory vm, ssize_t lead_size, ssize_t size) {
   gbVirtualMemory new_vm = {0};
   void *ptr;
   GB_ASSERT(vm.size >= lead_size + size);
@@ -199,13 +199,13 @@ gb_inline gbVirtualMemory gb_vm_trim(gbVirtualMemory vm, isize lead_size, isize 
   return new_vm;
 }
 
-gb_inline b32 gb_vm_purge(gbVirtualMemory vm) {
+gb_inline byte32_t gb_vm_purge(gbVirtualMemory vm) {
   VirtualAlloc(vm.data, vm.size, MEM_RESET, PAGE_READWRITE);
   // NOTE(bill): Can this really fail?
   return true;
 }
 
-isize gb_virtual_memory_page_size(isize *alignment_out) {
+ssize_t gb_virtual_memory_page_size(ssize_t *alignment_out) {
   SYSTEM_INFO info;
   GetSystemInfo(&info);
   if (alignment_out) *alignment_out = info.dwAllocationGranularity;
@@ -218,7 +218,7 @@ isize gb_virtual_memory_page_size(isize *alignment_out) {
 #define MAP_ANONYMOUS MAP_ANON
 #endif
 
-gb_inline gbVirtualMemory gb_vm_alloc(void *addr, isize size) {
+gb_inline gbVirtualMemory gb_vm_alloc(void *addr, ssize_t size) {
   gbVirtualMemory vm;
   GB_ASSERT(size > 0);
   vm.data = mmap(addr, size, PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_PRIVATE, -1, 0);
@@ -226,14 +226,14 @@ gb_inline gbVirtualMemory gb_vm_alloc(void *addr, isize size) {
   return vm;
 }
 
-gb_inline b32 gb_vm_free(gbVirtualMemory vm) {
+gb_inline byte32_t gb_vm_free(gbVirtualMemory vm) {
   munmap(vm.data, vm.size);
   return true;
 }
 
-gb_inline gbVirtualMemory gb_vm_trim(gbVirtualMemory vm, isize lead_size, isize size) {
+gb_inline gbVirtualMemory gb_vm_trim(gbVirtualMemory vm, ssize_t lead_size, ssize_t size) {
   void *ptr;
-  isize trail_size;
+  ssize_t trail_size;
   GB_ASSERT(vm.size >= lead_size + size);
 
   ptr = gb_pointer_add(vm.data, lead_size);
@@ -247,14 +247,14 @@ gb_inline gbVirtualMemory gb_vm_trim(gbVirtualMemory vm, isize lead_size, isize 
 
 }
 
-gb_inline b32 gb_vm_purge(gbVirtualMemory vm) {
+gb_inline byte32_t gb_vm_purge(gbVirtualMemory vm) {
   int err = madvise(vm.data, vm.size, MADV_DONTNEED);
   return err != 0;
 }
 
-isize gb_virtual_memory_page_size(isize *alignment_out) {
+ssize_t gb_virtual_memory_page_size(ssize_t *alignment_out) {
   // TODO(bill): Is this always true?
-  isize result = cast(isize) sysconf(_SC_PAGE_SIZE);
+  ssize_t result = cast(ssize_t) sysconf(_SC_PAGE_SIZE);
   if (alignment_out) *alignment_out = result;
   return result;
 }
@@ -275,7 +275,7 @@ isize gb_virtual_memory_page_size(isize *alignment_out) {
 // Arena Allocator
 //
 
-gb_inline void gb_arena_init_from_memory(gbArena *arena, void *start, isize size) {
+gb_inline void gb_arena_init_from_memory(gbArena *arena, void *start, ssize_t size) {
   arena->backing.proc = NULL;
   arena->backing.data = NULL;
   arena->physical_start = start;
@@ -284,7 +284,7 @@ gb_inline void gb_arena_init_from_memory(gbArena *arena, void *start, isize size
   arena->temp_count = 0;
 }
 
-gb_inline void gb_arena_init_from_allocator(gbArena *arena, gbAllocator backing, isize size) {
+gb_inline void gb_arena_init_from_allocator(gbArena *arena, gbAllocator backing, ssize_t size) {
   arena->backing = backing;
   arena->physical_start = gb_alloc(backing, size); // NOTE(bill): Uses default alignment
   arena->total_size = size;
@@ -292,7 +292,7 @@ gb_inline void gb_arena_init_from_allocator(gbArena *arena, gbAllocator backing,
   arena->temp_count = 0;
 }
 
-gb_inline void gb_arena_init_sub(gbArena *arena, gbArena *parent_arena, isize size) {
+gb_inline void gb_arena_init_sub(gbArena *arena, gbArena *parent_arena, ssize_t size) {
   gb_arena_init_from_allocator(arena, gb_arena_allocator(parent_arena), size);
 }
 
@@ -303,12 +303,12 @@ gb_inline void gb_arena_free(gbArena *arena) {
   }
 }
 
-gb_inline isize gb_arena_alignment_of(gbArena *arena, isize alignment) {
-  isize alignment_offset, result_pointer, mask;
+gb_inline ssize_t gb_arena_alignment_of(gbArena *arena, ssize_t alignment) {
+  ssize_t alignment_offset, result_pointer, mask;
   GB_ASSERT(gb_is_power_of_two(alignment));
 
   alignment_offset = 0;
-  result_pointer = cast(isize) arena->physical_start + arena->total_allocated;
+  result_pointer = cast(ssize_t) arena->physical_start + arena->total_allocated;
   mask = alignment - 1;
   if (result_pointer & mask)
     alignment_offset = alignment - (result_pointer & mask);
@@ -316,8 +316,8 @@ gb_inline isize gb_arena_alignment_of(gbArena *arena, isize alignment) {
   return alignment_offset;
 }
 
-gb_inline isize gb_arena_size_remaining(gbArena *arena, isize alignment) {
-  isize result = arena->total_size - (arena->total_allocated + gb_arena_alignment_of(arena, alignment));
+gb_inline ssize_t gb_arena_size_remaining(gbArena *arena, ssize_t alignment) {
+  ssize_t result = arena->total_size - (arena->total_allocated + gb_arena_alignment_of(arena, alignment));
   return result;
 }
 
@@ -339,10 +339,10 @@ GB_ALLOCATOR_PROC(gb_arena_allocator_proc) {
   switch (type) {
     case gbAllocation_Alloc: {
       void *end = gb_pointer_add(arena->physical_start, arena->total_allocated);
-      isize total_size = size + alignment;
+      ssize_t total_size = size + alignment;
 
       // NOTE(bill): Out of memory
-      if (arena->total_allocated + total_size > cast(isize) arena->total_size) {
+      if (arena->total_allocated + total_size > cast(ssize_t) arena->total_size) {
         gb_printf_err("Arena out of memory\n");
         return NULL;
       }
@@ -396,14 +396,14 @@ gb_inline void gb_temp_arena_memory_end(gbTempArenaMemory tmp) {
 //
 
 
-gb_inline void gb_pool_init(gbPool *pool, gbAllocator backing, isize num_blocks, isize block_size) {
+gb_inline void gb_pool_init(gbPool *pool, gbAllocator backing, ssize_t num_blocks, ssize_t block_size) {
   gb_pool_init_align(pool, backing, num_blocks, block_size, GB_DEFAULT_MEMORY_ALIGNMENT);
 }
 
-void gb_pool_init_align(gbPool *pool, gbAllocator backing, isize num_blocks, isize block_size, isize block_align) {
-  isize actual_block_size, pool_size, block_index;
+void gb_pool_init_align(gbPool *pool, gbAllocator backing, ssize_t num_blocks, ssize_t block_size, ssize_t block_align) {
+  ssize_t actual_block_size, pool_size, block_index;
   void *data, *curr;
-  uintptr *end;
+  uintptr_t *end;
 
   gb_zero_item(pool);
 
@@ -419,13 +419,13 @@ void gb_pool_init_align(gbPool *pool, gbAllocator backing, isize num_blocks, isi
   // NOTE(bill): Init intrusive freelist
   curr = data;
   for (block_index = 0; block_index < num_blocks - 1; block_index++) {
-    uintptr *next = cast(uintptr *) curr;
-    *next = cast(uintptr) curr + actual_block_size;
+    uintptr_t *next = cast(uintptr_t *) curr;
+    *next = cast(uintptr_t) curr + actual_block_size;
     curr = gb_pointer_add(curr, actual_block_size);
   }
 
-  end = cast(uintptr *) curr;
-  *end = cast(uintptr)NULL;
+  end = cast(uintptr_t *) curr;
+  *end = cast(uintptr_t)NULL;
 
   pool->physical_start = data;
   pool->free_list = data;
@@ -452,12 +452,12 @@ GB_ALLOCATOR_PROC(gb_pool_allocator_proc) {
 
   switch (type) {
     case gbAllocation_Alloc: {
-      uintptr next_free;
+      uintptr_t next_free;
       GB_ASSERT(size == pool->block_size);
       GB_ASSERT(alignment == pool->block_align);
       GB_ASSERT(pool->free_list != NULL);
 
-      next_free = *cast(uintptr *) pool->free_list;
+      next_free = *cast(uintptr_t *) pool->free_list;
       ptr = pool->free_list;
       pool->free_list = cast(void *) next_free;
       pool->total_size += pool->block_size;
@@ -467,11 +467,11 @@ GB_ALLOCATOR_PROC(gb_pool_allocator_proc) {
       break;
 
     case gbAllocation_Free: {
-      uintptr *next;
+      uintptr_t *next;
       if (old_memory == NULL) return NULL;
 
-      next = cast(uintptr *) old_memory;
-      *next = cast(uintptr) pool->free_list;
+      next = cast(uintptr_t *) old_memory;
+      *next = cast(uintptr_t) pool->free_list;
       pool->free_list = old_memory;
       pool->total_size -= pool->block_size;
     }
@@ -491,18 +491,18 @@ GB_ALLOCATOR_PROC(gb_pool_allocator_proc) {
 }
 
 gb_inline gbAllocationHeader *gb_allocation_header(void *data) {
-  isize *p = cast(isize *) data;
-  while (p[-1] == cast(isize) (-1))
+  ssize_t *p = cast(ssize_t *) data;
+  while (p[-1] == cast(ssize_t) (-1))
     p--;
   return cast(gbAllocationHeader *) p - 1;
 }
 
-gb_inline void gb_allocation_header_fill(gbAllocationHeader *header, void *data, isize size) {
-  isize *ptr;
+gb_inline void gb_allocation_header_fill(gbAllocationHeader *header, void *data, ssize_t size) {
+  ssize_t *ptr;
   header->size = size;
-  ptr = cast(isize *) (header + 1);
+  ptr = cast(ssize_t *) (header + 1);
   while (cast(void *) ptr < data)
-    *ptr++ = cast(isize) (-1);
+    *ptr++ = cast(ssize_t) (-1);
 }
 
 
@@ -511,7 +511,7 @@ gb_inline void gb_allocation_header_fill(gbAllocationHeader *header, void *data,
 // Free List Allocator
 //
 
-gb_inline void gb_free_list_init(gbFreeList *fl, void *start, isize size) {
+gb_inline void gb_free_list_init(gbFreeList *fl, void *start, ssize_t size) {
   GB_ASSERT(size > gb_size_of(gbFreeListBlock));
 
   fl->physical_start = start;
@@ -521,7 +521,7 @@ gb_inline void gb_free_list_init(gbFreeList *fl, void *start, isize size) {
   fl->curr_block->next = NULL;
 }
 
-gb_inline void gb_free_list_init_from_allocator(gbFreeList *fl, gbAllocator backing, isize size) {
+gb_inline void gb_free_list_init_from_allocator(gbFreeList *fl, gbAllocator backing, ssize_t size) {
   void *start = gb_alloc(backing, size);
   gb_free_list_init(fl, start, size);
 }
@@ -545,7 +545,7 @@ GB_ALLOCATOR_PROC(gb_free_list_allocator_proc) {
       gbFreeListBlock *curr_block = fl->curr_block;
 
       while (curr_block) {
-        isize total_size;
+        ssize_t total_size;
         gbAllocationHeader *header;
 
         total_size = size + alignment + gb_size_of(gbAllocationHeader);
@@ -600,16 +600,16 @@ GB_ALLOCATOR_PROC(gb_free_list_allocator_proc) {
 
     case gbAllocation_Free: {
       gbAllocationHeader *header = gb_allocation_header(old_memory);
-      isize block_size = header->size;
-      uintptr block_start, block_end;
+      ssize_t block_size = header->size;
+      uintptr_t block_start, block_end;
       gbFreeListBlock *prev_block = NULL;
       gbFreeListBlock *curr_block = fl->curr_block;
 
-      block_start = cast(uintptr) header;
-      block_end = cast(uintptr) block_start + block_size;
+      block_start = cast(uintptr_t) header;
+      block_end = cast(uintptr_t) block_start + block_size;
 
       while (curr_block) {
-        if (cast(uintptr) curr_block >= block_end)
+        if (cast(uintptr_t) curr_block >= block_end)
           break;
         prev_block = curr_block;
         curr_block = curr_block->next;
@@ -621,7 +621,7 @@ GB_ALLOCATOR_PROC(gb_free_list_allocator_proc) {
         prev_block->next = fl->curr_block;
 
         fl->curr_block = prev_block;
-      } else if ((cast(uintptr) prev_block + prev_block->size) == block_start) {
+      } else if ((cast(uintptr_t) prev_block + prev_block->size) == block_start) {
         prev_block->size += block_size;
       } else {
         gbFreeListBlock *tmp = cast(gbFreeListBlock *) block_start;
@@ -632,7 +632,7 @@ GB_ALLOCATOR_PROC(gb_free_list_allocator_proc) {
         prev_block = tmp;
       }
 
-      if (curr_block && (cast(uintptr) curr_block == block_end)) {
+      if (curr_block && (cast(uintptr_t) curr_block == block_end)) {
         prev_block->size += curr_block->size;
         prev_block->next = curr_block->next;
       }
@@ -654,14 +654,14 @@ GB_ALLOCATOR_PROC(gb_free_list_allocator_proc) {
   return ptr;
 }
 
-void gb_scratch_memory_init(gbScratchMemory *s, void *start, isize size) {
+void gb_scratch_memory_init(gbScratchMemory *s, void *start, ssize_t size) {
   s->physical_start = start;
   s->total_size = size;
   s->alloc_point = start;
   s->free_point = start;
 }
 
-b32 gb_scratch_memory_is_in_use(gbScratchMemory *s, void *ptr) {
+byte32_t gb_scratch_memory_is_in_use(gbScratchMemory *s, void *ptr) {
   if (s->free_point == s->alloc_point) return false;
   if (s->alloc_point > s->free_point)
     return ptr >= s->free_point && ptr < s->alloc_point;
@@ -702,7 +702,7 @@ GB_ALLOCATOR_PROC(gb_scratch_allocator_proc) {
 
       if (!gb_scratch_memory_is_in_use(s, pt)) {
         gb_allocation_header_fill(header, pt, gb_pointer_diff(header, pt));
-        s->alloc_point = cast(u8 *) pt;
+        s->alloc_point = cast(uint8_t *) pt;
         ptr = data;
       }
 

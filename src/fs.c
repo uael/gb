@@ -40,8 +40,8 @@ gb_internal GB_FILE_SEEK_PROC(gb__win32_file_seek) {
   }
 
   gb_internal GB_FILE_READ_AT_PROC(gb__win32_file_read) {
-    b32 result = false;
-    DWORD size_ = cast(DWORD)(size > I32_MAX ? I32_MAX : size);
+    byte32_t result = false;
+    DWORD size_ = cast(DWORD)(size > INT32_MAX ? INT32_MAX : size);
     DWORD bytes_read_;
     gb__win32_file_seek(fd, offset, gbSeekWhence_Begin, NULL);
     if (ReadFile(fd.p, buffer, size_, &bytes_read_, NULL)) {
@@ -53,7 +53,7 @@ gb_internal GB_FILE_SEEK_PROC(gb__win32_file_seek) {
   }
 
   gb_internal GB_FILE_WRITE_AT_PROC(gb__win32_file_write) {
-    DWORD size_ = cast(DWORD)(size > I32_MAX ? I32_MAX : size);
+    DWORD size_ = cast(DWORD)(size > INT32_MAX ? INT32_MAX : size);
     DWORD bytes_written_;
     gb__win32_file_seek(fd, offset, gbSeekWhence_Begin, NULL);
     if (WriteFile(fd.p, buffer, size_, &bytes_written_, NULL)) {
@@ -78,7 +78,7 @@ gb_internal GB_FILE_SEEK_PROC(gb__win32_file_seek) {
     DWORD desired_access;
     DWORD creation_disposition;
     void *handle;
-    u16 path[1024] = {0}; // TODO(bill): Is this really enough or should I heap allocate this if it's too large?
+    uint16_t path[1024] = {0}; // TODO(bill): Is this really enough or should I heap allocate this if it's too large?
 
     switch (mode & gbFileMode_Modes) {
     case gbFileMode_Read:
@@ -110,7 +110,7 @@ gb_internal GB_FILE_SEEK_PROC(gb__win32_file_seek) {
       return gbFileError_Invalid;
     }
 
-    handle = CreateFileW(cast(wchar_t const *)gb_utf8_to_ucs2(path, gb_count_of(path), cast(u8 *)filename),
+    handle = CreateFileW(cast(wchar_t const *)gb_utf8_to_ucs2(path, gb_count_of(path), cast(uint8_t *)filename),
                          desired_access,
                          FILE_SHARE_READ|FILE_SHARE_DELETE, NULL,
                          creation_disposition, FILE_ATTRIBUTE_NORMAL, NULL);
@@ -143,9 +143,9 @@ gb_internal GB_FILE_SEEK_PROC(gb__win32_file_seek) {
 
 gb_internal GB_FILE_SEEK_PROC(gb__posix_file_seek) {
 #if defined(GB_SYSTEM_OSX)
-  i64 res = lseek(fd.i, offset, whence);
+  int64_t res = lseek(fd.i, offset, whence);
 #else
-  i64 res = lseek64(fd.i, offset, whence);
+  int64_t res = lseek64(fd.i, offset, whence);
 #endif
   if (res < 0) return false;
   if (new_offset) *new_offset = res;
@@ -153,15 +153,15 @@ gb_internal GB_FILE_SEEK_PROC(gb__posix_file_seek) {
 }
 
 gb_internal GB_FILE_READ_AT_PROC(gb__posix_file_read) {
-  isize res = pread(fd.i, buffer, size, offset);
+  ssize_t res = pread(fd.i, buffer, size, offset);
   if (res < 0) return false;
   if (bytes_read) *bytes_read = res;
   return true;
 }
 
 gb_internal GB_FILE_WRITE_AT_PROC(gb__posix_file_write) {
-  isize res;
-  i64 curr_offset = 0;
+  ssize_t res;
+  int64_t curr_offset = 0;
   gb__posix_file_seek(fd, 0, gbSeekWhence_Current, &curr_offset);
   if (curr_offset == offset) {
     // NOTE(bill): Writing to stdout et al. doesn't like pwrite for numerous reasons
@@ -186,7 +186,7 @@ gbFileOperations const gbDefaultFileOperations = {
 };
 
 gb_no_inline GB_FILE_OPEN_PROC(gb__posix_file_open) {
-  i32 os_mode;
+  int32_t os_mode;
   switch (mode & gbFileMode_Modes) {
     case gbFileMode_Read:
       os_mode = O_RDONLY;
@@ -266,58 +266,58 @@ gbFileError gb_file_close(gbFile *f) {
   return gbFileError_None;
 }
 
-gb_inline b32 gb_file_read_at_check(gbFile *f, void *buffer, isize size, i64 offset, isize *bytes_read) {
+gb_inline byte32_t gb_file_read_at_check(gbFile *f, void *buffer, ssize_t size, int64_t offset, ssize_t *bytes_read) {
   if (!f->ops.read_at) f->ops = gbDefaultFileOperations;
   return f->ops.read_at(f->fd, buffer, size, offset, bytes_read);
 }
 
-gb_inline b32 gb_file_write_at_check(gbFile *f, void const *buffer, isize size, i64 offset, isize *bytes_written) {
+gb_inline byte32_t gb_file_write_at_check(gbFile *f, void const *buffer, ssize_t size, int64_t offset, ssize_t *bytes_written) {
   if (!f->ops.read_at) f->ops = gbDefaultFileOperations;
   return f->ops.write_at(f->fd, buffer, size, offset, bytes_written);
 }
 
-gb_inline b32 gb_file_read_at(gbFile *f, void *buffer, isize size, i64 offset) {
+gb_inline byte32_t gb_file_read_at(gbFile *f, void *buffer, ssize_t size, int64_t offset) {
   return gb_file_read_at_check(f, buffer, size, offset, NULL);
 }
 
-gb_inline b32 gb_file_write_at(gbFile *f, void const *buffer, isize size, i64 offset) {
+gb_inline byte32_t gb_file_write_at(gbFile *f, void const *buffer, ssize_t size, int64_t offset) {
   return gb_file_write_at_check(f, buffer, size, offset, NULL);
 }
 
-gb_inline i64 gb_file_seek(gbFile *f, i64 offset) {
-  i64 new_offset = 0;
+gb_inline int64_t gb_file_seek(gbFile *f, int64_t offset) {
+  int64_t new_offset = 0;
   if (!f->ops.read_at) f->ops = gbDefaultFileOperations;
   f->ops.seek(f->fd, offset, gbSeekWhence_Begin, &new_offset);
   return new_offset;
 }
 
-gb_inline i64 gb_file_seek_to_end(gbFile *f) {
-  i64 new_offset = 0;
+gb_inline int64_t gb_file_seek_to_end(gbFile *f) {
+  int64_t new_offset = 0;
   if (!f->ops.read_at) f->ops = gbDefaultFileOperations;
   f->ops.seek(f->fd, 0, gbSeekWhence_End, &new_offset);
   return new_offset;
 }
 
 // NOTE(bill): Skips a certain amount of bytes
-gb_inline i64 gb_file_skip(gbFile *f, i64 bytes) {
-  i64 new_offset = 0;
+gb_inline int64_t gb_file_skip(gbFile *f, int64_t bytes) {
+  int64_t new_offset = 0;
   if (!f->ops.read_at) f->ops = gbDefaultFileOperations;
   f->ops.seek(f->fd, bytes, gbSeekWhence_Current, &new_offset);
   return new_offset;
 }
 
-gb_inline i64 gb_file_tell(gbFile *f) {
-  i64 new_offset = 0;
+gb_inline int64_t gb_file_tell(gbFile *f) {
+  int64_t new_offset = 0;
   if (!f->ops.read_at) f->ops = gbDefaultFileOperations;
   f->ops.seek(f->fd, 0, gbSeekWhence_Current, &new_offset);
   return new_offset;
 }
 
-gb_inline b32 gb_file_read(gbFile *f, void *buffer, isize size) {
+gb_inline byte32_t gb_file_read(gbFile *f, void *buffer, ssize_t size) {
   return gb_file_read_at(f, buffer, size, gb_file_tell(f));
 }
 
-gb_inline b32 gb_file_write(gbFile *f, void const *buffer, isize size) {
+gb_inline byte32_t gb_file_write(gbFile *f, void const *buffer, ssize_t size) {
   return gb_file_write_at(f, buffer, size, gb_file_tell(f));
 }
 
@@ -331,8 +331,8 @@ gbFileError gb_file_open(gbFile *f, char const *filename) {
 
 char const *gb_file_name(gbFile *f) { return f->filename ? f->filename : ""; }
 
-gb_inline b32 gb_file_has_changed(gbFile *f) {
-  b32 result = false;
+gb_inline byte32_t gb_file_has_changed(gbFile *f) {
+  byte32_t result = false;
   gbFileTime last_write_time = gb_file_last_write_time(f->filename);
   if (f->last_write_time != last_write_time) {
     result = true;
@@ -342,7 +342,7 @@ gb_inline b32 gb_file_has_changed(gbFile *f) {
 }
 
 // TODO(bill): Is this a bad idea?
-gb_global b32 gb__std_file_set = false;
+gb_global byte32_t gb__std_file_set = false;
 gb_global gbFile gb__std_files[gbFileStandard_Count] = {{0}};
 
 #if defined(GB_SYSTEM_WINDOWS)
@@ -359,15 +359,15 @@ gb_inline gbFile *gb_file_get_standard(gbFileStandardType std) {
   return &gb__std_files[std];
 }
 
-gb_inline i64 gb_file_size(gbFile *f) {
+gb_inline int64_t gb_file_size(gbFile *f) {
   LARGE_INTEGER size;
   GetFileSizeEx(f->fd.p, &size);
   return size.QuadPart;
 }
 
-gbFileError gb_file_truncate(gbFile *f, i64 size) {
+gbFileError gb_file_truncate(gbFile *f, int64_t size) {
   gbFileError err = gbFileError_None;
-  i64 prev_offset = gb_file_tell(f);
+  int64_t prev_offset = gb_file_tell(f);
   gb_file_seek(f, size);
   if (!SetEndOfFile(f))
     err = gbFileError_TruncationFailure;
@@ -376,10 +376,10 @@ gbFileError gb_file_truncate(gbFile *f, i64 size) {
 }
 
 
-b32 gb_file_exists(char const *name) {
+byte32_t gb_file_exists(char const *name) {
   WIN32_FIND_DATAW data;
-  void *handle = FindFirstFileW(cast(wchar_t const *)gb_utf8_to_ucs2_buf(cast(u8 *)name), &data);
-  b32 found = handle != INVALID_HANDLE_VALUE;
+  void *handle = FindFirstFileW(cast(wchar_t const *)gb_utf8_to_ucs2_buf(cast(uint8_t *)name), &data);
+  byte32_t found = handle != INVALID_HANDLE_VALUE;
   if (found) FindClose(handle);
   return found;
 }
@@ -398,23 +398,23 @@ gb_inline gbFile *gb_file_get_standard(gbFileStandardType std) {
   return &gb__std_files[std];
 }
 
-gb_inline i64 gb_file_size(gbFile *f) {
-  i64 size = 0;
-  i64 prev_offset = gb_file_tell(f);
+gb_inline int64_t gb_file_size(gbFile *f) {
+  int64_t size = 0;
+  int64_t prev_offset = gb_file_tell(f);
   gb_file_seek_to_end(f);
   size = gb_file_tell(f);
   gb_file_seek(f, prev_offset);
   return size;
 }
 
-gb_inline gbFileError gb_file_truncate(gbFile *f, i64 size) {
+gb_inline gbFileError gb_file_truncate(gbFile *f, int64_t size) {
   gbFileError err = gbFileError_None;
   int i = ftruncate(f->fd.i, size);
   if (i != 0) err = gbFileError_TruncationFailure;
   return err;
 }
 
-gb_inline b32 gb_file_exists(char const *name) {
+gb_inline byte32_t gb_file_exists(char const *name) {
   return access(name, F_OK) != -1;
 }
 
@@ -422,12 +422,12 @@ gb_inline b32 gb_file_exists(char const *name) {
 
 #if defined(GB_SYSTEM_WINDOWS)
 gbFileTime gb_file_last_write_time(char const *filepath) {
-  u16 path[1024] = {0};
+  uint16_t path[1024] = {0};
   ULARGE_INTEGER li = {0};
   FILETIME last_write_time = {0};
   WIN32_FILE_ATTRIBUTE_DATA data = {0};
 
-  if (GetFileAttributesExW(cast(wchar_t const *)gb_utf8_to_ucs2(path, gb_count_of(path), cast(u8 *)filepath),
+  if (GetFileAttributesExW(cast(wchar_t const *)gb_utf8_to_ucs2(path, gb_count_of(path), cast(uint8_t *)filepath),
                            GetFileExInfoStandard, &data))
     last_write_time = data.ftLastWriteTime;
 
@@ -437,21 +437,21 @@ gbFileTime gb_file_last_write_time(char const *filepath) {
 }
 
 
-gb_inline b32 gb_file_copy(char const *existing_filename, char const *new_filename, b32 fail_if_exists) {
-  u16 old_f[300] = {0};
-  u16 new_f[300] = {0};
+gb_inline byte32_t gb_file_copy(char const *existing_filename, char const *new_filename, byte32_t fail_if_exists) {
+  uint16_t old_f[300] = {0};
+  uint16_t new_f[300] = {0};
 
-  return CopyFileW(cast(wchar_t const *)gb_utf8_to_ucs2(old_f, gb_count_of(old_f), cast(u8 *)existing_filename),
-                   cast(wchar_t const *)gb_utf8_to_ucs2(new_f, gb_count_of(new_f), cast(u8 *)new_filename),
+  return CopyFileW(cast(wchar_t const *)gb_utf8_to_ucs2(old_f, gb_count_of(old_f), cast(uint8_t *)existing_filename),
+                   cast(wchar_t const *)gb_utf8_to_ucs2(new_f, gb_count_of(new_f), cast(uint8_t *)new_filename),
                    fail_if_exists);
 }
 
-gb_inline b32 gb_file_move(char const *existing_filename, char const *new_filename) {
-  u16 old_f[300] = {0};
-  u16 new_f[300] = {0};
+gb_inline byte32_t gb_file_move(char const *existing_filename, char const *new_filename) {
+  uint16_t old_f[300] = {0};
+  uint16_t new_f[300] = {0};
 
-  return MoveFileW(cast(wchar_t const *)gb_utf8_to_ucs2(old_f, gb_count_of(old_f), cast(u8 *)existing_filename),
-                   cast(wchar_t const *)gb_utf8_to_ucs2(new_f, gb_count_of(new_f), cast(u8 *)new_filename));
+  return MoveFileW(cast(wchar_t const *)gb_utf8_to_ucs2(old_f, gb_count_of(old_f), cast(uint8_t *)existing_filename),
+                   cast(wchar_t const *)gb_utf8_to_ucs2(new_f, gb_count_of(new_f), cast(uint8_t *)new_filename));
 }
 
 
@@ -468,11 +468,11 @@ gbFileTime gb_file_last_write_time(char const *filepath) {
   return cast(gbFileTime) result;
 }
 
-gb_inline b32 gb_file_copy(char const *existing_filename, char const *new_filename, b32 fail_if_exists) {
+gb_inline byte32_t gb_file_copy(char const *existing_filename, char const *new_filename, byte32_t fail_if_exists) {
 #if defined(GB_SYSTEM_OSX)
   return copyfile(existing_filename, new_filename, NULL, COPYFILE_DATA) == 0;
 #else
-  isize size;
+  ssize_t size;
   int existing_fd = open(existing_filename, O_RDONLY, 0);
   int new_fd = open(new_filename, O_WRONLY | O_CREAT, 0666);
 
@@ -488,7 +488,7 @@ gb_inline b32 gb_file_copy(char const *existing_filename, char const *new_filena
 #endif
 }
 
-gb_inline b32 gb_file_move(char const *existing_filename, char const *new_filename) {
+gb_inline byte32_t gb_file_move(char const *existing_filename, char const *new_filename) {
   if (link(existing_filename, new_filename) == 0) {
     if (unlink(existing_filename) != -1)
       return true;
@@ -498,20 +498,20 @@ gb_inline b32 gb_file_move(char const *existing_filename, char const *new_filena
 
 #endif
 
-gbFileContents gb_file_read_contents(gbAllocator a, b32 zero_terminate, char const *filepath) {
+gbFileContents gb_file_read_contents(gbAllocator a, byte32_t zero_terminate, char const *filepath) {
   gbFileContents result = {0};
   gbFile file = {0};
 
   result.allocator = a;
 
   if (gb_file_open(&file, filepath) == gbFileError_None) {
-    isize file_size = cast(isize) gb_file_size(&file);
+    ssize_t file_size = cast(ssize_t) gb_file_size(&file);
     if (file_size > 0) {
       result.data = gb_alloc(a, zero_terminate ? file_size + 1 : file_size);
       result.size = file_size;
       gb_file_read_at(&file, result.data, result.size, 0);
       if (zero_terminate) {
-        u8 *str = cast(u8 *) result.data;
+        uint8_t *str = cast(uint8_t *) result.data;
         str[file_size] = '\0';
       }
     }
@@ -528,8 +528,8 @@ void gb_file_free_contents(gbFileContents *fc) {
   fc->size = 0;
 }
 
-gb_inline b32 gb_path_is_absolute(char const *path) {
-  b32 result = false;
+gb_inline byte32_t gb_path_is_absolute(char const *path) {
+  byte32_t result = false;
   GB_ASSERT_NOT_NULL(path);
 #if defined(GB_SYSTEM_WINDOWS)
   result == (gb_strlen(path) > 2) &&
@@ -541,10 +541,10 @@ gb_inline b32 gb_path_is_absolute(char const *path) {
   return result;
 }
 
-gb_inline b32 gb_path_is_relative(char const *path) { return !gb_path_is_absolute(path); }
+gb_inline byte32_t gb_path_is_relative(char const *path) { return !gb_path_is_absolute(path); }
 
-gb_inline b32 gb_path_is_root(char const *path) {
-  b32 result = false;
+gb_inline byte32_t gb_path_is_root(char const *path) {
+  byte32_t result = false;
   GB_ASSERT_NOT_NULL(path);
 #if defined(GB_SYSTEM_WINDOWS)
   result = gb_path_is_absolute(path) && (gb_strlen(path) == 3);
@@ -576,14 +576,14 @@ char *gb_path_get_full_name(gbAllocator a, char const *path) {
 #if defined(GB_SYSTEM_WINDOWS)
   // TODO(bill): Make UTF-8
   char buf[300];
-  isize len = GetFullPathNameA(path, gb_count_of(buf), buf, NULL);
+  ssize_t len = GetFullPathNameA(path, gb_count_of(buf), buf, NULL);
   return gb_alloc_str_len(a, buf, len+1);
 #else
 // TODO(bill): Make work on *nix, etc.
   char *p = realpath(path, 0);
   GB_ASSERT(p && "file does not exist");
 
-  isize len = gb_strlen(p);
+  ssize_t len = gb_strlen(p);
 
 // bill... gb_alloc_str_len refused to work for this...
   char *ret = gb_alloc(a, sizeof(char) * len + 1);

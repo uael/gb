@@ -45,7 +45,7 @@
 #ifndef GB_ASSERT_MSG
 #define GB_ASSERT_MSG(cond, msg, ...) do { \
   if (!(cond)) { \
-    gb_assert_handler(#cond, __FILE__, cast(i64)__LINE__, msg, ##__VA_ARGS__); \
+    gb_assert_handler(#cond, __FILE__, cast(int64_t)__LINE__, msg, ##__VA_ARGS__); \
     GB_DEBUG_TRAP(); \
   } \
 } while (0)
@@ -64,6 +64,6 @@
 #define GB_PANIC(msg, ...) GB_ASSERT_MSG(0, msg, ##__VA_ARGS__)
 #endif
 
-GB_DEF void gb_assert_handler(char const *condition, char const *file, i32 line, char const *msg, ...);
+GB_DEF void gb_assert_handler(char const *condition, char const *file, int32_t line, char const *msg, ...);
 
 #endif /* GB_ASSERT_H__ */

@@ -31,722 +31,740 @@
 #include "gb/compiler.h"
 
 #if defined(GB_COMPILER_MSVC)
-#if _MSC_VER < 1300
-typedef unsigned char     u8;
-typedef   signed char     i8;
-typedef unsigned short   u16;
-typedef   signed short   i16;
-typedef unsigned int     u32;
-typedef   signed int     i32;
+# if _MSC_VER < 1300
+typedef unsigned char  uint8_t;
+typedef   signed char  int8_t;
+typedef unsigned short uint16_t;
+typedef   signed short int16_t;
+typedef unsigned int   uint32_t;
+typedef   signed int   int32_t;
+# else
+typedef unsigned __int8  uint8_t;
+typedef   signed __int8  int8_t;
+typedef unsigned __int16 uint16_t;
+typedef   signed __int16 int16_t;
+typedef unsigned __int32 uint32_t;
+typedef   signed __int32 int32_t;
+# endif
+typedef unsigned __int64 uint64_t;
+typedef   signed __int64 int64_t;
 #else
-typedef unsigned __int8   u8;
-typedef   signed __int8   i8;
-typedef unsigned __int16 u16;
-typedef   signed __int16 i16;
-typedef unsigned __int32 u32;
-typedef   signed __int32 i32;
-#endif
-typedef unsigned __int64 u64;
-typedef   signed __int64 i64;
-#else
-
-#include <stdint.h>
-
-typedef uint8_t u8;
-typedef int8_t i8;
-typedef uint16_t u16;
-typedef int16_t i16;
-typedef uint32_t u32;
-typedef int32_t i32;
-typedef uint64_t u64;
-typedef int64_t i64;
+# include <stdint.h>
 #endif
 
-GB_STATIC_ASSERT(sizeof(u8) == sizeof(i8));
-GB_STATIC_ASSERT(sizeof(u16) == sizeof(i16));
-GB_STATIC_ASSERT(sizeof(u32) == sizeof(i32));
-GB_STATIC_ASSERT(sizeof(u64) == sizeof(i64));
+GB_STATIC_ASSERT(sizeof(uint8_t) == sizeof(int8_t));
+GB_STATIC_ASSERT(sizeof(uint16_t) == sizeof(int16_t));
+GB_STATIC_ASSERT(sizeof(uint32_t) == sizeof(int32_t));
+GB_STATIC_ASSERT(sizeof(uint64_t) == sizeof(int64_t));
 
-GB_STATIC_ASSERT(sizeof(u8) == 1);
-GB_STATIC_ASSERT(sizeof(u16) == 2);
-GB_STATIC_ASSERT(sizeof(u32) == 4);
-GB_STATIC_ASSERT(sizeof(u64) == 8);
+GB_STATIC_ASSERT(sizeof(uint8_t) == 1);
+GB_STATIC_ASSERT(sizeof(uint16_t) == 2);
+GB_STATIC_ASSERT(sizeof(uint32_t) == 4);
+GB_STATIC_ASSERT(sizeof(uint64_t) == 8);
 
-typedef size_t usize;
-typedef ptrdiff_t isize;
+GB_STATIC_ASSERT(sizeof(size_t) == sizeof(ssize_t));
 
-GB_STATIC_ASSERT(sizeof(usize) == sizeof(isize));
-
-// NOTE(bill): (u)intptr is only here for semantic reasons really as this library will only support 32/64 bit OSes.
-// NOTE(bill): Are there any modern OSes (not 16 bit) where intptr != isize ?
+// NOTE(bill): (u)intptr_t is only here for semantic reasons really as this library will only support 32/64 bit OSes.
+// NOTE(bill): Are there any modern OSes (not 16 bit) where intptr_t != ssize_t ?
 #if defined(_WIN64)
-typedef signed   __int64  intptr;
-  typedef unsigned __int64 uintptr;
+typedef signed   __int64 intptr_t;
+typedef unsigned __int64 uintptr_t;
 #elif defined(_WIN32)
-// NOTE(bill); To mark types changing their size, e.g. intptr
-#ifndef _W64
-#if !defined(__midl) && (defined(_X86_) || defined(_M_IX86)) && _MSC_VER >= 1300
-#define _W64 __w64
-#else
-#define _W64
-#endif
-#endif
-
-  typedef _W64   signed int  intptr;
-  typedef _W64 unsigned int uintptr;
-#else
-typedef uintptr_t uintptr;
-typedef intptr_t intptr;
+// NOTE(bill); To mark types changing their size, e.g. intptr_t
+# ifndef _W64
+#   if !defined(__midl) && (defined(_X86_) || defined(_M_IX86)) && _MSC_VER >= 1300
+#     define _W64 __w64
+#   else
+#     define _W64
+#   endif
+# endif
+typedef _W64   signed int intptr_t;
+typedef _W64 unsigned int uintptr_t;
 #endif
 
-GB_STATIC_ASSERT(sizeof(uintptr) == sizeof(intptr));
+GB_STATIC_ASSERT(sizeof(uintptr_t) == sizeof(intptr_t));
 
-typedef float f32;
-typedef double f64;
+typedef float float32_t;
+typedef double float64_t;
 
-GB_STATIC_ASSERT(sizeof(f32) == 4);
-GB_STATIC_ASSERT(sizeof(f64) == 8);
+GB_STATIC_ASSERT(sizeof(float32_t) == 4);
+GB_STATIC_ASSERT(sizeof(float64_t) == 8);
 
-typedef i32 Rune; // NOTE(bill): Unicode codepoint
-#define GB_RUNE_INVALID cast(Rune)(0xfffd)
-#define GB_RUNE_MAX     cast(Rune)(0x0010ffff)
-#define GB_RUNE_BOM     cast(Rune)(0xfeff)
-#define GB_RUNE_EOF     cast(Rune)(-1)
+typedef int32_t rune_t; // NOTE(bill): Unicode codepoint
+#define GB_RUNE_INVALID cast(rune_t)(0xfffd)
+#define GB_RUNE_MAX     cast(rune_t)(0x0010ffff)
+#define GB_RUNE_BOM     cast(rune_t)(0xfeff)
+#define GB_RUNE_EOF     cast(rune_t)(-1)
 
-typedef i8 b8;
-typedef i16 b16;
-typedef i32 b32; // NOTE(bill): Prefer this!!!
+typedef int8_t byte8_t;
+typedef int16_t byte16_t;
+typedef int32_t byte32_t; // NOTE(bill): Prefer this!!!
 
 // NOTE(bill): Get true and false
 #if !defined(__cplusplus)
-#if (defined(_MSC_VER) && _MSC_VER <= 1800) || (!defined(_MSC_VER) && !defined(__STDC_VERSION__))
-#ifndef true
-#define true  (0 == 0)
-#endif
-#ifndef false
-#define false (0 != 0)
-#endif
-typedef b8 bool;
-#else
-
-#include <stdbool.h>
-
-#endif
+# if (defined(_MSC_VER) && _MSC_VER <= 1800) || (!defined(_MSC_VER) && !defined(__STDC_VERSION__))
+#   ifndef true
+#     define true (0 == 0)
+#   endif
+#   ifndef false
+#     define false (0 != 0)
+#   endif
+typedef uint8_t bool;
+# else
+#   include <stdbool.h>
+# endif
 #endif
 
 // NOTE(bill): These do are not prefixed with gb because the types are not.
-#ifndef U8_MIN
-#define U8_MIN 0u
-#define U8_MAX 0xffu
-#define I8_MIN (-0x7f - 1)
-#define I8_MAX 0x7f
+#ifndef UINT8_MIN
+# define UINT8_MIN 0u
+#endif
+#ifndef UINT8_MAX
+# define UINT8_MAX 0xffu
+#endif
+#ifndef INT8_MIN
+# define INT8_MIN (-0x7f - 1)
+#endif
+#ifndef INT8_MAX
+# define INT8_MAX 0x7f
+#endif
 
-#define U16_MIN 0u
-#define U16_MAX 0xffffu
-#define I16_MIN (-0x7fff - 1)
-#define I16_MAX 0x7fff
+#ifndef UINT16_MIN
+# define UINT16_MIN 0u
+#endif
+#ifndef UINT16_MAX
+# define UINT16_MAX 0xffffu*
+#endif
+#ifndef INT16_MIN
+# define INT16_MIN (-0x7fff - 1)
+#endif
+#ifndef INT16_MAX
+# define INT16_MAX 0x7fff
+#endif
 
-#define U32_MIN 0u
-#define U32_MAX 0xffffffffu
-#define I32_MIN (-0x7fffffff - 1)
-#define I32_MAX 0x7fffffff
+#ifndef UINT32_MIN
+# define UINT32_MIN 0u
+#endif
+#ifndef UINT32_MAX
+# define UINT32_MAX 0xffffffffu
+#endif
+#ifndef INT32_MIN
+# define INT32_MIN (-0x7fffffff - 1)
+#endif
+#ifndef INT32_MAX
+# define INT32_MAX 0x7fffffff
+#endif
 
-#define U64_MIN 0ull
-#define U64_MAX 0xffffffffffffffffull
-#define I64_MIN (-0x7fffffffffffffffll - 1)
-#define I64_MAX 0x7fffffffffffffffll
+#ifndef UINT64_MIN
+# define UINT64_MIN 0ull
+#endif
+#ifndef UINT64_MAX
+# define UINT64_MAX 0xffffffffffffffffull
+#endif
+#ifndef INT64_MIN
+# define INT64_MIN (-0x7fffffffffffffffll - 1)
+#endif
+#ifndef INT64_MAX
+# define INT64_MAX 0x7fffffffffffffffll
+#endif
 
 #if defined(GB_ARCH_32_BIT)
-#define USIZE_MIX U32_MIN
-#define USIZE_MAX U32_MAX
-
-#define ISIZE_MIX S32_MIN
-#define ISIZE_MAX S32_MAX
+# ifndef SIZE_MIN
+#   define SIZE_MIN UINT32_MIN
+# endif
+# ifndef SIZE_MAX
+#   define SIZE_MAX UINT32_MAX
+# endif
+# ifndef SSIZE_MIN
+#   define SSIZE_MIN S32_MIN
+# endif
+# ifndef SSIZE_MAX
+#   define SSIZE_MAX S32_MAX
+# endif
 #elif defined(GB_ARCH_64_BIT)
-#define USIZE_MIX U64_MIN
-#define USIZE_MAX U64_MAX
-
-#define ISIZE_MIX I64_MIN
-#define ISIZE_MAX I64_MAX
+# ifndef SIZE_MIN
+#   define SIZE_MIN UINT64_MIN
+# endif
+# ifndef SIZE_MAX
+#   define SIZE_MAX UINT64_MAX
+# endif
+# ifndef SSIZE_MIN
+#   define SSIZE_MIN INT64_MIN
+# endif
+# ifndef SSIZE_MIN
+#   define SSIZE_MIN INT64_MAX
+# endif
 #else
-#error Unknown architecture size. This library only supports 32 bit and 64 bit architectures.
+# error Unknown architecture size. This library only supports 32 bit and 64 bit architectures.
 #endif
 
-#define F32_MIN 1.17549435e-38f
-#define F32_MAX 3.40282347e+38f
+#define FLOAT32_MIN 1.17549435e-38f
+#define FLOAT32_MAX 3.40282347e+38f
 
-#define F64_MIN 2.2250738585072014e-308
-#define F64_MAX 1.7976931348623157e+308
-
-#endif
+#define FLOAT64_MIN 2.2250738585072014e-308
+#define FLOAT64_MAX 1.7976931348623157e+308
 
 #ifndef NULL
-#if defined(__cplusplus)
-#if __cplusplus >= 201103L
-#define NULL nullptr
-#else
-#define NULL 0
-#endif
-#else
-#define NULL ((void *)0)
-#endif
+# if defined(__cplusplus)
+#   if __cplusplus >= 201103L
+#     define NULL nullptr
+#   else
+#     define NULL 0
+#   endif
+# else
+#   define NULL ((void *)0)
+# endif
 #endif
 
 // TODO(bill): Is this enough to get inline working?
 #if !defined(__cplusplus)
-#if defined(_MSC_VER) && _MSC_VER <= 1800
-#define inline __inline
-#elif !defined(__STDC_VERSION__)
-#define inline __inline__
-#else
-#define inline
-#endif
+# if defined(_MSC_VER) && _MSC_VER <= 1800
+#   define inline __inline
+# elif !defined(__STDC_VERSION__)
+#   define inline __inline__
+# else
+#   define inline
+# endif
 #endif
 
 #if !defined(gb_restrict)
-#if defined(_MSC_VER)
-#define gb_restrict __restrict
-#elif defined(__STDC_VERSION__)
-#define gb_restrict restrict
-#else
-#define gb_restrict
-#endif
+# if defined(_MSC_VER)
+#   define gb_restrict __restrict
+# elif defined(__STDC_VERSION__)
+#   define gb_restrict restrict
+# else
+#   define gb_restrict
+# endif
 #endif
 
 // TODO(bill): Should force inline be a separate keyword and gb_inline be inline?
 #if !defined(gb_inline)
-#if defined(_MSC_VER)
-#if _MSC_VER < 1300
-#define gb_inline
-#else
-#define gb_inline __forceinline
-#endif
-#else
-#define gb_inline __attribute__ ((__always_inline__))
-#endif
+# if defined(_MSC_VER)
+#   if _MSC_VER < 1300
+#     define gb_inline
+#   else
+#     define gb_inline __forceinline
+#   endif
+# else
+#   define gb_inline __attribute__ ((__always_inline__))
+# endif
 #endif
 
 #if !defined(gb_no_inline)
-#if defined(_MSC_VER)
-#define gb_no_inline __declspec(noinline)
-#else
-#define gb_no_inline __attribute__ ((noinline))
-#endif
+# if defined(_MSC_VER)
+#   define gb_no_inline __declspec(noinline)
+# else
+#   define gb_no_inline __attribute__ ((noinline))
+# endif
 #endif
 
 #if !defined(gb_thread_local)
-#if defined(_MSC_VER) && _MSC_VER >= 1300
-#define gb_thread_local __declspec(thread)
-#elif defined(__GNUC__)
-#define gb_thread_local __thread
-#else
-#define gb_thread_local thread_local
+# if defined(_MSC_VER) && _MSC_VER >= 1300
+#   define gb_thread_local __declspec(thread)
+# elif defined(__GNUC__)
+#   define gb_thread_local __thread
+# else
+#   define gb_thread_local thread_local
+# endif
 #endif
-#endif
-
 
 // NOTE(bill): Easy to grep
 // NOTE(bill): Not needed in macros
 #ifndef cast
-#define cast(Type) (Type)
+# define cast(Type) (Type)
 #endif
 
 // NOTE(bill): Because a signed sizeof is more useful
 #ifndef gb_size_of
-#define gb_size_of(x) (isize)(sizeof(x))
+# define gb_size_of(x) (ssize_t)(sizeof(x))
 #endif
 
 #ifndef gb_count_of
-#define gb_count_of(x) ((gb_size_of(x)/gb_size_of(0[x])) / ((isize)(!(gb_size_of(x) % gb_size_of(0[x])))))
+# define gb_count_of(x) ((gb_size_of(x)/gb_size_of(0[x])) / ((ssize_t)(!(gb_size_of(x) % gb_size_of(0[x])))))
 #endif
 
 #ifndef gb_offset_of
-#define gb_offset_of(Type, element) ((isize)&(((Type *)0)->element))
+# define gb_offset_of(Type, element) ((ssize_t)&(((Type *)0)->element))
 #endif
 
 #if defined(__cplusplus)
-#ifndef gb_align_of
-#if __cplusplus >= 201103L
-#define gb_align_of(Type) (isize)alignof(Type)
-#else
+# ifndef gb_align_of
+#   if __cplusplus >= 201103L
+#     define gb_align_of(Type) (ssize_t)alignof(Type)
+#   else
 extern "C++" {
     // NOTE(bill): Fucking Templates!
     template <typename T> struct gbAlignment_Trick { char c; T member; };
-#define gb_align_of(Type) gb_offset_of(gbAlignment_Trick<Type>, member)
+#     define gb_align_of(Type) gb_offset_of(gbAlignment_Trick<Type>, member)
 }
-#endif
-#endif
+#   endif
+# endif
 #else
-#ifndef gb_align_of
-#define gb_align_of(Type) gb_offset_of(struct { char c; Type member; }, member)
-#endif
+# ifndef gb_align_of
+#   define gb_align_of(Type) gb_offset_of(struct { char c; Type member; }, member)
+# endif
 #endif
 
 // NOTE(bill): I do wish I had a type_of that was portable
 #ifndef gb_swap
-#define gb_swap(Type, a, b) do { Type tmp = (a); (a) = (b); (b) = tmp; } while (0)
+# define gb_swap(Type, a, b) do { Type tmp = (a); (a) = (b); (b) = tmp; } while (0)
 #endif
 
 // NOTE(bill): Because static means 3/4 different things in C/C++. Great design (!)
 #ifndef gb_global
-#define gb_global        static // Global variables
-#define gb_internal      static // Internal linkage
-#define gb_local_persist static // Local Persisting variables
+# define gb_global        static // Global variables
+# define gb_internal      static // Internal linkage
+# define gb_local_persist static // Local Persisting variables
 #endif
 
 #ifndef gb_unused
-#if defined(_MSC_VER)
-#define gb_unused(x) (__pragma(warning(suppress:4100))(x))
-#elif defined (__GCC__)
-#define gb_unused(x) __attribute__((__unused__))(x)
-#else
-#define gb_unused(x) ((void)(gb_size_of(x)))
-#endif
+# if defined(_MSC_VER)
+#   define gb_unused(x) (__pragma(warning(suppress:4100))(x))
+# elif defined (__GCC__)
+#   define gb_unused(x) __attribute__((__unused__))(x)
+# else
+#   define gb_unused(x) ((void)(gb_size_of(x)))
+# endif
 #endif
 
 #if defined(GB_COMPILER_MSVC) && !defined(_WINDOWS_)
-////////////////////////////////////////////////////////////////
-  //
-  // Bill's Mini Windows.h
-  //
-  //
+# define WINAPI   __stdcall
+# define WINAPIV  __cdecl
+# define CALLBACK __stdcall
+# define MAX_PATH 260
+# define CCHDEVICENAME 32
+# define CCHFORMNAME   32
 
-#define WINAPI   __stdcall
-#define WINAPIV  __cdecl
-#define CALLBACK __stdcall
-#define MAX_PATH 260
-#define CCHDEVICENAME 32
-#define CCHFORMNAME   32
+typedef unsigned long DWORD;
+typedef int WINBOOL;
 
-  typedef unsigned long DWORD;
-  typedef int WINBOOL;
-#ifndef XFree86Server
-#ifndef __OBJC__
-    typedef WINBOOL BOOL;
-#else
-#define BOOL WINBOOL
-#endif
-  typedef unsigned char BYTE;
-#endif
-  typedef unsigned short WORD;
-  typedef float FLOAT;
-  typedef int INT;
-  typedef unsigned int UINT;
-  typedef short SHORT;
-  typedef long LONG;
-  typedef long long LONGLONG;
-  typedef unsigned short USHORT;
-  typedef unsigned long ULONG;
-  typedef unsigned long long ULONGLONG;
+# ifndef XFree86Server
+#   ifndef __OBJC__
+typedef WINBOOL BOOL;
+#   else
+#     define BOOL WINBOOL
+#   endif
+typedef unsigned char BYTE;
+# endif
+typedef unsigned short WORD;
+typedef float FLOAT;
+typedef int INT;
+typedef unsigned int UINT;
+typedef short SHORT;
+typedef long LONG;
+typedef long long LONGLONG;
+typedef unsigned short USHORT;
+typedef unsigned long ULONG;
+typedef unsigned long long ULONGLONG;
 
-  typedef UINT WPARAM;
-  typedef LONG LPARAM;
-  typedef LONG LRESULT;
-#ifndef _HRESULT_DEFINED
-  typedef LONG HRESULT;
-#define _HRESULT_DEFINED
-#endif
-#ifndef XFree86Server
-  typedef WORD ATOM;
+typedef UINT WPARAM;
+typedef LONG LPARAM;
+typedef LONG LRESULT;
+# ifndef _HRESULT_DEFINED
+typedef LONG HRESULT;
+#   define _HRESULT_DEFINED
+# endif
+# ifndef XFree86Server
+typedef WORD ATOM;
 #endif /* XFree86Server */
-  typedef void *HANDLE;
-  typedef HANDLE HGLOBAL;
-  typedef HANDLE HLOCAL;
-  typedef HANDLE GLOBALHANDLE;
-  typedef HANDLE LOCALHANDLE;
-  typedef void *HGDIOBJ;
+typedef void *HANDLE;
+typedef HANDLE HGLOBAL;
+typedef HANDLE HLOCAL;
+typedef HANDLE GLOBALHANDLE;
+typedef HANDLE LOCALHANDLE;
+typedef void *HGDIOBJ;
 
 #define DECLARE_HANDLE(name) typedef HANDLE name
-  DECLARE_HANDLE(HACCEL);
-  DECLARE_HANDLE(HBITMAP);
-  DECLARE_HANDLE(HBRUSH);
-  DECLARE_HANDLE(HCOLORSPACE);
-  DECLARE_HANDLE(HDC);
-  DECLARE_HANDLE(HGLRC);
-  DECLARE_HANDLE(HDESK);
-  DECLARE_HANDLE(HENHMETAFILE);
-  DECLARE_HANDLE(HFONT);
-  DECLARE_HANDLE(HICON);
-  DECLARE_HANDLE(HKEY);
-  typedef HKEY *PHKEY;
-  DECLARE_HANDLE(HMENU);
-  DECLARE_HANDLE(HMETAFILE);
-  DECLARE_HANDLE(HINSTANCE);
-  typedef HINSTANCE HMODULE;
-  DECLARE_HANDLE(HPALETTE);
-  DECLARE_HANDLE(HPEN);
-  DECLARE_HANDLE(HRGN);
-  DECLARE_HANDLE(HRSRC);
-  DECLARE_HANDLE(HSTR);
-  DECLARE_HANDLE(HTASK);
-  DECLARE_HANDLE(HWND);
-  DECLARE_HANDLE(HWINSTA);
-  DECLARE_HANDLE(HKL);
-  DECLARE_HANDLE(HRAWINPUT);
-  DECLARE_HANDLE(HMONITOR);
+DECLARE_HANDLE(HACCEL);
+DECLARE_HANDLE(HBITMAP);
+DECLARE_HANDLE(HBRUSH);
+DECLARE_HANDLE(HCOLORSPACE);
+DECLARE_HANDLE(HDC);
+DECLARE_HANDLE(HGLRC);
+DECLARE_HANDLE(HDESK);
+DECLARE_HANDLE(HENHMETAFILE);
+DECLARE_HANDLE(HFONT);
+DECLARE_HANDLE(HICON);
+DECLARE_HANDLE(HKEY);
+typedef HKEY *PHKEY;
+DECLARE_HANDLE(HMENU);
+DECLARE_HANDLE(HMETAFILE);
+DECLARE_HANDLE(HINSTANCE);
+typedef HINSTANCE HMODULE;
+DECLARE_HANDLE(HPALETTE);
+DECLARE_HANDLE(HPEN);
+DECLARE_HANDLE(HRGN);
+DECLARE_HANDLE(HRSRC);
+DECLARE_HANDLE(HSTR);
+DECLARE_HANDLE(HTASK);
+DECLARE_HANDLE(HWND);
+DECLARE_HANDLE(HWINSTA);
+DECLARE_HANDLE(HKL);
+DECLARE_HANDLE(HRAWINPUT);
+DECLARE_HANDLE(HMONITOR);
 #undef DECLARE_HANDLE
 
-  typedef int HFILE;
-  typedef HICON HCURSOR;
-  typedef DWORD COLORREF;
-  typedef int (WINAPI *FARPROC)();
-  typedef int (WINAPI *NEARPROC)();
-  typedef int (WINAPI *PROC)();
-  typedef LRESULT (CALLBACK *WNDPROC)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+typedef int HFILE;
+typedef HICON HCURSOR;
+typedef DWORD COLORREF;
+typedef int (WINAPI *FARPROC)();
+typedef int (WINAPI *NEARPROC)();
+typedef int (WINAPI *PROC)();
+typedef LRESULT (CALLBACK *WNDPROC)(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 #if defined(_WIN64)
-  typedef unsigned __int64 ULONG_PTR;
-  typedef signed __int64 LONG_PTR;
+typedef unsigned __int64 ULONG_PTR;
+typedef signed __int64 LONG_PTR;
 #else
-  typedef unsigned long ULONG_PTR;
-  typedef signed long LONG_PTR;
+typedef unsigned long ULONG_PTR;
+typedef signed long LONG_PTR;
 #endif
-  typedef ULONG_PTR DWORD_PTR;
+typedef ULONG_PTR DWORD_PTR;
 
-  typedef struct tagRECT {
-    LONG left;
-    LONG top;
-    LONG right;
-    LONG bottom;
-  } RECT;
-  typedef struct tagRECTL {
-    LONG left;
-    LONG top;
-    LONG right;
-    LONG bottom;
-  } RECTL;
-  typedef struct tagPOINT {
-    LONG x;
-    LONG y;
-  } POINT;
-  typedef struct tagSIZE {
-    LONG cx;
-    LONG cy;
-  } SIZE;
-  typedef struct tagPOINTS {
-    SHORT x;
-    SHORT y;
-  } POINTS;
-  typedef struct _SECURITY_ATTRIBUTES {
-    DWORD  nLength;
-    HANDLE lpSecurityDescriptor;
-    BOOL   bInheritHandle;
-  } SECURITY_ATTRIBUTES;
-  typedef enum _LOGICAL_PROCESSOR_RELATIONSHIP {
-    RelationProcessorCore,
-    RelationNumaNode,
-    RelationCache,
-    RelationProcessorPackage,
-    RelationGroup,
-    RelationAll               = 0xffff
-  } LOGICAL_PROCESSOR_RELATIONSHIP;
-  typedef enum _PROCESSOR_CACHE_TYPE {
-    CacheUnified,
-    CacheInstruction,
-    CacheData,
-    CacheTrace
-  } PROCESSOR_CACHE_TYPE;
-  typedef struct _CACHE_DESCRIPTOR {
-    BYTE                 Level;
-    BYTE                 Associativity;
-    WORD                 LineSize;
-    DWORD                Size;
-    PROCESSOR_CACHE_TYPE Type;
-  } CACHE_DESCRIPTOR;
-  typedef struct _SYSTEM_LOGICAL_PROCESSOR_INFORMATION {
-    ULONG_PTR                       ProcessorMask;
-    LOGICAL_PROCESSOR_RELATIONSHIP Relationship;
-    union {
-      struct {
-        BYTE Flags;
-      } ProcessorCore;
-      struct {
-        DWORD NodeNumber;
-      } NumaNode;
-      CACHE_DESCRIPTOR Cache;
-      ULONGLONG        Reserved[2];
-    };
-  } SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
-  typedef struct _MEMORY_BASIC_INFORMATION {
-    void *BaseAddress;
-    void *AllocationBase;
-    DWORD AllocationProtect;
-    usize RegionSize;
-    DWORD State;
-    DWORD Protect;
-    DWORD Type;
-  } MEMORY_BASIC_INFORMATION;
-  typedef struct _SYSTEM_INFO {
-    union {
-      DWORD   dwOemId;
-      struct {
-        WORD wProcessorArchitecture;
-        WORD wReserved;
-      };
-    };
-    DWORD     dwPageSize;
-    void *    lpMinimumApplicationAddress;
-    void *    lpMaximumApplicationAddress;
-    DWORD_PTR dwActiveProcessorMask;
-    DWORD     dwNumberOfProcessors;
-    DWORD     dwProcessorType;
-    DWORD     dwAllocationGranularity;
-    WORD      wProcessorLevel;
-    WORD      wProcessorRevision;
-  } SYSTEM_INFO;
-  typedef union _LARGE_INTEGER {
+typedef struct tagRECT {
+  LONG left;
+  LONG top;
+  LONG right;
+  LONG bottom;
+} RECT;
+typedef struct tagRECTL {
+  LONG left;
+  LONG top;
+  LONG right;
+  LONG bottom;
+} RECTL;
+typedef struct tagPOINT {
+  LONG x;
+  LONG y;
+} POINT;
+typedef struct tagSIZE {
+  LONG cx;
+  LONG cy;
+} SIZE;
+typedef struct tagPOINTS {
+  SHORT x;
+  SHORT y;
+} POINTS;
+typedef struct _SECURITY_ATTRIBUTES {
+  DWORD  nLength;
+  HANDLE lpSecurityDescriptor;
+  BOOL   bInheritHandle;
+} SECURITY_ATTRIBUTES;
+typedef enum _LOGICAL_PROCESSOR_RELATIONSHIP {
+  RelationProcessorCore,
+  RelationNumaNode,
+  RelationCache,
+  RelationProcessorPackage,
+  RelationGroup,
+  RelationAll               = 0xffff
+} LOGICAL_PROCESSOR_RELATIONSHIP;
+typedef enum _PROCESSOR_CACHE_TYPE {
+  CacheUnified,
+  CacheInstruction,
+  CacheData,
+  CacheTrace
+} PROCESSOR_CACHE_TYPE;
+typedef struct _CACHE_DESCRIPTOR {
+  BYTE                 Level;
+  BYTE                 Associativity;
+  WORD                 LineSize;
+  DWORD                Size;
+  PROCESSOR_CACHE_TYPE Type;
+} CACHE_DESCRIPTOR;
+typedef struct _SYSTEM_LOGICAL_PROCESSOR_INFORMATION {
+  ULONG_PTR                       ProcessorMask;
+  LOGICAL_PROCESSOR_RELATIONSHIP Relationship;
+  union {
     struct {
-      DWORD LowPart;
-      LONG  HighPart;
+      BYTE Flags;
+    } ProcessorCore;
+    struct {
+      DWORD NodeNumber;
+    } NumaNode;
+    CACHE_DESCRIPTOR Cache;
+    ULONGLONG        Reserved[2];
+  };
+} SYSTEM_LOGICAL_PROCESSOR_INFORMATION;
+typedef struct _MEMORY_BASIC_INFORMATION {
+  void *BaseAddress;
+  void *AllocationBase;
+  DWORD AllocationProtect;
+  size_t RegionSize;
+  DWORD State;
+  DWORD Protect;
+  DWORD Type;
+} MEMORY_BASIC_INFORMATION;
+typedef struct _SYSTEM_INFO {
+  union {
+    DWORD   dwOemId;
+    struct {
+      WORD wProcessorArchitecture;
+      WORD wReserved;
     };
-    struct {
-      DWORD LowPart;
-      LONG  HighPart;
-    } u;
-    LONGLONG QuadPart;
-  } LARGE_INTEGER;
-  typedef union _ULARGE_INTEGER {
-    struct {
-      DWORD LowPart;
-      DWORD HighPart;
-    };
-    struct {
-      DWORD LowPart;
-      DWORD HighPart;
-    } u;
-    ULONGLONG QuadPart;
-  } ULARGE_INTEGER;
+  };
+  DWORD     dwPageSize;
+  void *    lpMinimumApplicationAddress;
+  void *    lpMaximumApplicationAddress;
+  DWORD_PTR dwActiveProcessorMask;
+  DWORD     dwNumberOfProcessors;
+  DWORD     dwProcessorType;
+  DWORD     dwAllocationGranularity;
+  WORD      wProcessorLevel;
+  WORD      wProcessorRevision;
+} SYSTEM_INFO;
+typedef union _LARGE_INTEGER {
+  struct {
+    DWORD LowPart;
+    LONG  HighPart;
+  };
+  struct {
+    DWORD LowPart;
+    LONG  HighPart;
+  } u;
+  LONGLONG QuadPart;
+} LARGE_INTEGER;
+typedef union _ULARGE_INTEGER {
+  struct {
+    DWORD LowPart;
+    DWORD HighPart;
+  };
+  struct {
+    DWORD LowPart;
+    DWORD HighPart;
+  } u;
+  ULONGLONG QuadPart;
+} ULARGE_INTEGER;
 
-  typedef struct _OVERLAPPED {
-    ULONG_PTR Internal;
-    ULONG_PTR InternalHigh;
-    union {
-      struct {
-        DWORD Offset;
-        DWORD OffsetHigh;
-      };
-      void *Pointer;
+typedef struct _OVERLAPPED {
+  ULONG_PTR Internal;
+  ULONG_PTR InternalHigh;
+  union {
+    struct {
+      DWORD Offset;
+      DWORD OffsetHigh;
     };
-    HANDLE hEvent;
-  } OVERLAPPED;
-  typedef struct _FILETIME {
-    DWORD dwLowDateTime;
-    DWORD dwHighDateTime;
-  } FILETIME;
-  typedef struct _WIN32_FIND_DATAW {
-    DWORD    dwFileAttributes;
-    FILETIME ftCreationTime;
-    FILETIME ftLastAccessTime;
-    FILETIME ftLastWriteTime;
-    DWORD    nFileSizeHigh;
-    DWORD    nFileSizeLow;
-    DWORD    dwReserved0;
-    DWORD    dwReserved1;
-    wchar_t  cFileName[MAX_PATH];
-    wchar_t  cAlternateFileName[14];
-  } WIN32_FIND_DATAW;
-  typedef struct _WIN32_FILE_ATTRIBUTE_DATA {
-    DWORD    dwFileAttributes;
-    FILETIME ftCreationTime;
-    FILETIME ftLastAccessTime;
-    FILETIME ftLastWriteTime;
-    DWORD    nFileSizeHigh;
-    DWORD    nFileSizeLow;
-  } WIN32_FILE_ATTRIBUTE_DATA;
-  typedef enum _GET_FILEEX_INFO_LEVELS {
-    GetFileExInfoStandard,
-    GetFileExMaxInfoLevel
-  } GET_FILEEX_INFO_LEVELS;
-  typedef struct tagRAWINPUTHEADER {
-    DWORD  dwType;
-    DWORD  dwSize;
-    HANDLE hDevice;
-    WPARAM wParam;
-  } RAWINPUTHEADER;
-  typedef struct tagRAWINPUTDEVICE {
-    USHORT usUsagePage;
-    USHORT usUsage;
-    DWORD  dwFlags;
-    HWND   hwndTarget;
-  } RAWINPUTDEVICE;
-  typedef struct tagRAWMOUSE {
-    WORD usFlags;
-    union {
-      ULONG ulButtons;
-      struct {
-        WORD usButtonFlags;
-        WORD usButtonData;
-      };
+    void *Pointer;
+  };
+  HANDLE hEvent;
+} OVERLAPPED;
+typedef struct _FILETIME {
+  DWORD dwLowDateTime;
+  DWORD dwHighDateTime;
+} FILETIME;
+typedef struct _WIN32_FIND_DATAW {
+  DWORD    dwFileAttributes;
+  FILETIME ftCreationTime;
+  FILETIME ftLastAccessTime;
+  FILETIME ftLastWriteTime;
+  DWORD    nFileSizeHigh;
+  DWORD    nFileSizeLow;
+  DWORD    dwReserved0;
+  DWORD    dwReserved1;
+  wchar_t  cFileName[MAX_PATH];
+  wchar_t  cAlternateFileName[14];
+} WIN32_FIND_DATAW;
+typedef struct _WIN32_FILE_ATTRIBUTE_DATA {
+  DWORD    dwFileAttributes;
+  FILETIME ftCreationTime;
+  FILETIME ftLastAccessTime;
+  FILETIME ftLastWriteTime;
+  DWORD    nFileSizeHigh;
+  DWORD    nFileSizeLow;
+} WIN32_FILE_ATTRIBUTE_DATA;
+typedef enum _GET_FILEEX_INFO_LEVELS {
+  GetFileExInfoStandard,
+  GetFileExMaxInfoLevel
+} GET_FILEEX_INFO_LEVELS;
+typedef struct tagRAWINPUTHEADER {
+  DWORD  dwType;
+  DWORD  dwSize;
+  HANDLE hDevice;
+  WPARAM wParam;
+} RAWINPUTHEADER;
+typedef struct tagRAWINPUTDEVICE {
+  USHORT usUsagePage;
+  USHORT usUsage;
+  DWORD  dwFlags;
+  HWND   hwndTarget;
+} RAWINPUTDEVICE;
+typedef struct tagRAWMOUSE {
+  WORD usFlags;
+  union {
+    ULONG ulButtons;
+    struct {
+      WORD usButtonFlags;
+      WORD usButtonData;
     };
-    ULONG ulRawButtons;
-    LONG  lLastX;
-    LONG  lLastY;
-    ULONG ulExtraInformation;
-  } RAWMOUSE;
-  typedef struct tagRAWKEYBOARD {
-    WORD  MakeCode;
-    WORD  Flags;
-    WORD  Reserved;
-    WORD  VKey;
-    UINT  Message;
-    ULONG ExtraInformation;
-  } RAWKEYBOARD;
-  typedef struct tagRAWHID {
-    DWORD dwSizeHid;
-    DWORD dwCount;
-    BYTE  bRawData[1];
-  } RAWHID;
-  typedef struct tagRAWINPUT {
-    RAWINPUTHEADER header;
-    union {
-      RAWMOUSE    mouse;
-      RAWKEYBOARD keyboard;
-      RAWHID      hid;
-    } data;
-  } RAWINPUT;
-  typedef struct tagWNDCLASSEXW {
-    UINT           cbSize;
-    UINT           style;
-    WNDPROC        lpfnWndProc;
-    INT            cbClsExtra;
-    INT            cbWndExtra;
-    HINSTANCE      hInstance;
-    HICON          hIcon;
-    HCURSOR        hCursor;
-    HANDLE         hbrBackground;
-    wchar_t const *lpszMenuName;
-    wchar_t const *lpszClassName;
-    HICON          hIconSm;
-  } WNDCLASSEXW;
-  typedef struct _POINTL {
-    LONG x;
-    LONG y;
-  } POINTL;
-  typedef struct _devicemodew {
-    wchar_t dmDeviceName[CCHDEVICENAME];
-    WORD    dmSpecVersion;
-    WORD    dmDriverVersion;
-    WORD    dmSize;
-    WORD    dmDriverExtra;
-    DWORD   dmFields;
-    union {
-      struct {
-        short dmOrientation;
-        short dmPaperSize;
-        short dmPaperLength;
-        short dmPaperWidth;
-        short dmScale;
-        short dmCopies;
-        short dmDefaultSource;
-        short dmPrintQuality;
-      };
-      struct {
-        POINTL dmPosition;
-        DWORD  dmDisplayOrientation;
-        DWORD  dmDisplayFixedOutput;
-      };
+  };
+  ULONG ulRawButtons;
+  LONG  lLastX;
+  LONG  lLastY;
+  ULONG ulExtraInformation;
+} RAWMOUSE;
+typedef struct tagRAWKEYBOARD {
+  WORD  MakeCode;
+  WORD  Flags;
+  WORD  Reserved;
+  WORD  VKey;
+  UINT  Message;
+  ULONG ExtraInformation;
+} RAWKEYBOARD;
+typedef struct tagRAWHID {
+  DWORD dwSizeHid;
+  DWORD dwCount;
+  BYTE  bRawData[1];
+} RAWHID;
+typedef struct tagRAWINPUT {
+  RAWINPUTHEADER header;
+  union {
+    RAWMOUSE    mouse;
+    RAWKEYBOARD keyboard;
+    RAWHID      hid;
+  } data;
+} RAWINPUT;
+typedef struct tagWNDCLASSEXW {
+  UINT           cbSize;
+  UINT           style;
+  WNDPROC        lpfnWndProc;
+  INT            cbClsExtra;
+  INT            cbWndExtra;
+  HINSTANCE      hInstance;
+  HICON          hIcon;
+  HCURSOR        hCursor;
+  HANDLE         hbrBackground;
+  wchar_t const *lpszMenuName;
+  wchar_t const *lpszClassName;
+  HICON          hIconSm;
+} WNDCLASSEXW;
+typedef struct _POINTL {
+  LONG x;
+  LONG y;
+} POINTL;
+typedef struct _devicemodew {
+  wchar_t dmDeviceName[CCHDEVICENAME];
+  WORD    dmSpecVersion;
+  WORD    dmDriverVersion;
+  WORD    dmSize;
+  WORD    dmDriverExtra;
+  DWORD   dmFields;
+  union {
+    struct {
+      short dmOrientation;
+      short dmPaperSize;
+      short dmPaperLength;
+      short dmPaperWidth;
+      short dmScale;
+      short dmCopies;
+      short dmDefaultSource;
+      short dmPrintQuality;
     };
-    short   dmColor;
-    short   dmDuplex;
-    short   dmYResolution;
-    short   dmTTOption;
-    short   dmCollate;
-    wchar_t dmFormName[CCHFORMNAME];
-    WORD    dmLogPixels;
-    DWORD   dmBitsPerPel;
-    DWORD   dmPelsWidth;
-    DWORD   dmPelsHeight;
-    union {
-      DWORD dmDisplayFlags;
-      DWORD dmNup;
+    struct {
+      POINTL dmPosition;
+      DWORD  dmDisplayOrientation;
+      DWORD  dmDisplayFixedOutput;
     };
-    DWORD dmDisplayFrequency;
+  };
+  short   dmColor;
+  short   dmDuplex;
+  short   dmYResolution;
+  short   dmTTOption;
+  short   dmCollate;
+  wchar_t dmFormName[CCHFORMNAME];
+  WORD    dmLogPixels;
+  DWORD   dmBitsPerPel;
+  DWORD   dmPelsWidth;
+  DWORD   dmPelsHeight;
+  union {
+    DWORD dmDisplayFlags;
+    DWORD dmNup;
+  };
+  DWORD dmDisplayFrequency;
 #if (WINVER >= 0x0400)
-    DWORD dmICMMethod;
-    DWORD dmICMIntent;
-    DWORD dmMediaType;
-    DWORD dmDitherType;
-    DWORD dmReserved1;
-    DWORD dmReserved2;
+  DWORD dmICMMethod;
+  DWORD dmICMIntent;
+  DWORD dmMediaType;
+  DWORD dmDitherType;
+  DWORD dmReserved1;
+  DWORD dmReserved2;
 #if (WINVER >= 0x0500) || (_WIN32_WINNT >= 0x0400)
-    DWORD dmPanningWidth;
-    DWORD dmPanningHeight;
+  DWORD dmPanningWidth;
+  DWORD dmPanningHeight;
 #endif
 #endif
-  } DEVMODEW;
-  typedef struct tagPIXELFORMATDESCRIPTOR {
-    WORD  nSize;
-    WORD  nVersion;
-    DWORD dwFlags;
-    BYTE  iPixelType;
-    BYTE  cColorBits;
-    BYTE  cRedBits;
-    BYTE  cRedShift;
-    BYTE  cGreenBits;
-    BYTE  cGreenShift;
-    BYTE  cBlueBits;
-    BYTE  cBlueShift;
-    BYTE  cAlphaBits;
-    BYTE  cAlphaShift;
-    BYTE  cAccumBits;
-    BYTE  cAccumRedBits;
-    BYTE  cAccumGreenBits;
-    BYTE  cAccumBlueBits;
-    BYTE  cAccumAlphaBits;
-    BYTE  cDepthBits;
-    BYTE  cStencilBits;
-    BYTE  cAuxBuffers;
-    BYTE  iLayerType;
-    BYTE  bReserved;
-    DWORD dwLayerMask;
-    DWORD dwVisibleMask;
-    DWORD dwDamageMask;
-  } PIXELFORMATDESCRIPTOR;
-  typedef struct tagMSG {     // msg
-    HWND   hwnd;
-    UINT   message;
-    WPARAM wParam;
-    LPARAM lParam;
-    DWORD time;
-    POINT pt;
-  } MSG;
-  typedef struct tagWINDOWPLACEMENT {
-    UINT length;
-    UINT flags;
-    UINT showCmd;
-    POINT ptMinPosition;
-    POINT ptMaxPosition;
-    RECT rcNormalPosition;
-  } WINDOWPLACEMENT;
-  typedef struct tagMONITORINFO {
-    DWORD cbSize;
-    RECT  rcMonitor;
-    RECT  rcWork;
-    DWORD dwFlags;
-  } MONITORINFO;
+} DEVMODEW;
+typedef struct tagPIXELFORMATDESCRIPTOR {
+  WORD  nSize;
+  WORD  nVersion;
+  DWORD dwFlags;
+  BYTE  iPixelType;
+  BYTE  cColorBits;
+  BYTE  cRedBits;
+  BYTE  cRedShift;
+  BYTE  cGreenBits;
+  BYTE  cGreenShift;
+  BYTE  cBlueBits;
+  BYTE  cBlueShift;
+  BYTE  cAlphaBits;
+  BYTE  cAlphaShift;
+  BYTE  cAccumBits;
+  BYTE  cAccumRedBits;
+  BYTE  cAccumGreenBits;
+  BYTE  cAccumBlueBits;
+  BYTE  cAccumAlphaBits;
+  BYTE  cDepthBits;
+  BYTE  cStencilBits;
+  BYTE  cAuxBuffers;
+  BYTE  iLayerType;
+  BYTE  bReserved;
+  DWORD dwLayerMask;
+  DWORD dwVisibleMask;
+  DWORD dwDamageMask;
+} PIXELFORMATDESCRIPTOR;
+typedef struct tagMSG {     // msg
+  HWND   hwnd;
+  UINT   message;
+  WPARAM wParam;
+  LPARAM lParam;
+  DWORD time;
+  POINT pt;
+} MSG;
+typedef struct tagWINDOWPLACEMENT {
+  UINT length;
+  UINT flags;
+  UINT showCmd;
+  POINT ptMinPosition;
+  POINT ptMaxPosition;
+  RECT rcNormalPosition;
+} WINDOWPLACEMENT;
+typedef struct tagMONITORINFO {
+  DWORD cbSize;
+  RECT  rcMonitor;
+  RECT  rcWork;
+  DWORD dwFlags;
+} MONITORINFO;
 
 #define INFINITE 0xffffffffl
-#define INVALID_HANDLE_VALUE ((void *)(intptr)(-1))
+#define INVALID_HANDLE_VALUE ((void *)(intptr_t)(-1))
 
 
-  typedef DWORD WINAPI THREAD_START_ROUTINE(void *parameter);
+typedef DWORD WINAPI THREAD_START_ROUTINE(void *parameter);
 
-  GB_DLL_IMPORT DWORD   WINAPI GetLastError       (void);
-  GB_DLL_IMPORT BOOL    WINAPI CloseHandle        (HANDLE object);
-  GB_DLL_IMPORT HANDLE  WINAPI CreateSemaphoreA   (SECURITY_ATTRIBUTES *semaphore_attributes, LONG initial_count,
-                                                   LONG maximum_count, char const *name);
-  GB_DLL_IMPORT BOOL    WINAPI ReleaseSemaphore   (HANDLE semaphore, LONG release_count, LONG *previous_count);
-  GB_DLL_IMPORT DWORD   WINAPI WaitForSingleObject(HANDLE handle, DWORD milliseconds);
-  GB_DLL_IMPORT HANDLE  WINAPI CreateThread       (SECURITY_ATTRIBUTES *semaphore_attributes, usize stack_size,
-                                                   THREAD_START_ROUTINE *start_address, void *parameter,
-                                                   DWORD creation_flags, DWORD *thread_id);
-  GB_DLL_IMPORT DWORD   WINAPI GetThreadId        (HANDLE handle);
-  GB_DLL_IMPORT void    WINAPI RaiseException     (DWORD, DWORD, DWORD, ULONG_PTR const *);
+GB_DLL_IMPORT DWORD   WINAPI GetLastError       (void);
+GB_DLL_IMPORT BOOL    WINAPI CloseHandle        (HANDLE object);
+GB_DLL_IMPORT HANDLE  WINAPI CreateSemaphoreA   (SECURITY_ATTRIBUTES *semaphore_attributes, LONG initial_count,
+                                                 LONG maximum_count, char const *name);
+GB_DLL_IMPORT BOOL    WINAPI ReleaseSemaphore   (HANDLE semaphore, LONG release_count, LONG *previous_count);
+GB_DLL_IMPORT DWORD   WINAPI WaitForSingleObject(HANDLE handle, DWORD milliseconds);
+GB_DLL_IMPORT HANDLE  WINAPI CreateThread       (SECURITY_ATTRIBUTES *semaphore_attributes, size_t stack_size,
+                                                 THREAD_START_ROUTINE *start_address, void *parameter,
+                                                 DWORD creation_flags, DWORD *thread_id);
+GB_DLL_IMPORT DWORD   WINAPI GetThreadId        (HANDLE handle);
+GB_DLL_IMPORT void    WINAPI RaiseException     (DWORD, DWORD, DWORD, ULONG_PTR const *);
 
 
-  GB_DLL_IMPORT BOOL      WINAPI GetLogicalProcessorInformation(SYSTEM_LOGICAL_PROCESSOR_INFORMATION *buffer, DWORD *return_length);
-  GB_DLL_IMPORT DWORD_PTR WINAPI SetThreadAffinityMask(HANDLE thread, DWORD_PTR check_mask);
-  GB_DLL_IMPORT HANDLE    WINAPI GetCurrentThread(void);
+GB_DLL_IMPORT BOOL      WINAPI GetLogicalProcessorInformation(SYSTEM_LOGICAL_PROCESSOR_INFORMATION *buffer, DWORD *return_length);
+GB_DLL_IMPORT DWORD_PTR WINAPI SetThreadAffinityMask(HANDLE thread, DWORD_PTR check_mask);
+GB_DLL_IMPORT HANDLE    WINAPI GetCurrentThread(void);
 
 #define PAGE_NOACCESS          0x01
 #define PAGE_READONLY          0x02
@@ -775,10 +793,10 @@ extern "C++" {
 
 
 
-  GB_DLL_IMPORT void * WINAPI VirtualAlloc (void *addr, usize size, DWORD allocation_type, DWORD protect);
-  GB_DLL_IMPORT usize  WINAPI VirtualQuery (void const *address, MEMORY_BASIC_INFORMATION *buffer, usize length);
-  GB_DLL_IMPORT BOOL   WINAPI VirtualFree  (void *address, usize size, DWORD free_type);
-  GB_DLL_IMPORT void   WINAPI GetSystemInfo(SYSTEM_INFO *system_info);
+GB_DLL_IMPORT void * WINAPI VirtualAlloc (void *addr, size_t size, DWORD allocation_type, DWORD protect);
+GB_DLL_IMPORT size_t  WINAPI VirtualQuery (void const *address, MEMORY_BASIC_INFORMATION *buffer, size_t length);
+GB_DLL_IMPORT BOOL   WINAPI VirtualFree  (void *address, size_t size, DWORD free_type);
+GB_DLL_IMPORT void   WINAPI GetSystemInfo(SYSTEM_INFO *system_info);
 
 
 #ifndef VK_UNKNOWN
@@ -865,7 +883,7 @@ extern "C++" {
 #define VK_RWIN 0x5C // Right Windows key (Natural keyboard)
 #define VK_APPS 0x5D // Applications key (Natural keyboard)
 #define VK_SLEEP 0x5F // Computer Sleep key
-  // Num pad keys
+// Num pad keys
 #define VK_NUMPAD0 0x60
 #define VK_NUMPAD1 0x61
 #define VK_NUMPAD2 0x62
@@ -984,33 +1002,33 @@ extern "C++" {
 #define STD_OUTPUT_HANDLE        ((DWORD)-11)
 #define STD_ERROR_HANDLE         ((DWORD)-12)
 
-  GB_DLL_IMPORT BOOL   WINAPI SetFilePointerEx(HANDLE file, LARGE_INTEGER distance_to_move,
-                                               LARGE_INTEGER *new_file_pointer, DWORD move_method);
-  GB_DLL_IMPORT BOOL   WINAPI ReadFile        (HANDLE file, void *buffer, DWORD bytes_to_read, DWORD *bytes_read, OVERLAPPED *overlapped);
-  GB_DLL_IMPORT BOOL   WINAPI WriteFile       (HANDLE file, void const *buffer, DWORD bytes_to_write, DWORD *bytes_written, OVERLAPPED *overlapped);
-  GB_DLL_IMPORT HANDLE WINAPI CreateFileW     (wchar_t const *path, DWORD desired_access, DWORD share_mode,
-                                               SECURITY_ATTRIBUTES *, DWORD creation_disposition,
-                                               DWORD flags_and_attributes, HANDLE template_file);
-  GB_DLL_IMPORT HANDLE WINAPI GetStdHandle    (DWORD std_handle);
-  GB_DLL_IMPORT BOOL   WINAPI GetFileSizeEx   (HANDLE file, LARGE_INTEGER *size);
-  GB_DLL_IMPORT BOOL   WINAPI SetEndOfFile    (HANDLE file);
-  GB_DLL_IMPORT HANDLE WINAPI FindFirstFileW  (wchar_t const *path, WIN32_FIND_DATAW *data);
-  GB_DLL_IMPORT BOOL   WINAPI FindClose       (HANDLE find_file);
-  GB_DLL_IMPORT BOOL   WINAPI GetFileAttributesExW(wchar_t const *path, GET_FILEEX_INFO_LEVELS info_level_id, WIN32_FILE_ATTRIBUTE_DATA *data);
-  GB_DLL_IMPORT BOOL   WINAPI CopyFileW(wchar_t const *old_f, wchar_t const *new_f, BOOL fail_if_exists);
-  GB_DLL_IMPORT BOOL   WINAPI MoveFileW(wchar_t const *old_f, wchar_t const *new_f);
+GB_DLL_IMPORT BOOL   WINAPI SetFilePointerEx(HANDLE file, LARGE_INTEGER distance_to_move,
+                                             LARGE_INTEGER *new_file_pointer, DWORD move_method);
+GB_DLL_IMPORT BOOL   WINAPI ReadFile        (HANDLE file, void *buffer, DWORD bytes_to_read, DWORD *bytes_read, OVERLAPPED *overlapped);
+GB_DLL_IMPORT BOOL   WINAPI WriteFile       (HANDLE file, void const *buffer, DWORD bytes_to_write, DWORD *bytes_written, OVERLAPPED *overlapped);
+GB_DLL_IMPORT HANDLE WINAPI CreateFileW     (wchar_t const *path, DWORD desired_access, DWORD share_mode,
+                                             SECURITY_ATTRIBUTES *, DWORD creation_disposition,
+                                             DWORD flags_and_attributes, HANDLE template_file);
+GB_DLL_IMPORT HANDLE WINAPI GetStdHandle    (DWORD std_handle);
+GB_DLL_IMPORT BOOL   WINAPI GetFileSizeEx   (HANDLE file, LARGE_INTEGER *size);
+GB_DLL_IMPORT BOOL   WINAPI SetEndOfFile    (HANDLE file);
+GB_DLL_IMPORT HANDLE WINAPI FindFirstFileW  (wchar_t const *path, WIN32_FIND_DATAW *data);
+GB_DLL_IMPORT BOOL   WINAPI FindClose       (HANDLE find_file);
+GB_DLL_IMPORT BOOL   WINAPI GetFileAttributesExW(wchar_t const *path, GET_FILEEX_INFO_LEVELS info_level_id, WIN32_FILE_ATTRIBUTE_DATA *data);
+GB_DLL_IMPORT BOOL   WINAPI CopyFileW(wchar_t const *old_f, wchar_t const *new_f, BOOL fail_if_exists);
+GB_DLL_IMPORT BOOL   WINAPI MoveFileW(wchar_t const *old_f, wchar_t const *new_f);
 
-  GB_DLL_IMPORT HMODULE WINAPI LoadLibraryA  (char const *filename);
-  GB_DLL_IMPORT BOOL    WINAPI FreeLibrary   (HMODULE module);
-  GB_DLL_IMPORT FARPROC WINAPI GetProcAddress(HMODULE module, char const *name);
+GB_DLL_IMPORT HMODULE WINAPI LoadLibraryA  (char const *filename);
+GB_DLL_IMPORT BOOL    WINAPI FreeLibrary   (HMODULE module);
+GB_DLL_IMPORT FARPROC WINAPI GetProcAddress(HMODULE module, char const *name);
 
-  GB_DLL_IMPORT BOOL WINAPI QueryPerformanceFrequency(LARGE_INTEGER *frequency);
-  GB_DLL_IMPORT BOOL WINAPI QueryPerformanceCounter  (LARGE_INTEGER *counter);
-  GB_DLL_IMPORT void WINAPI GetSystemTimeAsFileTime  (FILETIME *system_time_as_file_time);
-  GB_DLL_IMPORT void WINAPI Sleep(DWORD milliseconds);
-  GB_DLL_IMPORT void WINAPI ExitProcess(UINT exit_code);
+GB_DLL_IMPORT BOOL WINAPI QueryPerformanceFrequency(LARGE_INTEGER *frequency);
+GB_DLL_IMPORT BOOL WINAPI QueryPerformanceCounter  (LARGE_INTEGER *counter);
+GB_DLL_IMPORT void WINAPI GetSystemTimeAsFileTime  (FILETIME *system_time_as_file_time);
+GB_DLL_IMPORT void WINAPI Sleep(DWORD milliseconds);
+GB_DLL_IMPORT void WINAPI ExitProcess(UINT exit_code);
 
-  GB_DLL_IMPORT BOOL WINAPI SetEnvironmentVariableA(char const *name, char const *value);
+GB_DLL_IMPORT BOOL WINAPI SetEnvironmentVariableA(char const *name, char const *value);
 
 
 #define WM_NULL                   0x0000
@@ -1117,9 +1135,9 @@ extern "C++" {
 #define MAPVK_VK_TO_CHAR   2
 #define MAPVK_VSC_TO_VK_EX 3
 
-  GB_DLL_IMPORT BOOL WINAPI RegisterRawInputDevices(RAWINPUTDEVICE const *raw_input_devices, UINT num_devices, UINT size);
-  GB_DLL_IMPORT UINT WINAPI GetRawInputData(HRAWINPUT raw_input, UINT ui_command, void *data, UINT *size, UINT size_header);
-  GB_DLL_IMPORT UINT WINAPI MapVirtualKeyW(UINT code, UINT map_type);
+GB_DLL_IMPORT BOOL WINAPI RegisterRawInputDevices(RAWINPUTDEVICE const *raw_input_devices, UINT num_devices, UINT size);
+GB_DLL_IMPORT UINT WINAPI GetRawInputData(HRAWINPUT raw_input, UINT ui_command, void *data, UINT *size, UINT size_header);
+GB_DLL_IMPORT UINT WINAPI MapVirtualKeyW(UINT code, UINT map_type);
 
 
 #define CS_DBLCLKS 		0x0008
@@ -1132,11 +1150,11 @@ extern "C++" {
 #define MB_HELP            0x4000l
 #define MB_ICONEXCLAMATION 0x0030l
 
-  GB_DLL_IMPORT LRESULT WINAPI DefWindowProcW(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam);
-  GB_DLL_IMPORT HGDIOBJ WINAPI GetStockObject(int object);
-  GB_DLL_IMPORT HMODULE WINAPI GetModuleHandleW(wchar_t const *);
-  GB_DLL_IMPORT ATOM    WINAPI RegisterClassExW(WNDCLASSEXW const *wcx); // u16 == ATOM
-  GB_DLL_IMPORT int     WINAPI MessageBoxW(void *wnd, wchar_t const *text, wchar_t const *caption, unsigned int type);
+GB_DLL_IMPORT LRESULT WINAPI DefWindowProcW(HWND wnd, UINT msg, WPARAM wParam, LPARAM lParam);
+GB_DLL_IMPORT HGDIOBJ WINAPI GetStockObject(int object);
+GB_DLL_IMPORT HMODULE WINAPI GetModuleHandleW(wchar_t const *);
+GB_DLL_IMPORT ATOM    WINAPI RegisterClassExW(WNDCLASSEXW const *wcx); // uint16_t == ATOM
+GB_DLL_IMPORT int     WINAPI MessageBoxW(void *wnd, wchar_t const *text, wchar_t const *caption, unsigned int type);
 
 
 #define DM_BITSPERPEL 0x00040000l
@@ -1196,32 +1214,32 @@ extern "C++" {
 #define ENUM_CURRENT_SETTINGS  cast(DWORD)-1
 #define ENUM_REGISTRY_SETTINGS cast(DWORD)-2
 
-  GB_DLL_IMPORT LONG    WINAPI ChangeDisplaySettingsW(DEVMODEW *dev_mode, DWORD flags);
-  GB_DLL_IMPORT BOOL    WINAPI AdjustWindowRect(RECT *rect, DWORD style, BOOL enu);
-  GB_DLL_IMPORT HWND    WINAPI CreateWindowExW(DWORD ex_style, wchar_t const *class_name, wchar_t const *window_name,
-                                               DWORD style, int x, int y, int width, int height, HWND wnd_parent,
-                                               HMENU menu, HINSTANCE instance, void *param);
-  GB_DLL_IMPORT HMODULE  WINAPI GetModuleHandleW(wchar_t const *);
-  GB_DLL_IMPORT HDC             GetDC(HANDLE);
-  GB_DLL_IMPORT BOOL     WINAPI GetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl);
-  GB_DLL_IMPORT BOOL            GetMonitorInfoW(HMONITOR hMonitor, MONITORINFO *lpmi);
-  GB_DLL_IMPORT HMONITOR        MonitorFromWindow(HWND hwnd, DWORD dwFlags);
-  GB_DLL_IMPORT LONG     WINAPI SetWindowLongW(HWND hWnd, int nIndex, LONG dwNewLong);
-  GB_DLL_IMPORT BOOL     WINAPI SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
-  GB_DLL_IMPORT BOOL     WINAPI SetWindowPlacement(HWND hWnd, WINDOWPLACEMENT const *lpwndpl);
-  GB_DLL_IMPORT BOOL     WINAPI ShowWindow(HWND hWnd, int nCmdShow);
-  GB_DLL_IMPORT LONG_PTR WINAPI GetWindowLongPtrW(HWND wnd, int index);
+GB_DLL_IMPORT LONG    WINAPI ChangeDisplaySettingsW(DEVMODEW *dev_mode, DWORD flags);
+GB_DLL_IMPORT BOOL    WINAPI AdjustWindowRect(RECT *rect, DWORD style, BOOL enu);
+GB_DLL_IMPORT HWND    WINAPI CreateWindowExW(DWORD ex_style, wchar_t const *class_name, wchar_t const *window_name,
+                                             DWORD style, int x, int y, int width, int height, HWND wnd_parent,
+                                             HMENU menu, HINSTANCE instance, void *param);
+GB_DLL_IMPORT HMODULE  WINAPI GetModuleHandleW(wchar_t const *);
+GB_DLL_IMPORT HDC             GetDC(HANDLE);
+GB_DLL_IMPORT BOOL     WINAPI GetWindowPlacement(HWND hWnd, WINDOWPLACEMENT *lpwndpl);
+GB_DLL_IMPORT BOOL            GetMonitorInfoW(HMONITOR hMonitor, MONITORINFO *lpmi);
+GB_DLL_IMPORT HMONITOR        MonitorFromWindow(HWND hwnd, DWORD dwFlags);
+GB_DLL_IMPORT LONG     WINAPI SetWindowLongW(HWND hWnd, int nIndex, LONG dwNewLong);
+GB_DLL_IMPORT BOOL     WINAPI SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, UINT uFlags);
+GB_DLL_IMPORT BOOL     WINAPI SetWindowPlacement(HWND hWnd, WINDOWPLACEMENT const *lpwndpl);
+GB_DLL_IMPORT BOOL     WINAPI ShowWindow(HWND hWnd, int nCmdShow);
+GB_DLL_IMPORT LONG_PTR WINAPI GetWindowLongPtrW(HWND wnd, int index);
 
-  GB_DLL_IMPORT BOOL           EnumDisplaySettingsW(wchar_t const *lpszDeviceName, DWORD iModeNum, DEVMODEW *lpDevMode);
-  GB_DLL_IMPORT void *  WINAPI GlobalLock(HGLOBAL hMem);
-  GB_DLL_IMPORT BOOL    WINAPI GlobalUnlock(HGLOBAL hMem);
-  GB_DLL_IMPORT HGLOBAL WINAPI GlobalAlloc(UINT uFlags, usize dwBytes);
-  GB_DLL_IMPORT HANDLE  WINAPI GetClipboardData(UINT uFormat);
-  GB_DLL_IMPORT BOOL    WINAPI IsClipboardFormatAvailable(UINT format);
-  GB_DLL_IMPORT BOOL    WINAPI OpenClipboard(HWND hWndNewOwner);
-  GB_DLL_IMPORT BOOL    WINAPI EmptyClipboard(void);
-  GB_DLL_IMPORT BOOL    WINAPI CloseClipboard(void);
-  GB_DLL_IMPORT HANDLE  WINAPI SetClipboardData(UINT uFormat, HANDLE hMem);
+GB_DLL_IMPORT BOOL           EnumDisplaySettingsW(wchar_t const *lpszDeviceName, DWORD iModeNum, DEVMODEW *lpDevMode);
+GB_DLL_IMPORT void *  WINAPI GlobalLock(HGLOBAL hMem);
+GB_DLL_IMPORT BOOL    WINAPI GlobalUnlock(HGLOBAL hMem);
+GB_DLL_IMPORT HGLOBAL WINAPI GlobalAlloc(UINT uFlags, size_t dwBytes);
+GB_DLL_IMPORT HANDLE  WINAPI GetClipboardData(UINT uFormat);
+GB_DLL_IMPORT BOOL    WINAPI IsClipboardFormatAvailable(UINT format);
+GB_DLL_IMPORT BOOL    WINAPI OpenClipboard(HWND hWndNewOwner);
+GB_DLL_IMPORT BOOL    WINAPI EmptyClipboard(void);
+GB_DLL_IMPORT BOOL    WINAPI CloseClipboard(void);
+GB_DLL_IMPORT HANDLE  WINAPI SetClipboardData(UINT uFormat, HANDLE hMem);
 
 #define PFD_TYPE_RGBA             0
 #define PFD_TYPE_COLORINDEX       1
@@ -1250,28 +1268,28 @@ extern "C++" {
 #define GWL_ID    -12
 #define GWL_STYLE -16
 
-  GB_DLL_IMPORT BOOL  WINAPI SetPixelFormat   (HDC hdc, int pixel_format, PIXELFORMATDESCRIPTOR const *pfd);
-  GB_DLL_IMPORT int   WINAPI ChoosePixelFormat(HDC hdc, PIXELFORMATDESCRIPTOR const *pfd);
-  GB_DLL_IMPORT HGLRC WINAPI wglCreateContext (HDC hdc);
-  GB_DLL_IMPORT BOOL  WINAPI wglMakeCurrent   (HDC hdc, HGLRC hglrc);
-  GB_DLL_IMPORT PROC  WINAPI wglGetProcAddress(char const *str);
-  GB_DLL_IMPORT BOOL  WINAPI wglDeleteContext (HGLRC hglrc);
+GB_DLL_IMPORT BOOL  WINAPI SetPixelFormat   (HDC hdc, int pixel_format, PIXELFORMATDESCRIPTOR const *pfd);
+GB_DLL_IMPORT int   WINAPI ChoosePixelFormat(HDC hdc, PIXELFORMATDESCRIPTOR const *pfd);
+GB_DLL_IMPORT HGLRC WINAPI wglCreateContext (HDC hdc);
+GB_DLL_IMPORT BOOL  WINAPI wglMakeCurrent   (HDC hdc, HGLRC hglrc);
+GB_DLL_IMPORT PROC  WINAPI wglGetProcAddress(char const *str);
+GB_DLL_IMPORT BOOL  WINAPI wglDeleteContext (HGLRC hglrc);
 
-  GB_DLL_IMPORT BOOL     WINAPI SetForegroundWindow(HWND hWnd);
-  GB_DLL_IMPORT HWND     WINAPI SetFocus(HWND hWnd);
-  GB_DLL_IMPORT LONG_PTR WINAPI SetWindowLongPtrW(HWND hWnd, int nIndex, LONG_PTR dwNewLong);
-  GB_DLL_IMPORT BOOL     WINAPI GetClientRect(HWND hWnd, RECT *lpRect);
-  GB_DLL_IMPORT BOOL     WINAPI IsIconic(HWND hWnd);
-  GB_DLL_IMPORT HWND     WINAPI GetFocus(void);
-  GB_DLL_IMPORT int      WINAPI ShowCursor(BOOL bShow);
-  GB_DLL_IMPORT SHORT    WINAPI GetAsyncKeyState(int key);
-  GB_DLL_IMPORT BOOL     WINAPI GetCursorPos(POINT *lpPoint);
-  GB_DLL_IMPORT BOOL     WINAPI SetCursorPos(int x, int y);
-  GB_DLL_IMPORT BOOL            ScreenToClient(HWND hWnd, POINT *lpPoint);
-  GB_DLL_IMPORT BOOL            ClientToScreen(HWND hWnd, POINT *lpPoint);
-  GB_DLL_IMPORT BOOL     WINAPI MoveWindow(HWND hWnd, int X, int Y, int nWidth, int nHeight, BOOL bRepaint);
-  GB_DLL_IMPORT BOOL     WINAPI SetWindowTextW(HWND hWnd, wchar_t const *lpString);
-  GB_DLL_IMPORT DWORD    WINAPI GetWindowLongW(HWND hWnd, int nIndex);
+GB_DLL_IMPORT BOOL     WINAPI SetForegroundWindow(HWND hWnd);
+GB_DLL_IMPORT HWND     WINAPI SetFocus(HWND hWnd);
+GB_DLL_IMPORT LONG_PTR WINAPI SetWindowLongPtrW(HWND hWnd, int nIndex, LONG_PTR dwNewLong);
+GB_DLL_IMPORT BOOL     WINAPI GetClientRect(HWND hWnd, RECT *lpRect);
+GB_DLL_IMPORT BOOL     WINAPI IsIconic(HWND hWnd);
+GB_DLL_IMPORT HWND     WINAPI GetFocus(void);
+GB_DLL_IMPORT int      WINAPI ShowCursor(BOOL bShow);
+GB_DLL_IMPORT SHORT    WINAPI GetAsyncKeyState(int key);
+GB_DLL_IMPORT BOOL     WINAPI GetCursorPos(POINT *lpPoint);
+GB_DLL_IMPORT BOOL     WINAPI SetCursorPos(int x, int y);
+GB_DLL_IMPORT BOOL            ScreenToClient(HWND hWnd, POINT *lpPoint);
+GB_DLL_IMPORT BOOL            ClientToScreen(HWND hWnd, POINT *lpPoint);
+GB_DLL_IMPORT BOOL     WINAPI MoveWindow(HWND hWnd, int X, int Y, int nWidth, int nHeight, BOOL bRepaint);
+GB_DLL_IMPORT BOOL     WINAPI SetWindowTextW(HWND hWnd, wchar_t const *lpString);
+GB_DLL_IMPORT DWORD    WINAPI GetWindowLongW(HWND hWnd, int nIndex);
 
 
 
@@ -1279,39 +1297,39 @@ extern "C++" {
 #define PM_NOREMOVE 0
 #define PM_REMOVE   1
 
-  GB_DLL_IMPORT BOOL    WINAPI PeekMessageW(MSG *lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg);
-  GB_DLL_IMPORT BOOL    WINAPI TranslateMessage(MSG const *lpMsg);
-  GB_DLL_IMPORT LRESULT WINAPI DispatchMessageW(MSG const *lpMsg);
+GB_DLL_IMPORT BOOL    WINAPI PeekMessageW(MSG *lpMsg, HWND hWnd, UINT wMsgFilterMin, UINT wMsgFilterMax, UINT wRemoveMsg);
+GB_DLL_IMPORT BOOL    WINAPI TranslateMessage(MSG const *lpMsg);
+GB_DLL_IMPORT LRESULT WINAPI DispatchMessageW(MSG const *lpMsg);
 
-  typedef  enum
-  {
-    DIB_RGB_COLORS  = 0x00,
-    DIB_PAL_COLORS  = 0x01,
-    DIB_PAL_INDICES = 0x02
-  } DIBColors;
+typedef  enum
+{
+  DIB_RGB_COLORS  = 0x00,
+  DIB_PAL_COLORS  = 0x01,
+  DIB_PAL_INDICES = 0x02
+} DIBColors;
 
-#define SRCCOPY     (u32)0x00CC0020
-#define SRCPAINT    (u32)0x00EE0086
-#define SRCAND      (u32)0x008800C6
-#define SRCINVERT   (u32)0x00660046
-#define SRCERASE    (u32)0x00440328
-#define NOTSRCCOPY  (u32)0x00330008
-#define NOTSRCERASE (u32)0x001100A6
-#define MERGECOPY   (u32)0x00C000CA
-#define MERGEPAINT  (u32)0x00BB0226
-#define PATCOPY     (u32)0x00F00021
-#define PATPAINT    (u32)0x00FB0A09
-#define PATINVERT   (u32)0x005A0049
-#define DSTINVERT   (u32)0x00550009
-#define BLACKNESS   (u32)0x00000042
-#define WHITENESS   (u32)0x00FF0062
+#define SRCCOPY     (uint32_t)0x00CC0020
+#define SRCPAINT    (uint32_t)0x00EE0086
+#define SRCAND      (uint32_t)0x008800C6
+#define SRCINVERT   (uint32_t)0x00660046
+#define SRCERASE    (uint32_t)0x00440328
+#define NOTSRCCOPY  (uint32_t)0x00330008
+#define NOTSRCERASE (uint32_t)0x001100A6
+#define MERGECOPY   (uint32_t)0x00C000CA
+#define MERGEPAINT  (uint32_t)0x00BB0226
+#define PATCOPY     (uint32_t)0x00F00021
+#define PATPAINT    (uint32_t)0x00FB0A09
+#define PATINVERT   (uint32_t)0x005A0049
+#define DSTINVERT   (uint32_t)0x00550009
+#define BLACKNESS   (uint32_t)0x00000042
+#define WHITENESS   (uint32_t)0x00FF0062
 
-  GB_DLL_IMPORT BOOL WINAPI SwapBuffers(HDC hdc);
-  GB_DLL_IMPORT BOOL WINAPI DestroyWindow(HWND hWnd);
-  GB_DLL_IMPORT int         StretchDIBits(HDC hdc, int XDest, int YDest, int nDestWidth, int nDestHeight,
-                                          int XSrc, int YSrc, int nSrcWidth, int nSrcHeight,
-                                          void const *lpBits, /*BITMAPINFO*/void const *lpBitsInfo, UINT iUsage, DWORD dwRop);
-                                          // IMPORTANT TODO(bill): FIX THIS!!!!
+GB_DLL_IMPORT BOOL WINAPI SwapBuffers(HDC hdc);
+GB_DLL_IMPORT BOOL WINAPI DestroyWindow(HWND hWnd);
+GB_DLL_IMPORT int         StretchDIBits(HDC hdc, int XDest, int YDest, int nDestWidth, int nDestHeight,
+                                        int XSrc, int YSrc, int nSrcWidth, int nSrcHeight,
+                                        void const *lpBits, /*BITMAPINFO*/void const *lpBitsInfo, UINT iUsage, DWORD dwRop);
+                                        // IMPORTANT TODO(bill): FIX THIS!!!!
 #endif // Bill's Mini Windows.h
 
 //

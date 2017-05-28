@@ -36,31 +36,31 @@
 // IMPORTANT TODO(bill): Use compiler intrinsics for the atomics
 
 #if defined(GB_COMPILER_MSVC) && !defined(GB_COMPILER_CLANG)
-gb_inline i32  gb_atomic32_load (gbAtomic32 const volatile *a)      { return a->value;  }
-gb_inline void gb_atomic32_store(gbAtomic32 volatile *a, i32 value) { a->value = value; }
+gb_inline int32_t  gb_atomic32_load (gbAtomic32 const volatile *a)      { return a->value;  }
+gb_inline void gb_atomic32_store(gbAtomic32 volatile *a, int32_t value) { a->value = value; }
 
-gb_inline i32 gb_atomic32_compare_exchange(gbAtomic32 volatile *a, i32 expected, i32 desired) {
+gb_inline int32_t gb_atomic32_compare_exchange(gbAtomic32 volatile *a, int32_t expected, int32_t desired) {
   return _InterlockedCompareExchange(cast(long volatile *)a, desired, expected);
 }
-gb_inline i32 gb_atomic32_exchanged(gbAtomic32 volatile *a, i32 desired) {
+gb_inline int32_t gb_atomic32_exchanged(gbAtomic32 volatile *a, int32_t desired) {
   return _InterlockedExchange(cast(long volatile *)a, desired);
 }
-gb_inline i32 gb_atomic32_fetch_add(gbAtomic32 volatile *a, i32 operand) {
+gb_inline int32_t gb_atomic32_fetch_add(gbAtomic32 volatile *a, int32_t operand) {
   return _InterlockedExchangeAdd(cast(long volatile *)a, operand);
 }
-gb_inline i32 gb_atomic32_fetch_and(gbAtomic32 volatile *a, i32 operand) {
+gb_inline int32_t gb_atomic32_fetch_and(gbAtomic32 volatile *a, int32_t operand) {
   return _InterlockedAnd(cast(long volatile *)a, operand);
 }
-gb_inline i32 gb_atomic32_fetch_or(gbAtomic32 volatile *a, i32 operand) {
+gb_inline int32_t gb_atomic32_fetch_or(gbAtomic32 volatile *a, int32_t operand) {
   return _InterlockedOr(cast(long volatile *)a, operand);
 }
 
-gb_inline i64 gb_atomic64_load(gbAtomic64 const volatile *a) {
+gb_inline int64_t gb_atomic64_load(gbAtomic64 const volatile *a) {
 #if defined(GB_ARCH_64_BIT)
   return a->value;
 #elif GB_CPU_X86
   // NOTE(bill): The most compatible way to get an atomic 64-bit load on x86 is with cmpxchg8b
-  i64 result;
+  int64_t result;
   __asm {
     mov esi, a;
     mov ebx, eax;
@@ -75,7 +75,7 @@ gb_inline i64 gb_atomic64_load(gbAtomic64 const volatile *a) {
 #endif
 }
 
-gb_inline void gb_atomic64_store(gbAtomic64 volatile *a, i64 value) {
+gb_inline void gb_atomic64_store(gbAtomic64 volatile *a, int64_t value) {
 #if defined(GB_ARCH_64_BIT)
   a->value = value;
 #elif GB_CPU_X86
@@ -93,17 +93,17 @@ gb_inline void gb_atomic64_store(gbAtomic64 volatile *a, i64 value) {
 #endif
 }
 
-gb_inline i64 gb_atomic64_compare_exchange(gbAtomic64 volatile *a, i64 expected, i64 desired) {
-  return _InterlockedCompareExchange64(cast(i64 volatile *)a, desired, expected);
+gb_inline int64_t gb_atomic64_compare_exchange(gbAtomic64 volatile *a, int64_t expected, int64_t desired) {
+  return _InterlockedCompareExchange64(cast(int64_t volatile *)a, desired, expected);
 }
 
-gb_inline i64 gb_atomic64_exchanged(gbAtomic64 volatile *a, i64 desired) {
+gb_inline int64_t gb_atomic64_exchanged(gbAtomic64 volatile *a, int64_t desired) {
 #if defined(GB_ARCH_64_BIT)
-  return _InterlockedExchange64(cast(i64 volatile *)a, desired);
+  return _InterlockedExchange64(cast(int64_t volatile *)a, desired);
 #elif GB_CPU_X86
-  i64 expected = a->value;
+  int64_t expected = a->value;
   for (;;) {
-    i64 original = _InterlockedCompareExchange64(cast(i64 volatile *)a, desired, expected);
+    int64_t original = _InterlockedCompareExchange64(cast(int64_t volatile *)a, desired, expected);
     if (original == expected)
       return original;
     expected = original;
@@ -113,13 +113,13 @@ gb_inline i64 gb_atomic64_exchanged(gbAtomic64 volatile *a, i64 desired) {
 #endif
 }
 
-gb_inline i64 gb_atomic64_fetch_add(gbAtomic64 volatile *a, i64 operand) {
+gb_inline int64_t gb_atomic64_fetch_add(gbAtomic64 volatile *a, int64_t operand) {
 #if defined(GB_ARCH_64_BIT)
-  return _InterlockedExchangeAdd64(cast(i64 volatile *)a, operand);
+  return _InterlockedExchangeAdd64(cast(int64_t volatile *)a, operand);
 #elif GB_CPU_X86
-  i64 expected = a->value;
+  int64_t expected = a->value;
   for (;;) {
-    i64 original = _InterlockedCompareExchange64(cast(i64 volatile *)a, expected + operand, expected);
+    int64_t original = _InterlockedCompareExchange64(cast(int64_t volatile *)a, expected + operand, expected);
     if (original == expected)
       return original;
     expected = original;
@@ -129,13 +129,13 @@ gb_inline i64 gb_atomic64_fetch_add(gbAtomic64 volatile *a, i64 operand) {
 #endif
 }
 
-gb_inline i64 gb_atomic64_fetch_and(gbAtomic64 volatile *a, i64 operand) {
+gb_inline int64_t gb_atomic64_fetch_and(gbAtomic64 volatile *a, int64_t operand) {
 #if defined(GB_ARCH_64_BIT)
-  return _InterlockedAnd64(cast(i64 volatile *)a, operand);
+  return _InterlockedAnd64(cast(int64_t volatile *)a, operand);
 #elif GB_CPU_X86
-  i64 expected = a->value;
+  int64_t expected = a->value;
   for (;;) {
-    i64 original = _InterlockedCompareExchange64(cast(i64 volatile *)a, expected & operand, expected);
+    int64_t original = _InterlockedCompareExchange64(cast(int64_t volatile *)a, expected & operand, expected);
     if (original == expected)
       return original;
     expected = original;
@@ -145,13 +145,13 @@ gb_inline i64 gb_atomic64_fetch_and(gbAtomic64 volatile *a, i64 operand) {
 #endif
 }
 
-gb_inline i64 gb_atomic64_fetch_or(gbAtomic64 volatile *a, i64 operand) {
+gb_inline int64_t gb_atomic64_fetch_or(gbAtomic64 volatile *a, int64_t operand) {
 #if defined(GB_ARCH_64_BIT)
-  return _InterlockedOr64(cast(i64 volatile *)a, operand);
+  return _InterlockedOr64(cast(int64_t volatile *)a, operand);
 #elif GB_CPU_X86
-  i64 expected = a->value;
+  int64_t expected = a->value;
   for (;;) {
-    i64 original = _InterlockedCompareExchange64(cast(i64 volatile *)a, expected | operand, expected);
+    int64_t original = _InterlockedCompareExchange64(cast(int64_t volatile *)a, expected | operand, expected);
     if (original == expected)
       return original;
     expected = original;
@@ -165,12 +165,12 @@ gb_inline i64 gb_atomic64_fetch_or(gbAtomic64 volatile *a, i64 operand) {
 
 #elif defined(GB_CPU_X86)
 
-gb_inline i32 gb_atomic32_load(gbAtomic32 const volatile *a) { return a->value; }
+gb_inline int32_t gb_atomic32_load(gbAtomic32 const volatile *a) { return a->value; }
 
-gb_inline void gb_atomic32_store(gbAtomic32 volatile *a, i32 value) { a->value = value; }
+gb_inline void gb_atomic32_store(gbAtomic32 volatile *a, int32_t value) { a->value = value; }
 
-gb_inline i32 gb_atomic32_compare_exchange(gbAtomic32 volatile *a, i32 expected, i32 desired) {
-  i32 original;
+gb_inline int32_t gb_atomic32_compare_exchange(gbAtomic32 volatile *a, int32_t expected, int32_t desired) {
+  int32_t original;
   __asm__ volatile(
   "lock; cmpxchgl %2, %1"
   : "=a"(original), "+m"(a->value)
@@ -179,9 +179,9 @@ gb_inline i32 gb_atomic32_compare_exchange(gbAtomic32 volatile *a, i32 expected,
   return original;
 }
 
-gb_inline i32 gb_atomic32_exchanged(gbAtomic32 volatile *a, i32 desired) {
+gb_inline int32_t gb_atomic32_exchanged(gbAtomic32 volatile *a, int32_t desired) {
   // NOTE(bill): No lock prefix is necessary for xchgl
-  i32 original;
+  int32_t original;
   __asm__ volatile(
   "xchgl %0, %1"
   : "=r"(original), "+m"(a->value)
@@ -190,8 +190,8 @@ gb_inline i32 gb_atomic32_exchanged(gbAtomic32 volatile *a, i32 desired) {
   return original;
 }
 
-gb_inline i32 gb_atomic32_fetch_add(gbAtomic32 volatile *a, i32 operand) {
-  i32 original;
+gb_inline int32_t gb_atomic32_fetch_add(gbAtomic32 volatile *a, int32_t operand) {
+  int32_t original;
   __asm__ volatile(
   "lock; xaddl %0, %1"
   : "=r"(original), "+m"(a->value)
@@ -200,9 +200,9 @@ gb_inline i32 gb_atomic32_fetch_add(gbAtomic32 volatile *a, i32 operand) {
   return original;
 }
 
-gb_inline i32 gb_atomic32_fetch_and(gbAtomic32 volatile *a, i32 operand) {
-  i32 original;
-  i32 tmp;
+gb_inline int32_t gb_atomic32_fetch_and(gbAtomic32 volatile *a, int32_t operand) {
+  int32_t original;
+  int32_t tmp;
   __asm__ volatile(
   "1:     movl    %1, %0\n"
     "       movl    %0, %2\n"
@@ -215,9 +215,9 @@ gb_inline i32 gb_atomic32_fetch_and(gbAtomic32 volatile *a, i32 operand) {
   return original;
 }
 
-gb_inline i32 gb_atomic32_fetch_or(gbAtomic32 volatile *a, i32 operand) {
-  i32 original;
-  i32 temp;
+gb_inline int32_t gb_atomic32_fetch_or(gbAtomic32 volatile *a, int32_t operand) {
+  int32_t original;
+  int32_t temp;
   __asm__ volatile(
   "1:     movl    %1, %0\n"
     "       movl    %0, %2\n"
@@ -230,11 +230,11 @@ gb_inline i32 gb_atomic32_fetch_or(gbAtomic32 volatile *a, i32 operand) {
   return original;
 }
 
-gb_inline i64 gb_atomic64_load(gbAtomic64 const volatile *a) {
+gb_inline int64_t gb_atomic64_load(gbAtomic64 const volatile *a) {
 #if defined(GB_ARCH_64_BIT)
   return a->value;
 #else
-  i64 original;
+  int64_t original;
   __asm__ volatile(
     "movl %%ebx, %%eax\n"
     "movl %%ecx, %%edx\n"
@@ -246,23 +246,23 @@ gb_inline i64 gb_atomic64_load(gbAtomic64 const volatile *a) {
 #endif
 }
 
-gb_inline void gb_atomic64_store(gbAtomic64 volatile *a, i64 value) {
+gb_inline void gb_atomic64_store(gbAtomic64 volatile *a, int64_t value) {
 #if defined(GB_ARCH_64_BIT)
   a->value = value;
 #else
-  i64 expected = a->value;
+  int64_t expected = a->value;
   __asm__ volatile(
     "1:    cmpxchg8b %0\n"
     "      jne 1b"
     : "=m"(a->value)
-    : "b"((i32)value), "c"((i32)(value >> 32)), "A"(expected)
+    : "b"((int32_t)value), "c"((int32_t)(value >> 32)), "A"(expected)
   );
 #endif
 }
 
-gb_inline i64 gb_atomic64_compare_exchange(gbAtomic64 volatile *a, i64 expected, i64 desired) {
+gb_inline int64_t gb_atomic64_compare_exchange(gbAtomic64 volatile *a, int64_t expected, int64_t desired) {
 #if defined(GB_ARCH_64_BIT)
-  i64 original;
+  int64_t original;
   __asm__ volatile(
   "lock; cmpxchgq %2, %1"
   : "=a"(original), "+m"(a->value)
@@ -270,19 +270,19 @@ gb_inline i64 gb_atomic64_compare_exchange(gbAtomic64 volatile *a, i64 expected,
   );
   return original;
 #else
-  i64 original;
+  int64_t original;
   __asm__ volatile(
     "lock; cmpxchg8b %1"
     : "=A"(original), "+m"(a->value)
-    : "b"((i32)desired), "c"((i32)(desired >> 32)), "0"(expected)
+    : "b"((int32_t)desired), "c"((int32_t)(desired >> 32)), "0"(expected)
   );
   return original;
 #endif
 }
 
-gb_inline i64 gb_atomic64_exchanged(gbAtomic64 volatile *a, i64 desired) {
+gb_inline int64_t gb_atomic64_exchanged(gbAtomic64 volatile *a, int64_t desired) {
 #if defined(GB_ARCH_64_BIT)
-  i64 original;
+  int64_t original;
   __asm__ volatile(
   "xchgq %0, %1"
   : "=r"(original), "+m"(a->value)
@@ -290,9 +290,9 @@ gb_inline i64 gb_atomic64_exchanged(gbAtomic64 volatile *a, i64 desired) {
   );
   return original;
 #else
-  i64 original = a->value;
+  int64_t original = a->value;
   for (;;) {
-    i64 previous = gb_atomic64_compare_exchange(a, original, desired);
+    int64_t previous = gb_atomic64_compare_exchange(a, original, desired);
     if (original == previous)
       return original;
     original = previous;
@@ -300,9 +300,9 @@ gb_inline i64 gb_atomic64_exchanged(gbAtomic64 volatile *a, i64 desired) {
 #endif
 }
 
-gb_inline i64 gb_atomic64_fetch_add(gbAtomic64 volatile *a, i64 operand) {
+gb_inline int64_t gb_atomic64_fetch_add(gbAtomic64 volatile *a, int64_t operand) {
 #if defined(GB_ARCH_64_BIT)
-  i64 original;
+  int64_t original;
   __asm__ volatile(
   "lock; xaddq %0, %1"
   : "=r"(original), "+m"(a->value)
@@ -311,17 +311,17 @@ gb_inline i64 gb_atomic64_fetch_add(gbAtomic64 volatile *a, i64 operand) {
   return original;
 #else
   for (;;) {
-    i64 original = a->value;
+    int64_t original = a->value;
     if (gb_atomic64_compare_exchange(a, original, original + operand) == original)
       return original;
   }
 #endif
 }
 
-gb_inline i64 gb_atomic64_fetch_and(gbAtomic64 volatile *a, i64 operand) {
+gb_inline int64_t gb_atomic64_fetch_and(gbAtomic64 volatile *a, int64_t operand) {
 #if defined(GB_ARCH_64_BIT)
-  i64 original;
-  i64 tmp;
+  int64_t original;
+  int64_t tmp;
   __asm__ volatile(
   "1:     movq    %1, %0\n"
     "       movq    %0, %2\n"
@@ -334,17 +334,17 @@ gb_inline i64 gb_atomic64_fetch_and(gbAtomic64 volatile *a, i64 operand) {
   return original;
 #else
   for (;;) {
-    i64 original = a->value;
+    int64_t original = a->value;
     if (gb_atomic64_compare_exchange(a, original, original & operand) == original)
       return original;
   }
 #endif
 }
 
-gb_inline i64 gb_atomic64_fetch_or(gbAtomic64 volatile *a, i64 operand) {
+gb_inline int64_t gb_atomic64_fetch_or(gbAtomic64 volatile *a, int64_t operand) {
 #if defined(GB_ARCH_64_BIT)
-  i64 original;
-  i64 temp;
+  int64_t original;
+  int64_t temp;
   __asm__ volatile(
   "1:     movq    %1, %0\n"
     "       movq    %0, %2\n"
@@ -357,7 +357,7 @@ gb_inline i64 gb_atomic64_fetch_or(gbAtomic64 volatile *a, i64 operand) {
   return original;
 #else
   for (;;) {
-    i64 original = a->value;
+    int64_t original = a->value;
     if (gb_atomic64_compare_exchange(a, original, original | operand) == original)
       return original;
   }
@@ -368,9 +368,9 @@ gb_inline i64 gb_atomic64_fetch_or(gbAtomic64 volatile *a, i64 operand) {
 #error TODO(bill): Implement Atomics for this CPU
 #endif
 
-gb_inline b32 gb_atomic32_spin_lock(gbAtomic32 volatile *a, isize time_out) {
-  i32 old_value = gb_atomic32_compare_exchange(a, 1, 0);
-  i32 counter = 0;
+gb_inline byte32_t gb_atomic32_spin_lock(gbAtomic32 volatile *a, ssize_t time_out) {
+  int32_t old_value = gb_atomic32_compare_exchange(a, 1, 0);
+  int32_t counter = 0;
   while (old_value != 0 && (time_out < 0 || counter++ < time_out)) {
     gb_yield_thread();
     old_value = gb_atomic32_compare_exchange(a, 1, 0);
@@ -384,9 +384,9 @@ gb_inline void gb_atomic32_spin_unlock(gbAtomic32 volatile *a) {
   gb_mfence();
 }
 
-gb_inline b32 gb_atomic64_spin_lock(gbAtomic64 volatile *a, isize time_out) {
-  i64 old_value = gb_atomic64_compare_exchange(a, 1, 0);
-  i64 counter = 0;
+gb_inline byte32_t gb_atomic64_spin_lock(gbAtomic64 volatile *a, ssize_t time_out) {
+  int64_t old_value = gb_atomic64_compare_exchange(a, 1, 0);
+  int64_t counter = 0;
   while (old_value != 0 && (time_out < 0 || counter++ < time_out)) {
     gb_yield_thread();
     old_value = gb_atomic64_compare_exchange(a, 1, 0);
@@ -400,16 +400,16 @@ gb_inline void gb_atomic64_spin_unlock(gbAtomic64 volatile *a) {
   gb_mfence();
 }
 
-gb_inline b32 gb_atomic32_try_acquire_lock(gbAtomic32 volatile *a) {
-  i32 old_value;
+gb_inline byte32_t gb_atomic32_try_acquire_lock(gbAtomic32 volatile *a) {
+  int32_t old_value;
   gb_yield_thread();
   old_value = gb_atomic32_compare_exchange(a, 1, 0);
   gb_mfence();
   return old_value == 0;
 }
 
-gb_inline b32 gb_atomic64_try_acquire_lock(gbAtomic64 volatile *a) {
-  i64 old_value;
+gb_inline byte32_t gb_atomic64_try_acquire_lock(gbAtomic64 volatile *a) {
+  int64_t old_value;
   gb_yield_thread();
   old_value = gb_atomic64_compare_exchange(a, 1, 0);
   gb_mfence();
@@ -419,69 +419,69 @@ gb_inline b32 gb_atomic64_try_acquire_lock(gbAtomic64 volatile *a) {
 #if defined(GB_ARCH_32_BIT)
 
 gb_inline void *gb_atomic_ptr_load(gbAtomicPtr const volatile *a) {
-  return cast(void *)cast(intptr)gb_atomic32_load(cast(gbAtomic32 const volatile *)a);
+  return cast(void *)cast(intptr_t)gb_atomic32_load(cast(gbAtomic32 const volatile *)a);
 }
 gb_inline void gb_atomic_ptr_store(gbAtomicPtr volatile *a, void *value) {
-  gb_atomic32_store(cast(gbAtomic32 volatile *)a, cast(i32)cast(intptr)value);
+  gb_atomic32_store(cast(gbAtomic32 volatile *)a, cast(int32_t)cast(intptr_t)value);
 }
 gb_inline void *gb_atomic_ptr_compare_exchange(gbAtomicPtr volatile *a, void *expected, void *desired) {
-  return cast(void *)cast(intptr)gb_atomic32_compare_exchange(cast(gbAtomic32 volatile *)a, cast(i32)cast(intptr)expected, cast(i32)cast(intptr)desired);
+  return cast(void *)cast(intptr_t)gb_atomic32_compare_exchange(cast(gbAtomic32 volatile *)a, cast(int32_t)cast(intptr_t)expected, cast(int32_t)cast(intptr_t)desired);
 }
 gb_inline void *gb_atomic_ptr_exchanged(gbAtomicPtr volatile *a, void *desired) {
-  return cast(void *)cast(intptr)gb_atomic32_exchanged(cast(gbAtomic32 volatile *)a, cast(i32)cast(intptr)desired);
+  return cast(void *)cast(intptr_t)gb_atomic32_exchanged(cast(gbAtomic32 volatile *)a, cast(int32_t)cast(intptr_t)desired);
 }
 gb_inline void *gb_atomic_ptr_fetch_add(gbAtomicPtr volatile *a, void *operand) {
-  return cast(void *)cast(intptr)gb_atomic32_fetch_add(cast(gbAtomic32 volatile *)a, cast(i32)cast(intptr)operand);
+  return cast(void *)cast(intptr_t)gb_atomic32_fetch_add(cast(gbAtomic32 volatile *)a, cast(int32_t)cast(intptr_t)operand);
 }
 gb_inline void *gb_atomic_ptr_fetch_and(gbAtomicPtr volatile *a, void *operand) {
-  return cast(void *)cast(intptr)gb_atomic32_fetch_and(cast(gbAtomic32 volatile *)a, cast(i32)cast(intptr)operand);
+  return cast(void *)cast(intptr_t)gb_atomic32_fetch_and(cast(gbAtomic32 volatile *)a, cast(int32_t)cast(intptr_t)operand);
 }
 gb_inline void *gb_atomic_ptr_fetch_or(gbAtomicPtr volatile *a, void *operand) {
-  return cast(void *)cast(intptr)gb_atomic32_fetch_or(cast(gbAtomic32 volatile *)a, cast(i32)cast(intptr)operand);
+  return cast(void *)cast(intptr_t)gb_atomic32_fetch_or(cast(gbAtomic32 volatile *)a, cast(int32_t)cast(intptr_t)operand);
 }
-gb_inline b32 gb_atomic_ptr_spin_lock(gbAtomicPtr volatile *a, isize time_out) {
+gb_inline byte32_t gb_atomic_ptr_spin_lock(gbAtomicPtr volatile *a, ssize_t time_out) {
   return gb_atomic32_spin_lock(cast(gbAtomic32 volatile *)a, time_out);
 }
 gb_inline void gb_atomic_ptr_spin_unlock(gbAtomicPtr volatile *a) {
   gb_atomic32_spin_unlock(cast(gbAtomic32 volatile *)a);
 }
-gb_inline b32 gb_atomic_ptr_try_acquire_lock(gbAtomicPtr volatile *a) {
+gb_inline byte32_t gb_atomic_ptr_try_acquire_lock(gbAtomicPtr volatile *a) {
   return gb_atomic32_try_acquire_lock(cast(gbAtomic32 volatile *)a);
 }
 
 #elif defined(GB_ARCH_64_BIT)
 
 gb_inline void *gb_atomic_ptr_load(gbAtomicPtr const volatile *a) {
-  return cast(void *) cast(intptr) gb_atomic64_load(cast(gbAtomic64 const volatile *) a);
+  return cast(void *) cast(intptr_t) gb_atomic64_load(cast(gbAtomic64 const volatile *) a);
 }
 
 gb_inline void gb_atomic_ptr_store(gbAtomicPtr volatile *a, void *value) {
-  gb_atomic64_store(cast(gbAtomic64 volatile *) a, cast(i64) cast(intptr) value);
+  gb_atomic64_store(cast(gbAtomic64 volatile *) a, cast(int64_t) cast(intptr_t) value);
 }
 
 gb_inline void *gb_atomic_ptr_compare_exchange(gbAtomicPtr volatile *a, void *expected, void *desired) {
-  return cast(void *) cast(intptr) gb_atomic64_compare_exchange(cast(gbAtomic64 volatile *) a,
-                                                                cast(i64) cast(intptr) expected,
-                                                                cast(i64) cast(intptr) desired);
+  return cast(void *) cast(intptr_t) gb_atomic64_compare_exchange(cast(gbAtomic64 volatile *) a,
+                                                                cast(int64_t) cast(intptr_t) expected,
+                                                                cast(int64_t) cast(intptr_t) desired);
 }
 
 gb_inline void *gb_atomic_ptr_exchanged(gbAtomicPtr volatile *a, void *desired) {
-  return cast(void *) cast(intptr) gb_atomic64_exchanged(cast(gbAtomic64 volatile *) a, cast(i64) cast(intptr) desired);
+  return cast(void *) cast(intptr_t) gb_atomic64_exchanged(cast(gbAtomic64 volatile *) a, cast(int64_t) cast(intptr_t) desired);
 }
 
 gb_inline void *gb_atomic_ptr_fetch_add(gbAtomicPtr volatile *a, void *operand) {
-  return cast(void *) cast(intptr) gb_atomic64_fetch_add(cast(gbAtomic64 volatile *) a, cast(i64) cast(intptr) operand);
+  return cast(void *) cast(intptr_t) gb_atomic64_fetch_add(cast(gbAtomic64 volatile *) a, cast(int64_t) cast(intptr_t) operand);
 }
 
 gb_inline void *gb_atomic_ptr_fetch_and(gbAtomicPtr volatile *a, void *operand) {
-  return cast(void *) cast(intptr) gb_atomic64_fetch_and(cast(gbAtomic64 volatile *) a, cast(i64) cast(intptr) operand);
+  return cast(void *) cast(intptr_t) gb_atomic64_fetch_and(cast(gbAtomic64 volatile *) a, cast(int64_t) cast(intptr_t) operand);
 }
 
 gb_inline void *gb_atomic_ptr_fetch_or(gbAtomicPtr volatile *a, void *operand) {
-  return cast(void *) cast(intptr) gb_atomic64_fetch_or(cast(gbAtomic64 volatile *) a, cast(i64) cast(intptr) operand);
+  return cast(void *) cast(intptr_t) gb_atomic64_fetch_or(cast(gbAtomic64 volatile *) a, cast(int64_t) cast(intptr_t) operand);
 }
 
-gb_inline b32 gb_atomic_ptr_spin_lock(gbAtomicPtr volatile *a, isize time_out) {
+gb_inline byte32_t gb_atomic_ptr_spin_lock(gbAtomicPtr volatile *a, ssize_t time_out) {
   return gb_atomic64_spin_lock(cast(gbAtomic64 volatile *) a, time_out);
 }
 
@@ -489,7 +489,7 @@ gb_inline void gb_atomic_ptr_spin_unlock(gbAtomicPtr volatile *a) {
   gb_atomic64_spin_unlock(cast(gbAtomic64 volatile *) a);
 }
 
-gb_inline b32 gb_atomic_ptr_try_acquire_lock(gbAtomicPtr volatile *a) {
+gb_inline byte32_t gb_atomic_ptr_try_acquire_lock(gbAtomicPtr volatile *a) {
   return gb_atomic64_try_acquire_lock(cast(gbAtomic64 volatile *) a);
 }
 
