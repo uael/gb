@@ -159,12 +159,12 @@ GB_DEF byte32_t gb_file_has_changed(gbFile *file); // NOTE(bill): Changed since 
 //
 
 typedef struct gbFileContents {
-  gbAllocator allocator;
+  gb_allocator_t allocator;
   void *data;
   ssize_t size;
 } gbFileContents;
 
-GB_DEF gbFileContents gb_file_read_contents(gbAllocator a, byte32_t zero_terminate, char const *filepath);
+GB_DEF gbFileContents gb_file_read_contents(gb_allocator_t a, byte32_t zero_terminate, char const *filepath);
 
 GB_DEF void gb_file_free_contents(gbFileContents *fc);
 
@@ -196,6 +196,6 @@ GB_DEF char const *gb_path_base_name(char const *path);
 
 GB_DEF char const *gb_path_extension(char const *path);
 
-GB_DEF char *gb_path_get_full_name(gbAllocator a, char const *path);
+GB_DEF char *gb_path_get_full_name(gb_allocator_t a, char const *path);
 
 #endif /* GB_FS_H__ */

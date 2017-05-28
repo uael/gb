@@ -498,7 +498,7 @@ gb_inline byte32_t gb_file_move(char const *existing_filename, char const *new_f
 
 #endif
 
-gbFileContents gb_file_read_contents(gbAllocator a, byte32_t zero_terminate, char const *filepath) {
+gbFileContents gb_file_read_contents(gb_allocator_t a, byte32_t zero_terminate, char const *filepath) {
   gbFileContents result = {0};
   gbFile file = {0};
 
@@ -572,7 +572,7 @@ gb_inline char const *gb_path_extension(char const *path) {
 GB_DLL_IMPORT DWORD WINAPI GetFullPathNameA(char const *lpFileName, DWORD nBufferLength, char *lpBuffer, char **lpFilePart);
 #endif
 
-char *gb_path_get_full_name(gbAllocator a, char const *path) {
+char *gb_path_get_full_name(gb_allocator_t a, char const *path) {
 #if defined(GB_SYSTEM_WINDOWS)
   // TODO(bill): Make UTF-8
   char buf[300];

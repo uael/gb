@@ -454,12 +454,12 @@ gb_inline void gb__set_string_length(gbString str, ssize_t len) { GB_STRING_HEAD
 
 gb_inline void gb__set_string_capacity(gbString str, ssize_t cap) { GB_STRING_HEADER(str)->capacity = cap; }
 
-gb_inline gbString gb_string_make(gbAllocator a, char const *str) {
+gb_inline gbString gb_string_make(gb_allocator_t a, char const *str) {
   ssize_t len = str ? gb_strlen(str) : 0;
   return gb_string_make_length(a, str, len);
 }
 
-gbString gb_string_make_length(gbAllocator a, void const *init_str, ssize_t num_bytes) {
+gbString gb_string_make_length(gb_allocator_t a, void const *init_str, ssize_t num_bytes) {
   ssize_t header_size = gb_size_of(gbStringHeader);
   void *ptr = gb_alloc(a, header_size + num_bytes + 1);
 
@@ -489,7 +489,7 @@ gb_inline void gb_string_free(gbString str) {
 
 }
 
-gb_inline gbString gb_string_duplicate(gbAllocator a, gbString const str) {
+gb_inline gbString gb_string_duplicate(gb_allocator_t a, gbString const str) {
   return gb_string_make_length(a, str, gb_string_length(str));
 }
 
@@ -556,7 +556,7 @@ gbString gb_string_make_space_for(gbString str, ssize_t add_len) {
   } else {
     ssize_t new_len, old_size, new_size;
     void *ptr, *new_ptr;
-    gbAllocator a = GB_STRING_HEADER(str)->allocator;
+    gb_allocator_t a = GB_STRING_HEADER(str)->allocator;
     gbStringHeader *header;
 
     new_len = gb_string_length(str) + add_len;

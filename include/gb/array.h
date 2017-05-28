@@ -59,7 +59,7 @@
 void foo(void) {
   ssize_t i;
   int test_values[] = {4, 2, 1, 7};
-  gbAllocator a = gb_heap_allocator();
+  gb_allocator_t a = gb_heap_allocator();
   gbArray(int) items;
 
   gb_array_init(items, a);
@@ -94,7 +94,7 @@ void foo(void) {
 #endif
 
 typedef struct gbArrayHeader {
-  gbAllocator allocator;
+  gb_allocator_t allocator;
   ssize_t count;
   ssize_t capacity;
 } gbArrayHeader;

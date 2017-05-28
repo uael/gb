@@ -163,7 +163,7 @@ gb_internal void gb__platform_resize_dib_section(gbPlatform *p, int32_t width, i
 
     {
       ssize_t memory_size = p->sw_framebuffer.pitch * height;
-      gbVirtualMemory vm = gb_vm_alloc(0, memory_size);
+      gb_virtual_memory_t vm = gb_vm_alloc(0, memory_size);
       p->sw_framebuffer.memory      = vm.data;
       p->sw_framebuffer.memory_size = vm.size;
     }
@@ -1055,7 +1055,7 @@ void gb_platform_set_clipboard_text(gbPlatform *p, char const *str) {
 }
 
 // TODO(bill): Handle UTF-8
-char *gb_platform_get_clipboard_text(gbPlatform *p, gbAllocator a) {
+char *gb_platform_get_clipboard_text(gbPlatform *p, gb_allocator_t a) {
   char *text = NULL;
 
   if (IsClipboardFormatAvailable(1/*CF_TEXT*/) &&
@@ -1703,7 +1703,7 @@ void gb_platform_set_clipboard_text(gbPlatform *p, char const *str) {
   // TODO(bill):
 }
 
-char *gb_platform_get_clipboard_text(gbPlatform *p, gbAllocator a) {
+char *gb_platform_get_clipboard_text(gbPlatform *p, gb_allocator_t a) {
   // TODO(bill):
   return NULL;
 }

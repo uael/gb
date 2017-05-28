@@ -396,7 +396,7 @@ GB_DEF void  gb_platform_set_mouse_position         (gbPlatform *p, int32_t x, i
 GB_DEF void  gb_platform_set_controller_vibration   (gbPlatform *p, ssize_t index, float32_t left_motor, float32_t right_motor);
 GB_DEF byte32_t   gb_platform_has_clipboard_text         (gbPlatform *p);
 GB_DEF void  gb_platform_set_clipboard_text         (gbPlatform *p, char const *str);
-GB_DEF char *gb_platform_get_clipboard_text         (gbPlatform *p, gbAllocator a);
+GB_DEF char *gb_platform_get_clipboard_text         (gbPlatform *p, gb_allocator_t a);
 GB_DEF void  gb_platform_set_window_position        (gbPlatform *p, int32_t x, int32_t y);
 GB_DEF void  gb_platform_set_window_title           (gbPlatform *p, char const *title, ...) GB_PRINTF_ARGS(2);
 GB_DEF void  gb_platform_toggle_fullscreen          (gbPlatform *p, byte32_t fullscreen_desktop);

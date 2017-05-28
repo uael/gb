@@ -69,7 +69,7 @@ typedef struct NAME { \
   gbArray(GB_JOIN2(NAME,Entry)) entries; \
 } NAME; \
 \
-PREFIX void                  GB_JOIN2(FUNC,init)       (NAME *h, gbAllocator a); \
+PREFIX void                  GB_JOIN2(FUNC,init)       (NAME *h, gb_allocator_t a); \
 PREFIX void                  GB_JOIN2(FUNC,destroy)    (NAME *h); \
 PREFIX VALUE *               GB_JOIN2(FUNC,get)        (NAME *h, uint64_t key); \
 PREFIX void                  GB_JOIN2(FUNC,set)        (NAME *h, uint64_t key, VALUE value); \
@@ -78,7 +78,7 @@ PREFIX void                  GB_JOIN2(FUNC,rehash)     (NAME *h, ssize_t new_cou
 
 
 #define GB_TABLE_DEFINE(NAME, FUNC, VALUE) \
-void GB_JOIN2(FUNC,init)(NAME *h, gbAllocator a) { \
+void GB_JOIN2(FUNC,init)(NAME *h, gb_allocator_t a) { \
   gb_array_init(h->hashes,  a); \
   gb_array_init(h->entries, a); \
 } \

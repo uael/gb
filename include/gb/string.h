@@ -178,20 +178,20 @@ typedef char *gbString;
 
 // NOTE(bill): If you only need a small string, just use a standard c string or change the size from ssize_t to uint16_t, etc.
 typedef struct gbStringHeader {
-  gbAllocator allocator;
+  gb_allocator_t allocator;
   ssize_t length;
   ssize_t capacity;
 } gbStringHeader;
 
 #define GB_STRING_HEADER(str) (cast(gbStringHeader *)(str) - 1)
 
-GB_DEF gbString gb_string_make(gbAllocator a, char const *str);
+GB_DEF gbString gb_string_make(gb_allocator_t a, char const *str);
 
-GB_DEF gbString gb_string_make_length(gbAllocator a, void const *str, ssize_t num_bytes);
+GB_DEF gbString gb_string_make_length(gb_allocator_t a, void const *str, ssize_t num_bytes);
 
 GB_DEF void gb_string_free(gbString str);
 
-GB_DEF gbString gb_string_duplicate(gbAllocator a, gbString const str);
+GB_DEF gbString gb_string_duplicate(gb_allocator_t a, gbString const str);
 
 GB_DEF ssize_t gb_string_length(gbString const str);
 
