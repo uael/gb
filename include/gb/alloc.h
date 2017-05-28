@@ -31,10 +31,10 @@
 #include "gb/affinity.h"
 
 #define GB_ALLOCATOR_PROC(name) \
-void *name(void *allocator_data, enum gb_allocation_type type, \
-  ssize_t size, ssize_t alignment, \
-  void *old_memory, ssize_t old_size, \
-  uint64_t flags)
+  void *name(void *allocator_data, enum gb_allocation_type type, \
+    ssize_t size, ssize_t alignment, \
+    void *old_memory, ssize_t old_size, \
+    uint64_t flags)
 
 // TODO(bill): Is this a decent default alignment?
 #ifndef GB_DEFAULT_MEMORY_ALIGNMENT
