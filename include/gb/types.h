@@ -62,6 +62,10 @@ GB_STATIC_ASSERT(sizeof(uint16_t) == 2);
 GB_STATIC_ASSERT(sizeof(uint32_t) == 4);
 GB_STATIC_ASSERT(sizeof(uint64_t) == 8);
 
+#if defined(GB_COMPILER_MSVC)
+typedef ptrdiff_t ssize_t;
+#endif
+
 GB_STATIC_ASSERT(sizeof(size_t) == sizeof(ssize_t));
 
 // NOTE(bill): (u)intptr_t is only here for semantic reasons really as this library will only support 32/64 bit OSes.
