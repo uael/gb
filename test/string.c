@@ -28,7 +28,34 @@
 #include <cute.h>
 
 #include "gb/string.h"
+#include "gb/io.h"
 
 int main(void) {
+  char *str = gb_string_make(gb_heap_allocator(), "Hello");
+  char *other_str = gb_string_make_length(gb_heap_allocator(), ", ", 2);
+  str = gb_string_append(str, other_str);
+  str = gb_string_appendc(str, "world!");
+
+  gb_printf("%s\n", str); // Hello, world!
+
+  gb_printf("str length = %zu\n", gb_string_length(str));
+
+  str = gb_string_set(str, "Potato soup");
+  gb_printf("%s\n", str); // Potato soup
+
+  str = gb_string_set(str, "Hello");
+  other_str = gb_string_set(other_str, "Pizza");
+  if (gb_strings_are_equal(str, other_str))
+    gb_printf("Not called\n");
+  else
+    gb_printf("Called\n");
+
+  str = gb_string_set(str, "Ab.;!...AHello World       ??");
+  str = gb_string_trim(str, "Ab.;!. ?");
+  gb_printf("%s\n", str); // "Hello World"
+
+  gb_string_free(str);
+  gb_string_free(other_str);
+
   return EXIT_SUCCESS;
 }

@@ -28,7 +28,41 @@
 #include <cute.h>
 
 #include "gb/array.h"
+#include "gb/io.h"
 
 int main(void) {
+  ssize_t i;
+  int test_values[] = {4, 2, 1, 7};
+  gb_allocator_t a = gb_heap_allocator();
+  int *items = {0};
+
+  gb_array_init(items, a);
+
+  gb_array_append(items, 1);
+  gb_array_append(items, 4);
+  gb_array_append(items, 9);
+  gb_array_append(items, 16);
+
+  items[1] = 3; // Manually set value
+  // NOTE: No array bounds checking
+
+  for (i = 0; i < gb_array_count(items); i++)
+    gb_printf("%d\n", items[i]);
+  // 1
+  // 3
+  // 9
+  // 16
+
+  gb_array_clear(items);
+
+  gb_array_appendv(items, test_values, gb_count_of(test_values));
+  for (i = 0; i < gb_array_count(items); i++)
+    gb_printf("%d\n", items[i]);
+  // 4
+  // 2
+  // 1
+  // 7
+
+  gb_array_free(items);
   return EXIT_SUCCESS;
 }

@@ -621,3 +621,18 @@ gbString gb_string_trim(gbString str, char const *cut_set) {
 }
 
 gb_inline gbString gb_string_trim_space(gbString str) { return gb_string_trim(str, " \t\r\n\v\f"); }
+
+gb_inline bool gb_strings_are_equal(gbString const lhs, gbString const rhs) {
+  ssize_t lhs_len, rhs_len, i;
+  lhs_len = gb_string_length(lhs);
+  rhs_len = gb_string_length(rhs);
+  if (lhs_len != rhs_len)
+    return false;
+
+  for (i = 0; i < lhs_len; i++) {
+    if (lhs[i] != rhs[i])
+      return false;
+  }
+
+  return true;
+}

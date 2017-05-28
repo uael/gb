@@ -219,4 +219,6 @@ GB_DEF gbString gb_string_trim(gbString str, char const *cut_set);
 
 GB_DEF gbString gb_string_trim_space(gbString str); // Whitespace ` \t\r\n\v\f`
 
+GB_DEF bool gb_strings_are_equal(gbString const lhs, gbString const rhs);
+
 #endif /* GB_STRING_H__ */
