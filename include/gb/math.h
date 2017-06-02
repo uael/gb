@@ -25,36 +25,32 @@
  * For more information, please refer to <http://unlicense.org>
  */
 
-#ifndef  GB_H__
-# define GB_H__
+#ifndef  GB_MATH_H__
+# define GB_MATH_H__
 
-#include "gb/arch.h"
-#include "gb/compiler.h"
-#include "gb/types.h"
-#include "gb/platform.h"
-#include "gb/macros.h"
-#include "gb/assert.h"
-#include "gb/memory.h"
-#include "gb/atomic.h"
-#include "gb/sem.h"
-#include "gb/mutex.h"
-#include "gb/thread.h"
-#include "gb/affinity.h"
-#include "gb/alloc.h"
-#include "gb/sort.h"
 #include "gb/ctype.h"
-#include "gb/math.h"
-#include "gb/utf8.h"
-#include "gb/string.h"
-#include "gb/buffer.h"
-#include "gb/array.h"
-#include "gb/vector.h"
-#include "gb/hash.h"
-#include "gb/htable.h"
-#include "gb/fs.h"
-#include "gb/io.h"
-#include "gb/dll.h"
-#include "gb/time.h"
-#include "gb/random.h"
 
-#endif /* GB_H__ */
+#define GB_ISPOW2(n) (((n) & -(n)) == (n))
+
+gb_inline inline bool gb_ispow2(const long n) {
+  return n > 0 && GB_ISPOW2(n);
+}
+
+#define GB_ROUNDUP32(x) (--(x), (x)|=(x)>>1, (x)|=(x)>>2, (x)|=(x)>>4, (x)|=(x)>>8, (x)|=(x)>>16, ++(x))
+
+gb_inline inline size_t gb_roundup32(const ssize_t n) {
+  ssize_t j, m;
+
+  return n <= 0 ? 2 : (size_t) (
+    GB_ISPOW2(n) ? n : (
+      ((j = n & 0xFFFF0000) || (j = n)),
+      ((m = j & 0xFF00FF00) || (m = j)),
+      ((j = m & 0xF0F0F0F0) || (j = m)),
+      ((m = j & 0xCCCCCCCC) || (m = j)),
+      ((j = m & 0xAAAAAAAA) || (j = m)),
+      j << 1
+    )
+  );
+}
+
+#endif /* GB_MATH_H__ */

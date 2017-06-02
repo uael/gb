@@ -145,7 +145,7 @@ gb_internal GB_FILE_SEEK_PROC(gb__posix_file_seek) {
 #if defined(GB_SYSTEM_OSX)
   int64_t res = lseek(fd.i, offset, whence);
 #else
-  int64_t res = lseek64(fd.i, offset, whence);
+  int64_t res = lseek(fd.i, offset, whence);
 #endif
   if (res < 0) return false;
   if (new_offset) *new_offset = res;

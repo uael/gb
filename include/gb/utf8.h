@@ -28,7 +28,7 @@
 #ifndef  GB_UTF8_H__
 # define GB_UTF8_H__
 
-#include "gb/ctype.h"
+#include "gb/math.h"
 
 // NOTE(bill): Does not check if utf-8 string is valid
 GB_DEF ssize_t gb_utf8_strlen(uint8_t const *str);

@@ -224,6 +224,8 @@ typedef uint8_t bool;
 #if !defined(__cplusplus)
 # if defined(_MSC_VER) && _MSC_VER <= 1800
 #   define inline __inline
+# elif defined(GB_COMPILER_GCC) || defined(GB_COMPILER_CLANG)
+#   define inline inline
 # elif !defined(__STDC_VERSION__)
 #   define inline __inline__
 # else

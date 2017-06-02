@@ -28,6 +28,8 @@
 #ifndef  GB_STRING_H__
 # define GB_STRING_H__
 
+#include <string.h>
+
 #include "gb/utf8.h"
 
 // NOTE(bill): ASCII only

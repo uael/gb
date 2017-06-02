@@ -30,5 +30,14 @@
 
 #include "gb/array.h"
 
+typedef struct gb_vector gb_vector_t;
+
+struct gb_vector {
+  size_t size, capacity;
+  void *data;
+};
+
+GB_DEF size_t gb_vector_pgrowth(gb_vector_t *self, const ssize_t nmin, const size_t isize);
+GB_DEF size_t gb_vector_pdecay(gb_vector_t *self, const ssize_t nmax, const size_t isize);
 
 #endif /* GB_VECTOR_H */
