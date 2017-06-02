@@ -28,7 +28,7 @@
 #ifndef  GB_HASH_H__
 # define GB_HASH_H__
 
-#include "gb/array.h"
+#include "gb/vector.h"
 
 GB_EXTERN uint32_t gb_adler32(void const *data, ssize_t len);
 
