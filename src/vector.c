@@ -42,7 +42,7 @@ size_t gb_vector_pgrowth(gb_vector_t *self, const ssize_t nmin, const size_t isi
         } else {
           do self->capacity *= 2; while (self->capacity < unmin);
         }
-        self->data = realloc(self->data, isize * self->capacity);
+        self->ptr = realloc(self->ptr, isize * self->capacity);
       }
     } else {
       if (unmin == GB_VECTOR_MIN_CAP || (unmin > GB_VECTOR_MIN_CAP && GB_ISPOW2(unmin))) {
@@ -51,7 +51,7 @@ size_t gb_vector_pgrowth(gb_vector_t *self, const ssize_t nmin, const size_t isi
         self->capacity = GB_VECTOR_MIN_CAP;
         while (self->capacity < unmin) self->capacity *= 2;
       }
-      self->data = malloc(isize * self->capacity);
+      self->ptr = malloc(isize * self->capacity);
     }
     return unmin;
   }
@@ -67,10 +67,10 @@ size_t gb_vector_pdecay(gb_vector_t *self, const ssize_t nmax, const size_t isiz
     nearest_pow2 = gb_roundup32((size_t) unmax);
     if (self->capacity > nearest_pow2) {
       self->capacity = nearest_pow2;
-      self->data = realloc(self->data, isize * self->capacity);
+      self->ptr = realloc(self->ptr, isize * self->capacity);
     }
     if (self->size > unmax) {
-      memset((char *) self->data + unmax * isize, 0, (self->size - unmax) * isize);
+      memset((char *) self->ptr + unmax * isize, 0, (self->size - unmax) * isize);
     }
     return unmax;
   }

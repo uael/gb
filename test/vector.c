@@ -25,49 +25,29 @@
  * For more information, please refer to <http://unlicense.org>
  */
 
-#ifndef  GB_VECTOR_H
-# define GB_VECTOR_H
+#include <cute.h>
 
-#include "gb/array.h"
+#include "gb/vector.h"
+#include "gb/io.h"
 
-#define gb_vector_of(T) struct { \
-    size_t size, capacity; \
-    union { \
-      void *ptr; \
-      T *items; \
-    }; \
-    T *it; \
+int main(void) {
+  int value;
+
+  gb_vector_of(int) uints = {0};
+
+  for (int i = 0; i < 10; ++i) {
+    gb_vector_push(uints, i * 2);
   }
 
-typedef struct gb_vector gb_vector_t;
+  foreach (vector_it(uints), value) {
+    printf("%d\n", value);
+  }
 
-struct gb_vector {
-  size_t size, capacity;
-  void *ptr;
-};
+  puts("");
 
-GB_DEF size_t gb_vector_pgrowth(gb_vector_t *self, const ssize_t nmin, const size_t isize);
-GB_DEF size_t gb_vector_pdecay(gb_vector_t *self, const ssize_t nmax, const size_t isize);
+  rforeach (vector_it(uints), value) {
+    printf("%d\n", value);
+  }
 
-#define gb_vector_push(v, x) \
-  (gb_vector_pgrowth((gb_vector_t *) &(v), (v).size+1, sizeof(*(v).items)), *((v).items + (v).size++) = (x))
-
-#define foreach(iterator, value) foreach_(value, iterator)
-#define foreach_(value, it, begin, end) \
-  for ( \
-    (value) = *((it) = (begin)); \
-    (it) < (end); \
-    (value) = *(++(it)) \
-  )
-
-#define rforeach(it, v) rforeach_(v, it)
-#define rforeach_(value, it, begin, end) \
-  for ( \
-    (value) = *((it) = (end) - 1); \
-    (it) >= (begin); \
-    (value) = *(--(it)) \
-  )
-
-#define vector_it(v) (v).it, (v).items, (v).items+(v).size
-
-#endif /* GB_VECTOR_H */
+  return EXIT_SUCCESS;
+}
