@@ -92,11 +92,10 @@ GB_DEF size_t gb_vector_pdecay(gb_vector_t *self, const ssize_t nmax, const size
 #endif
 
 #define EVAL(...)  EVAL1(EVAL1(EVAL1(__VA_ARGS__)))
-#define EVAL1(...) EVAL2(EVAL2(EVAL2(__VA_ARGS__)))
-#define EVAL2(...) __VA_ARGS__
+#define EVAL1(...) __VA_ARGS__
 
 #define in(T_ds, ds) T_ds##_it(ds), T_ds##_begin(ds), T_ds##_end(ds)
-#define foreach(val, in) EVAL(foreach_ ME_PASS_VA(val, in))
-#define rforeach(val, in) EVAL(rforeach_ ME_PASS_VA(val, in))
+#define foreach(val, in) EVAL(foreach_ ME_PASS_VA(val, EVAL(in)))
+#define rforeach(val, in) EVAL(rforeach_ ME_PASS_VA(val, EVAL(in)))
 
 #endif /* GB_VECTOR_H */
