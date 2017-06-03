@@ -28,10 +28,9 @@
 #include <cute.h>
 
 #include "gb/vector.h"
-#include "gb/io.h"
 
 int main(void) {
-  int value;
+  int v;
 
   gb_vector_of(int) uints = {0};
 
@@ -39,14 +38,14 @@ int main(void) {
     gb_vector_push(uints, i * 2);
   }
 
-  foreach (vector_it(uints), value) {
-    printf("%d\n", value);
+  foreach (v, in(vector, uints)) {
+    printf("%d\n", v);
   }
 
   puts("");
 
-  rforeach (vector_it(uints), value) {
-    printf("%d\n", value);
+  rforeach (v, in(vector, uints)) {
+    printf("%d\n", v);
   }
 
   return EXIT_SUCCESS;
