@@ -32,19 +32,19 @@
 int main(void) {
   int v;
 
-  gb_vector_of(int) uints = {0};
+  vector_of(int) uints = {0};
 
   for (int i = 0; i < 10; ++i) {
-    gb_vector_push(uints, i * 2);
+    vector_push(uints, i * 2);
   }
 
-  foreach (v, in(vector, uints)) {
+  foreach (v, in(DS_VECTOR, uints)) {
     printf("%d\n", v);
   }
 
   puts("");
 
-  rforeach (v, in(vector, uints)) {
+  rforeach (v, in(DS_VECTOR, uints)) {
     printf("%d\n", v);
   }
 

@@ -30,7 +30,7 @@
 
 #include "gb/array.h"
 
-#define gb_vector_of(T) struct { \
+#define vector_of(T) struct { \
     size_t size, capacity; \
     union { \
       void *ptr; \
@@ -49,7 +49,7 @@ struct gb_vector {
 GB_DEF size_t gb_vector_pgrowth(gb_vector_t *self, const ssize_t nmin, const size_t isize);
 GB_DEF size_t gb_vector_pdecay(gb_vector_t *self, const ssize_t nmax, const size_t isize);
 
-#define gb_vector_push(v, x) \
+#define vector_push(v, x) \
   (gb_vector_pgrowth((gb_vector_t *) &(v), (v).size+1, sizeof(*(v).items)), *((v).items + (v).size++) = (x))
 
 #define vector_it(v) (v).it
@@ -70,32 +70,43 @@ GB_DEF size_t gb_vector_pdecay(gb_vector_t *self, const ssize_t nmax, const size
     (value) = *(--(it)) \
   )
 
-// ME_VA_NUM_ARGS() is a very nifty macro to retrieve the number of arguments handed to a variable-argument macro
+// PP_VA_NUM_ARGS() is a very nifty macro to retrieve the number of arguments handed to a variable-argument macro
 // unfortunately, VS 2010 still has this compiler bug which treats a __VA_ARGS__ argument as being one single parameter:
 // https://connect.microsoft.com/VisualStudio/feedback/details/521844/variadic-macro-treating-va-args-as-a-single-parameter-for-other-macros#details
 #if _MSC_VER <= 1400
-#    define ME_VA_NUM_ARGS_HELPER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...)    N
-#    define ME_VA_NUM_ARGS_REVERSE_SEQUENCE            10, 9, 8, 7, 6, 5, 4, 3, 2, 1
-#    define ME_LEFT_PARENTHESIS (
-#    define ME_RIGHT_PARENTHESIS )
-#    define ME_VA_NUM_ARGS(...)                        ME_VA_NUM_ARGS_HELPER ME_LEFT_PARENTHESIS __VA_ARGS__, ME_VA_NUM_ARGS_REVERSE_SEQUENCE ME_RIGHT_PARENTHESIS
+#    define PP_VA_NUM_ARGS_HELPER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...)    N
+#    define PP_VA_NUM_ARGS_REVERSE_SEQUENCE            10, 9, 8, 7, 6, 5, 4, 3, 2, 1
+#    define PP_LEFT_PARENTHESIS (
+#    define PP_RIGHT_PARENTHESIS )
+#    define PP_VA_NUM_ARGS(...)                        PP_VA_NUM_ARGS_HELPER PP_LEFT_PARENTHESIS __VA_ARGS__, PP_VA_NUM_ARGS_REVERSE_SEQUENCE PP_RIGHT_PARENTHESIS
 #else
-#    define ME_VA_NUM_ARGS(...)                        ME_VA_NUM_ARGS_HELPER(__VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
-#    define ME_VA_NUM_ARGS_HELPER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...)    N
+#    define PP_VA_NUM_ARGS(...)                        PP_VA_NUM_ARGS_HELPER(__VA_ARGS__, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1)
+#    define PP_VA_NUM_ARGS_HELPER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...)    N
 #endif
 
-// ME_PASS_VA passes __VA_ARGS__ as multiple parameters to another macro, working around the above-mentioned bug
+// PP_PASS_VA passes __VA_ARGS__ as multiple parameters to another macro, working around the above-mentioned bug
 #if _MSC_VER <= 1400
-#    define ME_PASS_VA(...)                            ME_LEFT_PARENTHESIS __VA_ARGS__ ME_RIGHT_PARENTHESIS
+#    define PP_PASS_VA(...)                            PP_LEFT_PARENTHESIS __VA_ARGS__ PP_RIGHT_PARENTHESIS
 #else
-#    define ME_PASS_VA(...)                            (__VA_ARGS__)
+#    define PP_PASS_VA(...)                            (__VA_ARGS__)
 #endif
 
-#define EVAL(...)  EVAL1(EVAL1(EVAL1(__VA_ARGS__)))
-#define EVAL1(...) __VA_ARGS__
+#define PP_JOIN(x, y)                    PP_JOIN_HELPER(x, y)
+#define PP_JOIN_HELPER(x, y)             PP_JOIN_HELPER_HELPER(x, y)
+#define PP_JOIN_HELPER_HELPER(x, y)      x##y
 
-#define in(T_ds, ds) T_ds##_it(ds), T_ds##_begin(ds), T_ds##_end(ds)
-#define foreach(val, in) EVAL(foreach_ ME_PASS_VA(val, EVAL(in)))
-#define rforeach(val, in) EVAL(rforeach_ ME_PASS_VA(val, EVAL(in)))
+#define PP_EVAL(...)  PP_EVAL__(PP_EVAL__(PP_EVAL__(__VA_ARGS__)))
+#define PP_EVAL__(...) __VA_ARGS__
+
+#define DS_VECTOR vector
+
+#define in(T_ds, ds) \
+  PP_EVAL(PP_JOIN(PP_EVAL(T_ds), _it)(PP_EVAL(ds))), \
+  PP_EVAL(PP_JOIN(PP_EVAL(T_ds), _begin)(PP_EVAL(ds))), \
+  PP_EVAL(PP_JOIN(PP_EVAL(T_ds), _end)(PP_EVAL(ds)))
+#define foreach(val, in) \
+  PP_EVAL(foreach_ PP_PASS_VA(PP_EVAL(val), PP_EVAL(in)))
+#define rforeach(val, in) \
+  PP_EVAL(rforeach_ PP_PASS_VA(PP_EVAL(val), PP_EVAL(in)))
 
 #endif /* GB_VECTOR_H */
