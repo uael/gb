@@ -25,15 +25,23 @@
  * For more information, please refer to <http://unlicense.org>
  */
 
-#ifndef  GB_MATH_H__
-# define GB_MATH_H__
+#include "gb/math.h"
 
-#include "gb/ctype.h"
+gb_inline bool gb_ispow2(const long n) {
+  return n > 0 && GB_ISPOW2(n);
+}
 
-#define GB_ISPOW2(n) (((n) & -(n)) == (n))
-#define GB_ROUNDUP32(x) (--(x), (x)|=(x)>>1, (x)|=(x)>>2, (x)|=(x)>>4, (x)|=(x)>>8, (x)|=(x)>>16, ++(x))
+gb_inline size_t gb_roundup32(const ssize_t n) {
+  ssize_t j, m;
 
-GB_DEF bool gb_ispow2(const long n);
-GB_DEF size_t gb_roundup32(const ssize_t n);
-
-#endif /* GB_MATH_H__ */
+  return n <= 0 ? 2 : (size_t) (
+      GB_ISPOW2(n) ? n : (
+          ((j = n & 0xFFFF0000) || (j = n)),
+              ((m = j & 0xFF00FF00) || (m = j)),
+              ((j = m & 0xF0F0F0F0) || (j = m)),
+              ((m = j & 0xCCCCCCCC) || (m = j)),
+              ((j = m & 0xAAAAAAAA) || (j = m)),
+              j << 1
+      )
+  );
+}
